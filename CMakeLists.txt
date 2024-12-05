@@ -15,9 +15,11 @@ FetchContent_MakeAvailable(SFML)
 
 set(SOURCES
     main.cpp
+    point.cpp
 )
 
 set(HEADERS
+  point.hpp
 )
 
 add_executable(BezierAnimation ${SOURCES} ${HEADERS})

@@ -4,6 +4,8 @@
 #include <cmath>
 #include <iostream>
 
+#include "point.hpp"
+
 using Vec2f = sf::Vector2f;
 using std::unique_ptr, std::vector;
 
@@ -13,68 +15,6 @@ std::vector<Point> graham_scan(std::vector<Point> points);
 float bernstein_poly(int n, int k, float x);
 Point bezier_point(float t, vector<Point> const &chull);
 
-class Point {
-protected:
-  sf::CircleShape representation;
-  Vec2f position;
-  float radius;
-
-public:
-  float x;
-  float y;
-
-  Point(Vec2f _position)
-    : position { _position }, x { _position.x }, y { _position.y }
-  {
-    radius = 10.0f;
-    representation = sf::CircleShape(radius);
-    representation.setOrigin({10.0f, 10.0f});
-    representation.setPosition(position);
-    //representation.setFillColor(sf::Color::Blue);
-    representation.setOutlineColor(sf::Color::Red);
-    representation.setOutlineThickness(1.0f);
-  }
-
-  Point operator*(float const t) {
-    return Point( { x * t, y * t} );
-  }
-
-  Point operator+(Point const& p) {
-    return Point( {x + p.x, y + p.y} );
-  }
-
-  // linear interpolation
-  static Point lerp(const Point& p1, const Point& p2, float t) {
-    return Point({
-      p1.x + t * (p2.x - p1.x),
-      p1.y + t * (p2.y - p1.y)
-    });
-  }
-
-
-
-  float dist_from_point(Vec2f pos) {
-    return std::sqrt(std::pow(x - pos.x, 2) + std::pow(y - pos.y, 2));
-  }
-  
-  bool mouse_in(Vec2f mpos) {
-    if(dist_from_point(mpos) < radius) {
-      return true;
-    }
-    return false;
-  }
-
-  void update_position(Vec2f pos) {
-    position = pos;
-    x = pos.x;
-    y = pos.y;
-  }
-
-  void draw(sf::RenderWindow *window) {
-    representation.setPosition(position);
-    window->draw(representation);
-  }
-};
 
 class BCurve {
 public:
@@ -86,17 +26,41 @@ public:
   static Point deCasteljau(std::vector<Point> controlPoints, float t) {
     // Create a copy of control points to work with
     std::vector<Point> points = controlPoints;
-    //std::cout << "n = " << points.size() << std::endl;
     for (size_t r = 1; r < controlPoints.size(); ++r) {
       for (size_t i = 0; i < controlPoints.size() - r; ++i) {
         // Linear interpolation between adjacent points
         points[i] = points[i] * (1 - t) + points[i + 1] * t;
       }
     }
-    //std::cout << "x = " << points[0].x << " | y = " << points[0].y << " | t = " << t << std::endl;
 
     // The final point is the point on the Bézier curve
     return points[0];
+  }
+
+/*function eval_horner(t) { 
+  u = 1 - t; 
+  bc = 1; 
+  tn = 1; 
+  tmp = controlpoints[0] * u; 
+  for(int i = 1; i < n; i++) { 
+    tn *= t; 
+    bc *= (n-i+1)/i; 
+    tmp = (tmp + tn * bc * controlpoints) * u; 
+  } 
+  return (tmp + tn * t * controlpoints[n]); 
+}*/
+  Point horner_point(float t) {
+    float u { 1 - t };
+    float bc { 1 };
+    float tn { 1 };
+    Point tmp = points[0];
+    int n = points.size();
+    for(int i = 1; i < n; i++) {
+      tn *= t;
+      bc *= ((float)(n - i + 1))/i;
+      tmp = (tmp + points[i] * tn * t) * u;
+    }
+    return tmp + points[n - 1] * t * tn;
   }
 
   void draw_points(sf::RenderWindow *window) {
@@ -156,6 +120,7 @@ public:
       //std::cout << i << std::endl;
       float t = static_cast<float>(i) / static_cast<float>(n);
       res.push_back(deCasteljau(points, t));
+      //res.push_back(horner_point(t));
     }
     return res;
   }
@@ -170,7 +135,8 @@ public:
 
   void update() {
     convex_hull = graham_scan(points);
-    bezier_points = generate_curve_points(20);
+    int curve_points = 20 + (int)(points.size() / 2)*7;
+    bezier_points = generate_curve_points(curve_points);
   }
 
   void undo_last_point() {
@@ -365,3 +331,5 @@ int main(int argc, char **argv)
 
   return 0;
 }
+
+
