@@ -12,20 +12,12 @@ Point::Point(Vec2f _position)
   representation.setOutlineThickness(1.0f);
 }
 
-Point Point::operator*(float const t) {
-  return Point( { x * t, y * t} );
+Point Point::operator*(float const scalar) {
+  return Point( { x * scalar, y * scalar} );
 }
 
-Point Point::operator+(Point const& p) {
-  return Point( {x + p.x, y + p.y} );
-}
-
-// linear interpolation
-Point Point::lerp(const Point& p1, const Point& p2, float t) {
-  return Point({
-      p1.x + t * (p2.x - p1.x),
-      p1.y + t * (p2.y - p1.y)
-      });
+Point Point::operator+(Point const& other) {
+  return Point( {x + other.x, y + other.y} );
 }
 
 float Point::dist_from_point(Vec2f pos) {

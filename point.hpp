@@ -16,16 +16,25 @@ protected:
   float radius;
 
 public:
-  float x;
+  float x; 
   float y;
 
+  /**
+   * <Constructor for Point class>
+   *
+   * @param _position initial position of a point
+   *
+   * */
   Point(Vec2f _position);
 
-  Point operator*(float const t);
-  Point operator+(Point const& p);
-  // linear interpolation
-  static Point lerp(const Point& p1, const Point& p2, float t);
+  Point operator*(float const);
+  Point operator+(Point const&);
 
+  /**
+   * <computes distance from given position to this point>
+   *
+   * @param pos position that we compute distance from
+   * */
   float dist_from_point(Vec2f pos);  
   bool mouse_in(Vec2f mpos);
   void update_position(Vec2f pos);
