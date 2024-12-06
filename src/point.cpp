@@ -1,7 +1,20 @@
 #include "../include/point.hpp"
 
-Point::Point(Vec2f _position)
-  : position { _position }, x { _position.x }, y { _position.y }
+Point::Point(Vec2f _position, unsigned _id)
+  : position { _position }, x { _position.x }, y { _position.y }, parent_id { _id }
+{
+  radius = 10.0f;
+  representation = sf::CircleShape(radius);
+  representation.setOrigin({10.0f, 10.0f});
+  representation.setPosition(position);
+  //representation.setFillColor(sf::Color::Blue);
+  representation.setOutlineColor(sf::Color::Red);
+  representation.setOutlineThickness(1.0f);
+}
+
+Point::Point(const Point &other)
+  : radius { other.radius }, position { other.position }, 
+    x { other.x }, y { other.y }, parent_id { other.parent_id } 
 {
   radius = 10.0f;
   representation = sf::CircleShape(radius);
@@ -13,11 +26,15 @@ Point::Point(Vec2f _position)
 }
 
 Point Point::operator*(float const scalar) {
-  return Point( { x * scalar, y * scalar} );
+  return Point( { x * scalar, y * scalar}, parent_id );
 }
 
 Point Point::operator+(Point const& other) {
-  return Point( {x + other.x, y + other.y} );
+  return Point( {x + other.x, y + other.y}, parent_id );
+}
+
+unsigned Point::get_parent_id() {
+  return parent_id;
 }
 
 float Point::dist_from_point(Vec2f pos) {

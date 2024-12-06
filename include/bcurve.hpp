@@ -11,7 +11,15 @@ using Vec2f = sf::Vector2f;
 using std::unique_ptr, std::vector;
 
 class BCurve {
+private:
+  unsigned id;
+
+  vector<std::shared_ptr<Point>> convex_hull;
+  vector<std::shared_ptr<Point>> bezier_points;
 public:
+  vector<std::shared_ptr<Point>> points;
+  BCurve(unsigned id);
+  BCurve(Vec2f pos, unsigned id);
   /*
    * adds a new reference point
    * */
@@ -23,7 +31,7 @@ public:
   /*
    * returns reference point with a given index
    * */
-  Point& get_point(size_t index); 
+  std::shared_ptr<Point> get_point(size_t index); 
   /*
    * returns how many reference points there are
    * */
@@ -31,19 +39,19 @@ public:
   /*
    * deCasteljau algorithm for computing a point on this Bezier curve
    * */
+  std::shared_ptr<Point> deCasteljau(float t); 
   /*
    * returns index of a point that the mouse is currently on top of
    * if mouse is not on top of any point it returns SIZE_MAX
    * */
   size_t mouse_over_point(Vec2f mpos); 
-  Point deCasteljau(float t); 
   // working on this
   Point horner_point(float t); 
   /*
    * generates the actual points on the Bezier curve
    * they are used only for drawing
    * */
-  vector<Point> generate_curve_points(int n);
+  vector<std::shared_ptr<Point>> generate_curve_points(int n);
   /*
    * updates state of this curve, calculates convex hull
    * */
@@ -56,10 +64,10 @@ public:
   void draw_convex_hull(sf::RenderWindow *window); 
   void draw_bezier_lines(sf::RenderWindow *window); 
 
-  std::vector<Point> graham_scan(std::vector<Point> points);
-private:
-  vector<Point> points;
-  vector<Point> convex_hull;
-  vector<Point> bezier_points;
+  /*
+   * Used for calculating convex hull
+   * */
+  std::vector<std::shared_ptr<Point>> 
+    graham_scan(std::vector<std::shared_ptr<Point>> points);
 };
 
