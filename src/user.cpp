@@ -1,4 +1,4 @@
-#include "user.hpp"
+#include "../include/user.hpp"
 
 User::User() {
   curves.push_back(BCurve()); 

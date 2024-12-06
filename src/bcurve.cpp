@@ -1,4 +1,4 @@
-#include "bcurve.hpp"
+#include "../include/bcurve.hpp"
 
 float orientation(const Point& p, const Point& q, const Point& r) {
     return (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);

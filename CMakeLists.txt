@@ -14,16 +14,16 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 set(SOURCES
-    main.cpp
-    point.cpp
-    bcurve.cpp
-    user.cpp
+    src/main.cpp
+    src/point.cpp
+    src/bcurve.cpp
+    src/user.cpp
 )
 
 set(HEADERS
-  point.hpp
-  bcurve.hpp
-  user.hpp
+  include/point.hpp
+  include/bcurve.hpp
+  include/user.hpp
 )
 
 add_executable(BezierAnimation ${SOURCES} ${HEADERS})

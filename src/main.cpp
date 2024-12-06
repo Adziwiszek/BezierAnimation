@@ -1,17 +1,11 @@
 #include <SFML/Graphics.hpp>
-#include <vector>
-#include <memory>
 #include <cmath>
-#include <iostream>
 
-#include "point.hpp"
-#include "bcurve.hpp"
-#include "user.hpp"
+#include "../include/point.hpp"
+#include "../include/bcurve.hpp"
+#include "../include/user.hpp"
 
 using Vec2f = sf::Vector2f;
-using std::unique_ptr, std::vector;
-
-;
 
 int main(int argc, char **argv)
 {

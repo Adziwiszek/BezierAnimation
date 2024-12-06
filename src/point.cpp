@@ -1,4 +1,4 @@
-#include "point.hpp"
+#include "../include/point.hpp"
 
 Point::Point(Vec2f _position)
   : position { _position }, x { _position.x }, y { _position.y }
