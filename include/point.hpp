@@ -15,6 +15,7 @@ protected:
   Vec2f position;
   float radius;
   unsigned parent_id;
+  unsigned id;
 
 public:
   float x; 
@@ -26,13 +27,14 @@ public:
    * @param _position initial position of a point
    *
    * */
-  Point(Vec2f, unsigned);
+  Point(Vec2f, unsigned, unsigned);
   Point(const Point&);
 
   Point operator*(float const);
   Point operator+(Point const&);
 
   unsigned get_parent_id();
+  unsigned get_id();
 
   /**
    * <computes distance from given position to this point>

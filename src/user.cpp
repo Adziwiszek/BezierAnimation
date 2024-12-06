@@ -72,7 +72,13 @@ void User::add_new_curve(Vec2f pos) {
   current_state = State::Normal;
 }
 
-void User::update(Vec2f mpos) {
+void User::add_point_to_current_curve(Vec2f pos) {
+  active_curve->spawn_point(pos);
+  active_point = (active_curve->get_point(active_curve->points_count() - 1));
+  current_state = State::Normal;
+}
+
+void User::update(Vec2f mpos, Vec2f delta_mpos) {
   if(lmb_pressed && current_state == State::Normal) {
     for(const auto &curve: curves) {
       for(const auto &point: curve->points) {
@@ -87,9 +93,17 @@ void User::update(Vec2f mpos) {
   }
 
   if(lmb_pressed && current_state == State::AddPoint) {
-    active_curve->spawn_point(mpos);
-    active_point = (active_curve->get_point(active_curve->points_count() - 1));
-    current_state = State::Normal;
+    add_point_to_current_curve(mpos);
+  }
+
+  if(lmb_pressed && current_state == State::MoveCurve 
+      && active_curve && active_curve->points.size() > 0) {
+    for(const auto &point: active_curve->points) {
+      if(!point) continue;
+      Vec2f new_pos { point->x + delta_mpos.x,
+                      point->y + delta_mpos.y }; 
+      point->update_position(new_pos); 
+    }
   }
 
   if(current_state == State::AddCurve && lmb_pressed) {

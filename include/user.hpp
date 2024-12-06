@@ -31,9 +31,10 @@ private:
 public:
   User(); 
   void handle_input(sf::Event event, Vec2f mpos); 
-  void update(Vec2f mpos); 
+  void update(Vec2f, Vec2f); 
 
-  void add_new_curve(Vec2f pos);
+  void add_new_curve(Vec2f);
+  void add_point_to_current_curve(Vec2f);
 
   void draw_curve_points(sf::RenderWindow *window); 
   void draw_convex_hull(sf::RenderWindow *window);

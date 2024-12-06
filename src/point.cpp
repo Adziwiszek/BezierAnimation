@@ -1,7 +1,8 @@
 #include "../include/point.hpp"
 
-Point::Point(Vec2f _position, unsigned _id)
-  : position { _position }, x { _position.x }, y { _position.y }, parent_id { _id }
+Point::Point(Vec2f _position, unsigned _p_id, unsigned _id)
+  : position { _position }, x { _position.x }, y { _position.y }, 
+  parent_id { _p_id }, id { _id }
 {
   radius = 10.0f;
   representation = sf::CircleShape(radius);
@@ -14,7 +15,7 @@ Point::Point(Vec2f _position, unsigned _id)
 
 Point::Point(const Point &other)
   : radius { other.radius }, position { other.position }, 
-    x { other.x }, y { other.y }, parent_id { other.parent_id } 
+    x { other.x }, y { other.y }, parent_id { other.parent_id }, id { other.id }
 {
   radius = 10.0f;
   representation = sf::CircleShape(radius);
@@ -26,16 +27,21 @@ Point::Point(const Point &other)
 }
 
 Point Point::operator*(float const scalar) {
-  return Point( { x * scalar, y * scalar}, parent_id );
+  return Point( { x * scalar, y * scalar}, parent_id, id );
 }
 
 Point Point::operator+(Point const& other) {
-  return Point( {x + other.x, y + other.y}, parent_id );
+  return Point( {x + other.x, y + other.y}, parent_id, id );
 }
 
 unsigned Point::get_parent_id() {
   return parent_id;
 }
+
+unsigned Point::get_id() {
+  return id;
+}
+
 
 float Point::dist_from_point(Vec2f pos) {
   return std::sqrt(std::pow(x - pos.x, 2) + std::pow(y - pos.y, 2));

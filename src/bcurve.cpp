@@ -16,7 +16,8 @@ float distance(const std::shared_ptr<Point>& p1, const std::shared_ptr<Point>& p
 }
 
 void BCurve::spawn_point(Vec2f pos) {
-  points.push_back(std::make_shared<Point>(pos, id));
+  unsigned new_id = points.size();
+  points.push_back(std::make_shared<Point>(pos, id, new_id));
 }
 
 void BCurve::undo_last_point() {

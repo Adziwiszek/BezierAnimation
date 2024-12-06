@@ -13,8 +13,10 @@ int main(int argc, char **argv)
   User user {};
 
   Vec2f mpos { 0.0f, 0.0f };
+  Vec2f last_mpos { 0.0f, 0.0f };
   while (window.isOpen())
   {
+    last_mpos = mpos;
     mpos = { static_cast<float>(sf::Mouse::getPosition(window).x), 
       static_cast<float>(sf::Mouse::getPosition(window).y)};
 
@@ -28,7 +30,7 @@ int main(int argc, char **argv)
     }
 
     // update users points
-    user.update(mpos);
+    user.update(mpos, {mpos - last_mpos});
 
     window.clear(sf::Color::Black);
     user.draw(&window);
