@@ -26,6 +26,10 @@ void BCurve::undo_last_point() {
   }
 }
 
+unsigned BCurve::get_id() {
+  return id;
+}
+
 std::shared_ptr<Point> BCurve::get_point(size_t index) {
   // TODO: handle wrong index
   // if(index >= points.size()) 
@@ -144,8 +148,12 @@ void BCurve::update() {
   bezier_points = generate_curve_points(curve_points);
 }
 
-void BCurve::draw_points(sf::RenderWindow *window) {
+void BCurve::draw_points(sf::RenderWindow *window, bool active) {
   for(auto p: points) {
+    if(active) 
+      p->set_color(sf::Color::Yellow);
+    else 
+      p->set_color(sf::Color::White);
     p->draw(window);
   }
 }

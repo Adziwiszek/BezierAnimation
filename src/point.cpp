@@ -42,6 +42,10 @@ unsigned Point::get_id() {
   return id;
 }
 
+void Point::set_color(sf::Color color) {
+  representation.setFillColor(color);
+}
+
 
 float Point::dist_from_point(Vec2f pos) {
   return std::sqrt(std::pow(x - pos.x, 2) + std::pow(y - pos.y, 2));

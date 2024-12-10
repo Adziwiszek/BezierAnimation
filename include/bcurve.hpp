@@ -20,6 +20,8 @@ public:
   vector<std::shared_ptr<Point>> points;
   BCurve(unsigned id);
   BCurve(Vec2f pos, unsigned id);
+
+  unsigned get_id();
   /*
    * adds a new reference point
    * */
@@ -60,7 +62,7 @@ public:
   /*
    * methods for drawing
    * */
-  void draw_points(sf::RenderWindow *window);
+  void draw_points(sf::RenderWindow *window, bool active);
   void draw_convex_hull(sf::RenderWindow *window); 
   void draw_bezier_lines(sf::RenderWindow *window); 
 

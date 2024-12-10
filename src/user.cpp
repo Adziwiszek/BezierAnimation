@@ -9,16 +9,6 @@ User::User() {
 void User::handle_input(sf::Event event, Vec2f mpos) {
   if (event.type == sf::Event::MouseButtonPressed) {
     if (event.mouseButton.button == sf::Mouse::Left) {
-      if(active_curve && current_state == State::Normal) {
-        size_t point_index = active_curve->mouse_over_point(mpos);
-
-        if (point_index != SIZE_MAX) {
-          active_point = (active_curve->get_point(point_index));
-        } /*else if (!lmb_pressed) {
-          active_curve->spawn_point(mpos);
-          active_point = (active_curve->get_point(active_curve->points_count() - 1));
-        }*/
-      }
       lmb_pressed = true;
     }
 
@@ -75,19 +65,25 @@ void User::add_new_curve(Vec2f pos) {
 void User::add_point_to_current_curve(Vec2f pos) {
   active_curve->spawn_point(pos);
   active_point = (active_curve->get_point(active_curve->points_count() - 1));
-  current_state = State::Normal;
+  lmb_pressed = false;
+  //current_state = State::Normal;
 }
 
 void User::update(Vec2f mpos, Vec2f delta_mpos) {
-  if(lmb_pressed && current_state == State::Normal) {
+  if(lmb_pressed 
+      && (current_state == State::Normal
+      || current_state == State::MoveCurve)) {
     for(const auto &curve: curves) {
       for(const auto &point: curve->points) {
         if(point->mouse_in(mpos)) {
+          std::cout<<"selected a point\n";
+          active_point = point;
           active_curve = curves[point->get_parent_id()];
         }
       }
     }
-    if(active_point) {
+
+    if(active_point && current_state == State::Normal) {
       active_point->update_position(mpos);
     }
   }
@@ -117,7 +113,10 @@ void User::update(Vec2f mpos, Vec2f delta_mpos) {
 
 void User::draw_curve_points(sf::RenderWindow *window) {
   for(auto curve: curves) {
-    curve->draw_points(window);
+    bool active = false;
+    if(curve->get_id() == active_curve->get_id())
+      active = true;
+    curve->draw_points(window, active);
   }
 }
 
@@ -135,7 +134,7 @@ void User::draw_bezier_curve(sf::RenderWindow *window) {
 
 void User::draw(sf::RenderWindow *window) {
   draw_curve_points(window);
-  draw_convex_hull(window);
+  //draw_convex_hull(window);
   draw_bezier_curve(window);
 }
 

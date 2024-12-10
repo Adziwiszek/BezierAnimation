@@ -35,6 +35,7 @@ public:
 
   unsigned get_parent_id();
   unsigned get_id();
+  void set_color(sf::Color);
 
   /**
    * <computes distance from given position to this point>
