@@ -5,9 +5,32 @@
 #include <memory>
 #include <cmath>
 #include <iostream>
+#include <tuple>
+#include <array>
 
 #include "point.hpp"
 #include "bcurve.hpp"
+
+struct InputState {
+  bool left_mouse_down = false;
+  bool z_pressed = false;
+  bool ctrl_pressed = false;
+  Vec2f mouse_position;
+  Vec2f prev_mouse_position { 0.0f, 0.0f }; 
+  Vec2f mouse_delta;
+  std::array<bool, sf::Keyboard::KeyCount> keys;
+
+  void update_mouse(sf::RenderWindow& window) {
+    Vec2f current_mouse_position = 
+      static_cast<Vec2f>(sf::Mouse::getPosition(window)); 
+    mouse_delta = current_mouse_position - prev_mouse_position;
+    prev_mouse_position = current_mouse_position;
+  }
+
+  void update_key(sf::Keyboard::Key key, bool is_pressed) {
+    keys[static_cast<std::size_t>(key)] = is_pressed;
+  }
+};
 
 class User {
 private:
@@ -24,15 +47,16 @@ private:
 
   State current_state { Normal };
 
-  bool lmb_pressed { false };
-  bool z_pressed { false };
-
-
 public:
   User(); 
-  void handle_input(sf::Event event, Vec2f mpos); 
-  void update(Vec2f, Vec2f); 
+  void handle_input(sf::Event event, InputState& input); 
+  void handle_mouse_pressed(const InputState& input);
+  void handle_key_pressed(sf::Keyboard::Key key, const InputState& input);
+  void update(const InputState& input); 
+  void switch_to_state(State new_state, const std::string& state_name);
 
+  std::tuple<std::shared_ptr<BCurve>, std::shared_ptr<Point>> 
+    get_active_point_curve(Vec2f);
   void add_new_curve(Vec2f);
   void add_point_to_current_curve(Vec2f);
 

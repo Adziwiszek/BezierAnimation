@@ -35,6 +35,7 @@ public:
 
   unsigned get_parent_id();
   unsigned get_id();
+  Vec2f get_position();
   void set_color(sf::Color);
 
   /**

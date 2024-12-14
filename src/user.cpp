@@ -6,52 +6,97 @@ User::User() {
   active_curve = nullptr;
 }
 
-void User::handle_input(sf::Event event, Vec2f mpos) {
+void User::handle_mouse_pressed(const InputState& input) {
+  if (!input.left_mouse_down) return;
+
+  if (current_state == State::AddCurve) {
+    add_new_curve(input.mouse_position);
+  } else if (current_state == State::AddPoint && active_curve) {
+    add_point_to_current_curve(input.mouse_position);
+  } else if (current_state == State::Normal) {
+    auto [curve, point] = get_active_point_curve(input.mouse_position);
+    active_curve = curve;
+    active_point = point;
+  }
+}
+
+void User::handle_key_pressed(sf::Keyboard::Key key, const InputState& input) {
+  switch (key) {
+    case sf::Keyboard::Key::G:
+      switch_to_state(State::AddCurve, "AddCurve");
+      break;
+    case sf::Keyboard::Key::N:
+      switch_to_state(State::Normal, "Normal");
+      break;
+    case sf::Keyboard::Key::M:
+      switch_to_state(State::MoveCurve, "MoveCurve");
+      break;
+    case sf::Keyboard::Key::H:
+      switch_to_state(State::AddPoint, "AddPoint");
+      break;
+    case sf::Keyboard::Key::Z:
+      if(active_curve && input.ctrl_pressed) {
+        active_curve->undo_last_point();
+      }
+      break;
+    default:
+      break;
+  }
+}
+
+void User::handle_input(sf::Event event, InputState& input) {
   if (event.type == sf::Event::MouseButtonPressed) {
     if (event.mouseButton.button == sf::Mouse::Left) {
-      lmb_pressed = true;
+      input.left_mouse_down = true;
+      input.mouse_position = {(float)event.mouseButton.x, (float)event.mouseButton.y};
+      handle_mouse_pressed(input);
     }
-
   }
   if (event.type == sf::Event::MouseButtonReleased) {
     if (event.mouseButton.button == sf::Mouse::Left) {
-      active_point = NULL;
-      lmb_pressed = false;
+      active_point = nullptr;
+      input.left_mouse_down = false;
     }
   }
 
-  if(event.type == sf::Event::KeyPressed) {
-    if(event.key.control && event.key.scancode == sf::Keyboard::Scan::Z && !z_pressed
-      && active_curve) {
-      active_curve->undo_last_point();
-      z_pressed = true;
+  /*if (event.type == sf::Event::MouseMoved) {
+    Vec2f new_pos = {(float)event.mouseMove.x, (float)event.mouseMove.y};
+    Vec2f new_delta = new_pos - input.mouse_position;
+    if(new_delta == input.mouse_delta) {
+      input.mouse_delta = {0.0f, 0.0f};
+    } else {
+      input.mouse_delta = new_delta;
+      input.mouse_position = new_pos;
     }
+  }*/
 
-    if(event.key.scancode == sf::Keyboard::Scan::G 
-        && current_state != State::AddCurve) {
-      std::cout << "Switched to AddCurve!\n";
-      current_state = State::AddCurve;
-    }
-    if(event.key.scancode == sf::Keyboard::Scan::N
-        && current_state != State::Normal) {
-      std::cout << "Switched to Normal!\n";
-      current_state = State::Normal;
-    }
-    if(event.key.scancode == sf::Keyboard::Scan::M
-        && current_state != State::MoveCurve) {
-      std::cout << "Switched to MoveCurve!\n";
-      current_state = State::MoveCurve;
-    }
-    if(event.key.scancode == sf::Keyboard::Scan::H
-        && current_state != State::AddPoint) {
-      std::cout << "Switched to AddPoint!\n";
-      current_state = State::AddPoint;
-    }
+  if(event.type == sf::Event::KeyPressed) {
+    input.update_key(event.key.code, true);
+    handle_key_pressed(event.key.code, input);
   }
   if(event.type == sf::Event::KeyReleased) {
     if(event.key.scancode == sf::Keyboard::Scan::Z) {
-      z_pressed = false;
+      input.update_key(event.key.code, false);
     }
+  }
+}
+
+std::tuple<std::shared_ptr<BCurve>, std::shared_ptr<Point>> 
+  User::get_active_point_curve(Vec2f mpos) {
+  for(const auto &curve: curves) {
+    for(const auto &point: curve->points) {
+      if(point->mouse_in(mpos)) {
+        return {curve, point};
+      }
+    }
+  }
+  return {nullptr, nullptr};
+}
+
+void User::switch_to_state(State new_state, const std::string& state_name) {
+  if (current_state != new_state) {
+    std::cout << "Switched to " << state_name << "!\n";
+    current_state = new_state;
   }
 }
 
@@ -65,45 +110,20 @@ void User::add_new_curve(Vec2f pos) {
 void User::add_point_to_current_curve(Vec2f pos) {
   active_curve->spawn_point(pos);
   active_point = (active_curve->get_point(active_curve->points_count() - 1));
-  lmb_pressed = false;
-  //current_state = State::Normal;
 }
 
-void User::update(Vec2f mpos, Vec2f delta_mpos) {
-  if(lmb_pressed 
-      && (current_state == State::Normal
-      || current_state == State::MoveCurve)) {
-    for(const auto &curve: curves) {
-      for(const auto &point: curve->points) {
-        if(point->mouse_in(mpos)) {
-          std::cout<<"selected a point\n";
-          active_point = point;
-          active_curve = curves[point->get_parent_id()];
-        }
+void User::update(const InputState& input) {
+  if(input.left_mouse_down) {
+    if(active_point && current_state == State::Normal) {
+      active_point->update_position(input.mouse_position);
+    } else if(active_curve && current_state == State::MoveCurve) {
+      for(const auto &point: active_curve->points) {
+        if(!point) continue;
+        Vec2f new_pos { point->x + input.mouse_delta.x,
+                      point->y + input.mouse_delta.y };
+        point->update_position(new_pos); 
       }
     }
-
-    if(active_point && current_state == State::Normal) {
-      active_point->update_position(mpos);
-    }
-  }
-
-  if(lmb_pressed && current_state == State::AddPoint) {
-    add_point_to_current_curve(mpos);
-  }
-
-  if(lmb_pressed && current_state == State::MoveCurve 
-      && active_curve && active_curve->points.size() > 0) {
-    for(const auto &point: active_curve->points) {
-      if(!point) continue;
-      Vec2f new_pos { point->x + delta_mpos.x,
-                      point->y + delta_mpos.y }; 
-      point->update_position(new_pos); 
-    }
-  }
-
-  if(current_state == State::AddCurve && lmb_pressed) {
-    add_new_curve(mpos);   
   }
 
   for(auto& curve: curves) {
@@ -114,7 +134,7 @@ void User::update(Vec2f mpos, Vec2f delta_mpos) {
 void User::draw_curve_points(sf::RenderWindow *window) {
   for(auto curve: curves) {
     bool active = false;
-    if(curve->get_id() == active_curve->get_id())
+    if(active_curve && curve->get_id() == active_curve->get_id())
       active = true;
     curve->draw_points(window, active);
   }
@@ -133,6 +153,7 @@ void User::draw_bezier_curve(sf::RenderWindow *window) {
 }
 
 void User::draw(sf::RenderWindow *window) {
+  //if(current_state != State::MoveCurve)
   draw_curve_points(window);
   //draw_convex_hull(window);
   draw_bezier_curve(window);

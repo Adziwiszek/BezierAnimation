@@ -42,6 +42,10 @@ unsigned Point::get_id() {
   return id;
 }
 
+Vec2f Point::get_position() {
+  return position;
+}
+
 void Point::set_color(sf::Color color) {
   representation.setFillColor(color);
 }
