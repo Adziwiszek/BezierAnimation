@@ -18,6 +18,7 @@ set(SOURCES
     src/point.cpp
     src/bcurve.cpp
     src/user.cpp
+    src/frame.cpp
 )
 
 set(HEADERS

@@ -3,7 +3,8 @@
 User::User() {
   //curves.push_back(BCurve()); 
   //active_curve = &curves[0];
-  active_curve = nullptr;
+  //active_curve = nullptr;
+  add_frame();
 }
 
 void User::handle_mouse_pressed(const InputState& input) {
@@ -11,12 +12,13 @@ void User::handle_mouse_pressed(const InputState& input) {
 
   if (current_state == State::AddCurve) {
     add_new_curve(input.mouse_position);
-  } else if (current_state == State::AddPoint && active_curve) {
+  } else if (current_state == State::AddPoint && active_frame->active_curve) {
     add_point_to_current_curve(input.mouse_position);
   } else if (current_state == State::Normal) {
-    auto [curve, point] = get_active_point_curve(input.mouse_position);
-    active_curve = curve;
-    active_point = point;
+    auto [curve, point] = active_frame->
+      get_active_point_curve(input.mouse_position);
+    active_frame->active_curve = curve;
+    active_frame->active_point = point;
   }
 }
 
@@ -35,9 +37,9 @@ void User::handle_key_pressed(sf::Keyboard::Key key, const InputState& input) {
       switch_to_state(State::AddPoint, "AddPoint");
       break;
     case sf::Keyboard::Key::Z:
-      if(active_curve && input.ctrl_pressed) {
+      /*if(active_curve && input.ctrl_pressed) {
         active_curve->undo_last_point();
-      }
+      }*/
       break;
     default:
       break;
@@ -70,16 +72,34 @@ void User::handle_input(sf::Event event, InputState& input) {
   }
 }
 
-std::tuple<std::shared_ptr<BCurve>, std::shared_ptr<Point>> 
-  User::get_active_point_curve(Vec2f mpos) {
-  for(const auto &curve: curves) {
-    for(const auto &point: curve->points) {
-      if(point->mouse_in(mpos)) {
-        return {curve, point};
-      }
-    }
+void User::add_frame() {
+  frames.push_back(std::make_shared<Frame>(frame_counter++));
+  if(frames.size() == 1) {
+    f_iter = frames.begin();
+    active_frame = *f_iter;
+  } else {
+    next_frame();
   }
-  return {nullptr, nullptr};
+}
+
+void User::next_frame() {
+  f_iter++;
+  // we are at the end
+  if(f_iter >= frames.begin()) {
+    f_iter--; 
+  } else {
+    active_frame = *f_iter;
+  }
+}
+
+void User::prev_frame() {
+  f_iter--;
+  // we are at the end
+  if(f_iter <= frames.begin()) {
+    f_iter++; 
+  } else {
+    active_frame = *f_iter;
+  }
 }
 
 void User::switch_to_state(State new_state, const std::string& state_name) {
@@ -90,28 +110,32 @@ void User::switch_to_state(State new_state, const std::string& state_name) {
 }
 
 void User::add_new_curve(Vec2f pos) {
-  unsigned new_id = curves.size();
-  curves.push_back(std::make_shared<BCurve>(pos, new_id));
-  active_curve = curves[new_id];
-  current_state = State::Normal;
+  if(active_frame) {
+    active_frame->add_curve(pos);
+    current_state = State::Normal;
+  }
 }
 
 void User::add_point_to_current_curve(Vec2f pos) {
-  active_curve->spawn_point(pos);
-  active_point = (active_curve->get_point(active_curve->points_count() - 1));
+  if(active_frame) {
+    active_frame->add_point_to_current_curve(pos);
+    /*std::cout <<
+      "spawned point for curve with id = " << active_curve->get_id() << std::endl;
+    */
+  }
 }
 
 void User::update(const InputState& input) {
   if(input.left_mouse_down) {
-    if(active_point && current_state == State::Normal) {
-      active_point->update_position(input.mouse_position);
+    if(active_frame->active_point && current_state == State::Normal) {
+      active_frame->active_point->update_position(input.mouse_position);
       /*if(!active_point->started_moving) {
         std::cout<< "starting moving point, pos = " << active_point->x << ", "
           << active_point->y << std::endl;
       }*/
-      active_point->started_moving = true;
-    } else if(active_curve && current_state == State::MoveCurve) {
-      for(const auto &point: active_curve->points) {
+      active_frame->active_point->started_moving = true;
+    } else if(active_frame->active_curve && current_state == State::MoveCurve) {
+      for(const auto &point: active_frame->active_curve->points) {
         if(!point) continue;
         Vec2f new_pos { point->x + input.mouse_delta.x,
                       point->y + input.mouse_delta.y };
@@ -120,35 +144,40 @@ void User::update(const InputState& input) {
     }
   }
   // we dropped of a point
-  if(!input.left_mouse_down && active_point && active_point->started_moving) {
-    std::cout << "-------------\nmoved point\nparent curve id = " << active_point->get_parent_id() 
-      << "\npoint id = " << active_point->get_id()
-      << "\npoint pos = " << active_point->x << ", " << active_point->y << std::endl;
-    active_point->started_moving = false;
+  if(!input.left_mouse_down && active_frame->active_point && 
+      active_frame->active_point->started_moving) {
+    std::cout << "-------------\nmoved point\nparent curve id = " 
+      << active_frame->active_point->get_parent_id() 
+      << "\npoint id = " << active_frame->active_point->get_id()
+      << "\npoint pos = " << active_frame->active_point->x << ", " 
+      << active_frame->active_point->y << std::endl;
+    active_frame->active_point->started_moving = false;
+    active_frame->active_point = nullptr;
   }
 
-  for(auto& curve: curves) {
+  for(auto& curve: active_frame->curves) {
     curve->update();
   }
 }
 
 void User::draw_curve_points(sf::RenderWindow *window) {
-  for(auto curve: curves) {
+  for(auto curve: active_frame->curves) {
     bool active = false;
-    if(active_curve && curve->get_id() == active_curve->get_id())
+    if(active_frame->active_curve && 
+        curve->get_id() == active_frame->active_curve->get_id())
       active = true;
     curve->draw_points(window, active);
   }
 }
 
 void User::draw_convex_hull(sf::RenderWindow *window) {
-  for(auto curve: curves) {
+  for(auto curve: active_frame->curves) {
     curve->draw_convex_hull(window);
   }
 }
 
 void User::draw_bezier_curve(sf::RenderWindow *window) {
-  for(auto curve: curves) {
+  for(auto curve: active_frame->curves) {
     curve->draw_bezier_lines(window);
   }
 }

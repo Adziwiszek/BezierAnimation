@@ -34,6 +34,8 @@ struct InputState {
   }
 };
 
+using Frames = std::vector<std::shared_ptr<Frame>>;
+
 class User {
 private:
   enum State {
@@ -43,13 +45,16 @@ private:
     AddPoint
   };
 
-  std::shared_ptr<BCurve> active_curve;
-  std::shared_ptr<Point> active_point;
-  vector<std::shared_ptr<BCurve>> curves;
+  //std::shared_ptr<BCurve> active_curve;
+  //std::shared_ptr<Point> active_point;
+  //vector<std::shared_ptr<BCurve>> curves;
+
+  unsigned frame_counter {0};
+  Frames frames; 
+  Frames::iterator f_iter;
+  std::shared_ptr<Frame> active_frame;
 
   State current_state { Normal };
-
-  std::vector<Frame> animation_frames; 
 public:
   User(); 
   void handle_input(sf::Event event, InputState& input); 
@@ -57,11 +62,13 @@ public:
   void handle_key_pressed(sf::Keyboard::Key key, const InputState& input);
   void update(const InputState& input); 
   void switch_to_state(State new_state, const std::string& state_name);
-
-  std::tuple<std::shared_ptr<BCurve>, std::shared_ptr<Point>> 
-    get_active_point_curve(Vec2f);
+  
   void add_new_curve(Vec2f);
   void add_point_to_current_curve(Vec2f);
+ 
+  void add_frame();
+  void next_frame();
+  void prev_frame();
 
   void draw_curve_points(sf::RenderWindow *window); 
   void draw_convex_hull(sf::RenderWindow *window);

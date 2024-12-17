@@ -13,6 +13,7 @@ using std::unique_ptr, std::vector;
 class BCurve {
 private:
   unsigned id;
+  unsigned point_counter {0};
 
   vector<std::shared_ptr<Point>> convex_hull;
   vector<std::shared_ptr<Point>> bezier_points;
