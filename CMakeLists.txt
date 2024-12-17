@@ -24,6 +24,7 @@ set(HEADERS
   include/point.hpp
   include/bcurve.hpp
   include/user.hpp
+  include/history.hpp
 )
 
 add_executable(BezierAnimation ${SOURCES} ${HEADERS})

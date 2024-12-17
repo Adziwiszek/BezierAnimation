@@ -10,6 +10,7 @@
 
 #include "point.hpp"
 #include "bcurve.hpp"
+#include "frame.hpp"
 
 struct InputState {
   bool left_mouse_down = false;
@@ -21,10 +22,11 @@ struct InputState {
   std::array<bool, sf::Keyboard::KeyCount> keys;
 
   void update_mouse(sf::RenderWindow& window) {
+    prev_mouse_position = mouse_position;
     Vec2f current_mouse_position = 
       static_cast<Vec2f>(sf::Mouse::getPosition(window)); 
     mouse_delta = current_mouse_position - prev_mouse_position;
-    prev_mouse_position = current_mouse_position;
+    mouse_position = current_mouse_position;
   }
 
   void update_key(sf::Keyboard::Key key, bool is_pressed) {
@@ -47,6 +49,7 @@ private:
 
   State current_state { Normal };
 
+  std::vector<Frame> animation_frames; 
 public:
   User(); 
   void handle_input(sf::Event event, InputState& input); 

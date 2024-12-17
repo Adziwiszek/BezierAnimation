@@ -18,6 +18,7 @@ protected:
   unsigned id;
 
 public:
+  bool started_moving = false;
   float x; 
   float y;
 

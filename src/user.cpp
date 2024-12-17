@@ -54,21 +54,10 @@ void User::handle_input(sf::Event event, InputState& input) {
   }
   if (event.type == sf::Event::MouseButtonReleased) {
     if (event.mouseButton.button == sf::Mouse::Left) {
-      active_point = nullptr;
+      //active_point = nullptr;
       input.left_mouse_down = false;
     }
   }
-
-  /*if (event.type == sf::Event::MouseMoved) {
-    Vec2f new_pos = {(float)event.mouseMove.x, (float)event.mouseMove.y};
-    Vec2f new_delta = new_pos - input.mouse_position;
-    if(new_delta == input.mouse_delta) {
-      input.mouse_delta = {0.0f, 0.0f};
-    } else {
-      input.mouse_delta = new_delta;
-      input.mouse_position = new_pos;
-    }
-  }*/
 
   if(event.type == sf::Event::KeyPressed) {
     input.update_key(event.key.code, true);
@@ -116,6 +105,11 @@ void User::update(const InputState& input) {
   if(input.left_mouse_down) {
     if(active_point && current_state == State::Normal) {
       active_point->update_position(input.mouse_position);
+      /*if(!active_point->started_moving) {
+        std::cout<< "starting moving point, pos = " << active_point->x << ", "
+          << active_point->y << std::endl;
+      }*/
+      active_point->started_moving = true;
     } else if(active_curve && current_state == State::MoveCurve) {
       for(const auto &point: active_curve->points) {
         if(!point) continue;
@@ -124,6 +118,13 @@ void User::update(const InputState& input) {
         point->update_position(new_pos); 
       }
     }
+  }
+  // we dropped of a point
+  if(!input.left_mouse_down && active_point && active_point->started_moving) {
+    std::cout << "-------------\nmoved point\nparent curve id = " << active_point->get_parent_id() 
+      << "\npoint id = " << active_point->get_id()
+      << "\npoint pos = " << active_point->x << ", " << active_point->y << std::endl;
+    active_point->started_moving = false;
   }
 
   for(auto& curve: curves) {
