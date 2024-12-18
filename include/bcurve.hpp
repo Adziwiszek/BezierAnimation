@@ -24,6 +24,7 @@ public:
 
   BCurve(unsigned id);
   BCurve(Vec2f pos, unsigned id);
+  BCurve(const BCurve& other, unsigned id);
 
   unsigned get_id();
   unsigned get_size();

@@ -71,7 +71,7 @@ public:
   void add_new_curve(Vec2f);
   void add_point_to_current_curve(Vec2f);
  
-  void add_frame();
+  void add_frame(bool);
   void next_frame();
   void prev_frame();
   unsigned get_frame_index();

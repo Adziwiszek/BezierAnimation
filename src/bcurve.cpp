@@ -7,6 +7,12 @@ BCurve::BCurve(Vec2f pos, unsigned id) : id { id } {
   spawn_point(pos);
 }
 
+BCurve::BCurve(const BCurve& other, unsigned id) : id { id } {
+  for(auto const& p: other.points) {
+    spawn_point({p->x, p->y});
+  }
+}
+
 float orientation(const std::shared_ptr<Point>& p, const std::shared_ptr<Point>& q, const std::shared_ptr<Point>& r) {
     return (q->y - p->y) * (r->x - q->x) - (q->x - p->x) * (r->y - q->y);
 }

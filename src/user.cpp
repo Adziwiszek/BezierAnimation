@@ -4,7 +4,7 @@ User::User() {
   //curves.push_back(BCurve()); 
   //active_curve = &curves[0];
   //active_curve = nullptr;
-  add_frame();
+  add_frame(false);
   active_frame = frames[0];
   frame_index = 0;
 }
@@ -52,7 +52,7 @@ void User::handle_key_pressed(sf::Keyboard::Key key, const InputState& input) {
       fps -= 1;
       break;
     case sf::Keyboard::Key::F:
-      add_frame();
+      add_frame(true);
       next_frame();
       break;
     case sf::Keyboard::Key::E:
@@ -113,12 +113,18 @@ unsigned User::get_frame_count() {
   return frames.size();
 }
 
-void User::add_frame() {
+void User::add_frame(bool copy_frame) {
+  std::shared_ptr<Frame> new_frame;
+  if(copy_frame) {
+    new_frame = std::make_shared<Frame>(*frames[frame_index], frame_counter++);
+  } else { 
+    new_frame = std::make_shared<Frame>(frame_counter++);
+  }
   // if frame we are adding is first we do special stuff
   if(frames.empty() || frame_index == frames.size()-1) {
-    frames.push_back(std::make_shared<Frame>(frame_counter++));
+    frames.push_back(new_frame);
   } else {
-    frames.insert(frames.begin() + frame_index + 1, std::make_shared<Frame>(frame_counter++));
+    frames.insert(frames.begin() + frame_index + 1, new_frame);
   }
 }
 
@@ -203,14 +209,11 @@ void User::update(const InputState& input) {
 
   if(current_state == State::PlayAnimation) {
     current_time_between_frames += input.dt;
-    std::cout<<"ctbf = "<< current_time_between_frames << std::endl;
     float time_to_switch = 1.0f / (float)fps;
-    std::cout <<"tts = " <<time_to_switch <<std::endl;
     if(current_time_between_frames >= time_to_switch) {
       animation_frame_index = (animation_frame_index + 1) % frames.size();
       current_time_between_frames = 0.0;
     }
-    std::cout<<"anim f id = " << animation_frame_index << std::endl;
     active_frame = frames[animation_frame_index];
   }
 
@@ -243,7 +246,9 @@ void User::draw_bezier_curve(sf::RenderWindow *window) {
 
 void User::draw(sf::RenderWindow *window) {
   //if(current_state != State::MoveCurve)
-  draw_curve_points(window);
+  if(current_state != State::PlayAnimation) {
+    draw_curve_points(window);
+  }
   //draw_convex_hull(window);
   draw_bezier_curve(window);
 }

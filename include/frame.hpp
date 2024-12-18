@@ -17,6 +17,7 @@ public:
   std::shared_ptr<Point> active_point;
 
   Frame(unsigned);
+  Frame(const Frame&, unsigned);
   void add_curve(Vec2f);
   void add_point_to_current_curve(Vec2f);
   std::shared_ptr<Point> get_active_point(Vec2f);

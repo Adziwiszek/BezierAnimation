@@ -3,6 +3,16 @@
 Frame::Frame(unsigned _id): id {_id}
 {}
 
+Frame::Frame(const Frame& other, unsigned _id) 
+  : curve_counter(other.curve_counter), id {_id}
+{
+  // deep copy of others curves
+  for (const auto& curve : other.curves) {
+    auto new_curve = BCurve(*curve, curve_counter++);
+    curves.push_back(std::make_shared<BCurve>(new_curve)); 
+  }
+}
+
 void Frame::add_curve(Vec2f pos) {
   curves.push_back(std::make_shared<BCurve>(pos, curve_counter++));
   active_curve = curves[curves.size() - 1];
