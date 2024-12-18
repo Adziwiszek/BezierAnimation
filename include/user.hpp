@@ -19,6 +19,7 @@ struct InputState {
   Vec2f mouse_position;
   Vec2f prev_mouse_position { 0.0f, 0.0f }; 
   Vec2f mouse_delta;
+  float dt {0};
   std::array<bool, sf::Keyboard::KeyCount> keys;
 
   void update_mouse(sf::RenderWindow& window) {
@@ -28,6 +29,8 @@ struct InputState {
     mouse_delta = current_mouse_position - prev_mouse_position;
     mouse_position = current_mouse_position;
   }
+
+  void update_dt(float _dt) { dt = _dt; }
 
   void update_key(sf::Keyboard::Key key, bool is_pressed) {
     keys[static_cast<std::size_t>(key)] = is_pressed;
@@ -42,12 +45,9 @@ private:
     Normal, 
     Move,
     AddCurve,
-    AddPoint
+    AddPoint, 
+    PlayAnimation,
   };
-
-  //std::shared_ptr<BCurve> active_curve;
-  //std::shared_ptr<Point> active_point;
-  //vector<std::shared_ptr<BCurve>> curves;
 
   unsigned frame_counter {0};
   unsigned frame_index {0};
@@ -55,6 +55,11 @@ private:
   std::shared_ptr<Frame> active_frame;
 
   State current_state { Normal };
+  //Playing animation
+  unsigned fps {30};
+  float current_time_between_frames{0};
+  unsigned animation_frame_index;
+
 public:
   User(); 
   void handle_input(sf::Event event, InputState& input); 
@@ -71,6 +76,7 @@ public:
   void prev_frame();
   unsigned get_frame_index();
   unsigned get_frame_count();
+  unsigned get_fps();
 
   void draw_curve_points(sf::RenderWindow *window); 
   void draw_convex_hull(sf::RenderWindow *window);

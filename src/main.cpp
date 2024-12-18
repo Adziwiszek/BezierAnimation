@@ -22,8 +22,11 @@ int main(int argc, char **argv)
   frame_info.setFillColor(sf::Color::White);
   frame_info.setPosition(0.f, 0.f);
 
+  sf::Clock clock;
+
   while (window.isOpen())
   {
+    sf::Time dt = clock.restart();
     input_state.update_mouse(window);
     sf::Event event;
     while (window.pollEvent(event)) {
@@ -34,9 +37,14 @@ int main(int argc, char **argv)
       user.handle_input(event, input_state);
     }
 
+    input_state.update_dt(dt.asSeconds()); 
     // update users points
     user.update(input_state);
-    frame_info.setString("frame = "+ std::to_string(user.get_frame_index()) + "/" + std::to_string(user.get_frame_count()));
+    std::string state_text = 
+      "frame = "+ std::to_string(user.get_frame_index()) + "/" 
+      + std::to_string(user.get_frame_count()) +
+      "\nfps = " + std::to_string(user.get_fps());
+    frame_info.setString(state_text);
 
     window.clear(sf::Color::Black);
     user.draw(&window);

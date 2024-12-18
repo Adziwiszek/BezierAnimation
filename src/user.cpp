@@ -42,6 +42,15 @@ void User::handle_key_pressed(sf::Keyboard::Key key, const InputState& input) {
     case sf::Keyboard::Key::H:
       switch_to_state(State::AddPoint, "AddPoint");
       break;
+    case sf::Keyboard::Key::A:
+      switch_to_state(State::PlayAnimation, "PlayAnimation");
+      break;
+    case sf::Keyboard::Key::Up:
+      fps += 1;
+      break;
+    case sf::Keyboard::Key::Down:
+      fps -= 1;
+      break;
     case sf::Keyboard::Key::F:
       add_frame();
       next_frame();
@@ -88,6 +97,10 @@ void User::handle_input(sf::Event event, InputState& input) {
   }
 }
 
+unsigned User::get_fps() {
+  return fps;
+}
+
 unsigned update_index(Frames &frames, Frames::iterator it) {
   return (unsigned)std::distance(frames.begin(), it);
 }
@@ -121,17 +134,22 @@ void User::prev_frame() {
   }
 }
 
-void User::switch_to_state(State new_state, const std::string& state_name) {
+void User::switch_to_state(State new_state, const std::string& state_name="some state") {
   if (current_state != new_state) {
     std::cout << "Switched to " << state_name << "!\n";
     current_state = new_state;
+    if(current_state != PlayAnimation) {
+      active_frame = frames[frame_index];
+    } else {
+      animation_frame_index = 0;
+    }
   }
 }
 
 void User::add_new_curve(Vec2f pos) {
   if(active_frame) {
     active_frame->add_curve(pos);
-    current_state = State::Normal;
+    current_state = State::AddPoint;
   }
 }
 
@@ -181,6 +199,19 @@ void User::update(const InputState& input) {
       << "id = "<< active_frame->active_curve->get_id() <<std::endl;
     active_frame->active_curve->started_moving = false;
     active_frame->active_curve = nullptr;
+  }
+
+  if(current_state == State::PlayAnimation) {
+    current_time_between_frames += input.dt;
+    std::cout<<"ctbf = "<< current_time_between_frames << std::endl;
+    float time_to_switch = 1.0f / (float)fps;
+    std::cout <<"tts = " <<time_to_switch <<std::endl;
+    if(current_time_between_frames >= time_to_switch) {
+      animation_frame_index = (animation_frame_index + 1) % frames.size();
+      current_time_between_frames = 0.0;
+    }
+    std::cout<<"anim f id = " << animation_frame_index << std::endl;
+    active_frame = frames[animation_frame_index];
   }
 
   for(auto& curve: active_frame->curves) {
