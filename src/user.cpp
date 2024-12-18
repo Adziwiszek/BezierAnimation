@@ -132,11 +132,12 @@ void User::add_point_to_current_curve(Vec2f pos) {
 void User::update(const InputState& input) {
   if(input.left_mouse_down) {
     if(active_frame->active_point && current_state == State::Normal) {
-    } else if(current_state == State::Move) {
+    } else if(current_state == State::Move && input.mouse_delta != Vec2f{0,0}) {
       if(active_frame->active_point) {
         active_frame->active_point->update_position(input.mouse_position);
         active_frame->active_point->started_moving = true;
       } else if(active_frame->active_curve) {
+        active_frame->active_curve->started_moving = true;
         for(const auto &point: active_frame->active_curve->points) {
           if(!point) continue;
           Vec2f new_pos { point->x + input.mouse_delta.x,
@@ -156,6 +157,15 @@ void User::update(const InputState& input) {
       << active_frame->active_point->y << std::endl;
     active_frame->active_point->started_moving = false;
     active_frame->active_point = nullptr;
+  }
+
+  // we dropped of a curve
+  if(!input.left_mouse_down && active_frame->active_curve && 
+      active_frame->active_curve->started_moving) {
+    std::cout << "-------------\nmoved curve\n" 
+      << "id = "<< active_frame->active_curve->get_id() <<std::endl;
+    active_frame->active_curve->started_moving = false;
+    active_frame->active_curve = nullptr;
   }
 
   for(auto& curve: active_frame->curves) {
