@@ -1,4 +1,6 @@
 #include "../include/user.hpp"
+#include <fstream>
+#include <ranges>
 
 User::User() {
   //curves.push_back(BCurve()); 
@@ -7,6 +9,46 @@ User::User() {
   add_frame(false);
   active_frame = frames[0];
   frame_index = 0;
+}
+
+User::User(Frames frames, unsigned fc)
+  : frames {frames}, frame_counter {fc} {
+  active_frame = frames[0];
+  frame_index = 0;
+}
+
+void put_to_stream(std::ofstream& output, std::string name, float x, float y, 
+      int fid, int cid) {
+  output << name << " " 
+    << x << " " 
+    << y << " "
+    << fid << " " 
+    << cid << std::endl;
+}
+
+void User::save_to_file(std::string path) {
+  std::ofstream output(path);
+  if(!output) {
+    std::cerr << "Error: failed to open: " << path << std::endl;
+    return;
+  }
+  output << std::to_string(frames.size()) << std::endl;
+  for(const auto& frame: frames) {
+    for(auto [curve_id, curve] : frame->curves | std::views::enumerate) {
+      bool started {false};
+      for(const auto& point: curve->points) {
+        if(!started) {
+          put_to_stream(output, "ADDC", point->x, point->y, frame->get_id(), 0);
+          started = true;
+        } else {
+          put_to_stream(output, "ADDP", point->x, point->y, 
+              frame->get_id(), curve_id);
+        }
+      }
+    }
+  }
+  output.close();
+  std::cout<<"saved succesfully!"<<std::endl;
 }
 
 void User::handle_mouse_pressed(const InputState& input) {
@@ -44,6 +86,9 @@ void User::handle_key_pressed(sf::Keyboard::Key key, const InputState& input) {
       break;
     case sf::Keyboard::Key::A:
       switch_to_state(State::PlayAnimation, "PlayAnimation");
+      break;
+    case sf::Keyboard::Key::S:
+      save_to_file("test.txt");
       break;
     case sf::Keyboard::Key::Up:
       fps += 1;

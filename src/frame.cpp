@@ -13,6 +13,10 @@ Frame::Frame(const Frame& other, unsigned _id)
   }
 }
 
+unsigned Frame::get_id() {
+  return id;
+}
+
 void Frame::add_curve(Vec2f pos) {
   curves.push_back(std::make_shared<BCurve>(pos, curve_counter++));
   active_curve = curves[curves.size() - 1];

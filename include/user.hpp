@@ -48,7 +48,8 @@ private:
     AddPoint, 
     PlayAnimation,
   };
-
+  // state:
+  // frames
   unsigned frame_counter {0};
   unsigned frame_index {0};
   Frames frames; 
@@ -62,9 +63,11 @@ private:
 
 public:
   User(); 
+  User(Frames, unsigned);
   void handle_input(sf::Event event, InputState& input); 
   void handle_mouse_pressed(const InputState& input);
   void handle_key_pressed(sf::Keyboard::Key key, const InputState& input);
+
   void update(const InputState& input); 
   void switch_to_state(State new_state, const std::string& state_name);
   
@@ -77,6 +80,8 @@ public:
   unsigned get_frame_index();
   unsigned get_frame_count();
   unsigned get_fps();
+
+  void save_to_file(std::string);
 
   void draw_curve_points(sf::RenderWindow *window); 
   void draw_convex_hull(sf::RenderWindow *window);

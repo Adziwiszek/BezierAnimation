@@ -30,7 +30,7 @@ set(HEADERS
 
 add_executable(BezierAnimation ${SOURCES} ${HEADERS})
 target_link_libraries(BezierAnimation PRIVATE sfml-graphics sfml-window sfml-system sfml-network)
-target_compile_features(BezierAnimation PRIVATE cxx_std_17)
+target_compile_features(BezierAnimation PRIVATE cxx_std_23)
 
 if(WIN32)
     add_custom_command(

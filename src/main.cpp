@@ -1,15 +1,70 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
+#include <fstream>
+#include <sstream>
 #include <string>
 
 #include "../include/user.hpp"
+#include "../include/frame.hpp"
 
 using Vec2f = sf::Vector2f;
 
+Frames load_from_file(std::string path) {
+  std::ifstream input(path);
+  if(!input) {
+    std::cerr << "Error: can't open " << path << std::endl;
+    return {};
+  }
+  
+  std::string line;
+  std::getline(input, line);
+  int n_frames = std::stoi(line);
+  Frames frames;
+  for(int i = 0; i < n_frames; i++) {
+    frames.push_back(std::make_shared<Frame>(i));
+  }
+  while(std::getline(input, line)) {
+    std::cout << "line = " << line <<std::endl;
+    std::istringstream stream(line);
+    std::string action, _x, _y, _f_id, _c_id;
+    if(stream >> action >> _x >> _y >> _f_id >> _c_id) {
+      float x = std::stof(_x);
+      float y = std::stof(_y);
+      int f_id = std::stoi(_f_id);
+      int c_id = std::stoi(_c_id);
+      if(action == "ADDC") {
+        frames[f_id]->add_curve({x, y}); 
+      } else if(action == "ADDP") {
+        std::cout<<"deb1\n";
+        frames[f_id]->active_curve = frames[f_id]->curves[c_id];
+        std::cout<<"deb2\n";
+        frames[f_id]->add_point_to_current_curve({x, y}); 
+      } 
+    } else {
+      std::cerr << "file error" << std::endl;
+    }
+  }
+  std::cout << "success!" << std::endl;
+  input.close();
+  return frames;
+}
+
 int main(int argc, char **argv)
 {
+  Frames f;
+  if(argc > 1) {
+    if("-h" == std::string(argv[1])) {
+      std::cout<<"usage: dupa"<<std::endl;
+      return 0;
+    } else {
+      std::cout<<"loading from file..."<< std::endl;
+      f = load_from_file(std::string(argv[1])); 
+    }
+  } else {
+    f.push_back(std::make_shared<Frame>(0)); 
+  }
   sf::RenderWindow window(sf::VideoMode(800, 600), "Bezier Animations");
-  User user {};
+  User user(f, f.size());
   InputState input_state;
   
   sf::Font font;

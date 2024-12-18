@@ -14,4 +14,7 @@ jeżeli k = 9 to k += 1 (mod size) i tak samo
 
 undo -> zmniejsz k, jesli k = head + 1 to jesteśmy na końcu 
 
-
+chcę miec stan i akcje ktore pozwalaja mi "skryptowac" tworzenie animacji
+dodaj punkt, przesun punkt, dodaj klatke
+akcje powinny pamietac rzeczy jak pozycja do ktorej sie przesuwa i id klatki
+na ktorej byly robione akcje
