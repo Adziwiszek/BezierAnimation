@@ -29,6 +29,10 @@ unsigned BCurve::get_id() {
   return id;
 }
 
+unsigned BCurve::get_size() {
+  return points.size();
+}
+
 std::shared_ptr<Point> BCurve::get_point(size_t index) {
   // TODO: handle wrong index
   // if(index >= points.size()) 
@@ -45,6 +49,24 @@ size_t BCurve::mouse_over_point(Vec2f mpos) {
       return i;
   }
   return SIZE_MAX;
+}
+
+bool BCurve::mouse_in(Vec2f mpos) {
+  for(const auto& p: bezier_points) {
+    if(p->mouse_in(mpos)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool BCurve::mouse_in_control_point(Vec2f mpos) {
+  for(const auto& p: points) {
+    if(p->mouse_in(mpos)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 std::shared_ptr<Point> BCurve::deCasteljau(float t) {

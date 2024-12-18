@@ -40,7 +40,7 @@ class User {
 private:
   enum State {
     Normal, 
-    MoveCurve,
+    Move,
     AddCurve,
     AddPoint
   };

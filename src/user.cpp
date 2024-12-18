@@ -10,15 +10,20 @@ User::User() {
 void User::handle_mouse_pressed(const InputState& input) {
   if (!input.left_mouse_down) return;
 
-  if (current_state == State::AddCurve) {
+  if(current_state == State::AddCurve) {
     add_new_curve(input.mouse_position);
-  } else if (current_state == State::AddPoint && active_frame->active_curve) {
+  } else if(current_state == State::AddPoint && active_frame->active_curve) {
     add_point_to_current_curve(input.mouse_position);
-  } else if (current_state == State::Normal) {
+  } else if(current_state == State::Normal ||
+      current_state == State::Move) {
     auto [curve, point] = active_frame->
       get_active_point_curve(input.mouse_position);
-    active_frame->active_curve = curve;
+    //active_frame->active_curve = curve;
     active_frame->active_point = point;
+    active_frame->active_curve = 
+      active_frame->get_active_curve(input.mouse_position);
+  } else if(current_state == State::Move) {
+
   }
 }
 
@@ -31,7 +36,7 @@ void User::handle_key_pressed(sf::Keyboard::Key key, const InputState& input) {
       switch_to_state(State::Normal, "Normal");
       break;
     case sf::Keyboard::Key::M:
-      switch_to_state(State::MoveCurve, "MoveCurve");
+      switch_to_state(State::Move, "Move");
       break;
     case sf::Keyboard::Key::H:
       switch_to_state(State::AddPoint, "AddPoint");
@@ -128,18 +133,17 @@ void User::add_point_to_current_curve(Vec2f pos) {
 void User::update(const InputState& input) {
   if(input.left_mouse_down) {
     if(active_frame->active_point && current_state == State::Normal) {
-      active_frame->active_point->update_position(input.mouse_position);
-      /*if(!active_point->started_moving) {
-        std::cout<< "starting moving point, pos = " << active_point->x << ", "
-          << active_point->y << std::endl;
-      }*/
-      active_frame->active_point->started_moving = true;
-    } else if(active_frame->active_curve && current_state == State::MoveCurve) {
-      for(const auto &point: active_frame->active_curve->points) {
-        if(!point) continue;
-        Vec2f new_pos { point->x + input.mouse_delta.x,
-                      point->y + input.mouse_delta.y };
-        point->update_position(new_pos); 
+    } else if(current_state == State::Move) {
+      if(active_frame->active_point) {
+        active_frame->active_point->update_position(input.mouse_position);
+        active_frame->active_point->started_moving = true;
+      } else if(active_frame->active_curve) {
+        for(const auto &point: active_frame->active_curve->points) {
+          if(!point) continue;
+          Vec2f new_pos { point->x + input.mouse_delta.x,
+                        point->y + input.mouse_delta.y };
+          point->update_position(new_pos); 
+        }
       }
     }
   }

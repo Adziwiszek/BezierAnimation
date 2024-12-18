@@ -23,6 +23,7 @@ public:
   BCurve(Vec2f pos, unsigned id);
 
   unsigned get_id();
+  unsigned get_size();
   /*
    * adds a new reference point
    * */
@@ -48,6 +49,9 @@ public:
    * if mouse is not on top of any point it returns SIZE_MAX
    * */
   size_t mouse_over_point(Vec2f mpos); 
+
+  bool mouse_in(Vec2f);
+  bool mouse_in_control_point(Vec2f);
   // working on this
   Point horner_point(float t); 
   /*
@@ -56,7 +60,7 @@ public:
    * */
   vector<std::shared_ptr<Point>> generate_curve_points(int n);
   /*
-   * updates state of this curve, calculates convex hull
+   * updates state of this curve, calcurtlates convex hull
    * */
   void update(); 
 

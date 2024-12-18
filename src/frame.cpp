@@ -24,3 +24,17 @@ std::tuple<std::shared_ptr<BCurve>, std::shared_ptr<Point>>
   }
   return {nullptr, nullptr};
 }
+std::shared_ptr<BCurve> Frame::get_active_curve(Vec2f mpos) {
+  for(const auto &curve: curves) {
+    if(curve->get_size() > 0 && curve->get_size() < 3
+        || curve->mouse_in_control_point(mpos)) {
+      return curve; 
+    }
+    if(curve->mouse_in(mpos)) {
+      return curve;
+    }
+  }
+  return nullptr; 
+}
+std::shared_ptr<Point> Frame::get_active_point(Vec2f) {
+}
