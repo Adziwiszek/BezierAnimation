@@ -13,7 +13,7 @@ void Frame::add_point_to_current_curve(Vec2f pos) {
   }
 }
 
-std::tuple<std::shared_ptr<BCurve>, std::shared_ptr<Point>> 
+/*std::tuple<std::shared_ptr<BCurve>, std::shared_ptr<Point>> 
   Frame::get_active_point_curve(Vec2f mpos) {
   for(const auto &curve: curves) {
     for(const auto &point: curve->points) {
@@ -23,7 +23,7 @@ std::tuple<std::shared_ptr<BCurve>, std::shared_ptr<Point>>
     }
   }
   return {nullptr, nullptr};
-}
+}*/
 std::shared_ptr<BCurve> Frame::get_active_curve(Vec2f mpos) {
   for(const auto &curve: curves) {
     if(curve->get_size() > 0 && curve->get_size() < 3
@@ -36,5 +36,14 @@ std::shared_ptr<BCurve> Frame::get_active_curve(Vec2f mpos) {
   }
   return nullptr; 
 }
-std::shared_ptr<Point> Frame::get_active_point(Vec2f) {
+
+std::shared_ptr<Point> Frame::get_active_point(Vec2f mpos) {
+  for(const auto &curve: curves) {
+    for(const auto &point: curve->points) {
+      if(point->mouse_in(mpos)) {
+        return point;
+      }
+    }
+  }
+  return nullptr;
 }

@@ -19,8 +19,8 @@ public:
   Frame(unsigned);
   void add_curve(Vec2f);
   void add_point_to_current_curve(Vec2f);
-  std::tuple<std::shared_ptr<BCurve>, std::shared_ptr<Point>> 
-    get_active_point_curve(Vec2f);
+  //std::tuple<std::shared_ptr<BCurve>, std::shared_ptr<Point>> 
+    //get_active_point_curve(Vec2f);
   std::shared_ptr<Point> get_active_point(Vec2f);
   std::shared_ptr<BCurve> get_active_curve(Vec2f);
 };

@@ -16,10 +16,11 @@ void User::handle_mouse_pressed(const InputState& input) {
     add_point_to_current_curve(input.mouse_position);
   } else if(current_state == State::Normal ||
       current_state == State::Move) {
-    auto [curve, point] = active_frame->
-      get_active_point_curve(input.mouse_position);
+    /*auto [curve, point] = active_frame->
+      get_active_point_curve(input.mouse_position);*/
     //active_frame->active_curve = curve;
-    active_frame->active_point = point;
+    active_frame->active_point = 
+      active_frame->get_active_point(input.mouse_position);
     active_frame->active_curve = 
       active_frame->get_active_curve(input.mouse_position);
   } else if(current_state == State::Move) {
