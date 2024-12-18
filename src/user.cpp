@@ -23,9 +23,7 @@ void User::handle_mouse_pressed(const InputState& input) {
       active_frame->get_active_point(input.mouse_position);
     active_frame->active_curve = 
       active_frame->get_active_curve(input.mouse_position);
-  } else if(current_state == State::Move) {
-
-  }
+  } 
 }
 
 void User::handle_key_pressed(sf::Keyboard::Key key, const InputState& input) {
@@ -100,7 +98,7 @@ void User::next_frame() {
 
 void User::prev_frame() {
   f_iter--;
-  // we are at the end
+  // we are at the beggining
   if(f_iter <= frames.begin()) {
     f_iter++; 
   } else {

@@ -5,6 +5,7 @@ Frame::Frame(unsigned _id): id {_id}
 
 void Frame::add_curve(Vec2f pos) {
   curves.push_back(std::make_shared<BCurve>(pos, curve_counter++));
+  active_curve = curves[curves.size() - 1];
 }
 
 void Frame::add_point_to_current_curve(Vec2f pos) {
@@ -13,17 +14,6 @@ void Frame::add_point_to_current_curve(Vec2f pos) {
   }
 }
 
-/*std::tuple<std::shared_ptr<BCurve>, std::shared_ptr<Point>> 
-  Frame::get_active_point_curve(Vec2f mpos) {
-  for(const auto &curve: curves) {
-    for(const auto &point: curve->points) {
-      if(point->mouse_in(mpos)) {
-        return {curve, point};
-      }
-    }
-  }
-  return {nullptr, nullptr};
-}*/
 std::shared_ptr<BCurve> Frame::get_active_curve(Vec2f mpos) {
   for(const auto &curve: curves) {
     if(curve->get_size() > 0 && curve->get_size() < 3
