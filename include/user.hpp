@@ -50,8 +50,8 @@ private:
   //vector<std::shared_ptr<BCurve>> curves;
 
   unsigned frame_counter {0};
+  unsigned frame_index {0};
   Frames frames; 
-  Frames::iterator f_iter;
   std::shared_ptr<Frame> active_frame;
 
   State current_state { Normal };
@@ -69,6 +69,8 @@ public:
   void add_frame();
   void next_frame();
   void prev_frame();
+  unsigned get_frame_index();
+  unsigned get_frame_count();
 
   void draw_curve_points(sf::RenderWindow *window); 
   void draw_convex_hull(sf::RenderWindow *window);

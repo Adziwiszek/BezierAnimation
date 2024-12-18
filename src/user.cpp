@@ -5,6 +5,8 @@ User::User() {
   //active_curve = &curves[0];
   //active_curve = nullptr;
   add_frame();
+  active_frame = frames[0];
+  frame_index = 0;
 }
 
 void User::handle_mouse_pressed(const InputState& input) {
@@ -39,6 +41,16 @@ void User::handle_key_pressed(sf::Keyboard::Key key, const InputState& input) {
       break;
     case sf::Keyboard::Key::H:
       switch_to_state(State::AddPoint, "AddPoint");
+      break;
+    case sf::Keyboard::Key::F:
+      add_frame();
+      next_frame();
+      break;
+    case sf::Keyboard::Key::E:
+      next_frame();
+      break;
+    case sf::Keyboard::Key::Q:
+      prev_frame();
       break;
     case sf::Keyboard::Key::Z:
       /*if(active_curve && input.ctrl_pressed) {
@@ -76,33 +88,36 @@ void User::handle_input(sf::Event event, InputState& input) {
   }
 }
 
+unsigned update_index(Frames &frames, Frames::iterator it) {
+  return (unsigned)std::distance(frames.begin(), it);
+}
+
+unsigned User::get_frame_index() {
+  return frame_index + 1;
+}
+
+unsigned User::get_frame_count() {
+  return frames.size();
+}
+
 void User::add_frame() {
-  frames.push_back(std::make_shared<Frame>(frame_counter++));
-  if(frames.size() == 1) {
-    f_iter = frames.begin();
-    active_frame = *f_iter;
+  // if frame we are adding is first we do special stuff
+  if(frames.empty() || frame_index == frames.size()-1) {
+    frames.push_back(std::make_shared<Frame>(frame_counter++));
   } else {
-    next_frame();
+    frames.insert(frames.begin() + frame_index + 1, std::make_shared<Frame>(frame_counter++));
   }
 }
 
 void User::next_frame() {
-  f_iter++;
-  // we are at the end
-  if(f_iter >= frames.begin()) {
-    f_iter--; 
-  } else {
-    active_frame = *f_iter;
+  if(frame_index < frames.size() - 1) { 
+    active_frame = frames[++frame_index];
   }
 }
 
 void User::prev_frame() {
-  f_iter--;
-  // we are at the beggining
-  if(f_iter <= frames.begin()) {
-    f_iter++; 
-  } else {
-    active_frame = *f_iter;
+  if(frame_index > 0) { 
+    active_frame = frames[--frame_index];
   }
 }
 
