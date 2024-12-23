@@ -24,7 +24,6 @@ Frames load_from_file(std::string path) {
     frames.push_back(std::make_shared<Frame>(i));
   }
   while(std::getline(input, line)) {
-    std::cout << "line = " << line <<std::endl;
     std::istringstream stream(line);
     std::string action, _x, _y, _f_id, _c_id;
     if(stream >> action >> _x >> _y >> _f_id >> _c_id) {
@@ -35,9 +34,7 @@ Frames load_from_file(std::string path) {
       if(action == "ADDC") {
         frames[f_id]->add_curve({x, y}); 
       } else if(action == "ADDP") {
-        std::cout<<"deb1\n";
         frames[f_id]->active_curve = frames[f_id]->curves[c_id];
-        std::cout<<"deb2\n";
         frames[f_id]->add_point_to_current_curve({x, y}); 
       } 
     } else {
