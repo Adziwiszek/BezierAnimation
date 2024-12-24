@@ -103,7 +103,7 @@ int main(int argc, char **argv)
     window.draw(frame_info);
     window.display();
   }
-
+  
   return 0;
 }
 

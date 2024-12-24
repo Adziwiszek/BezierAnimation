@@ -4,14 +4,12 @@
 #include <vector>
 #include <memory>
 #include <cmath>
-#include <iostream>
 
 using Vec2f = sf::Vector2f;
 using std::unique_ptr, std::vector;
 
 class Point {
 protected:
-  sf::CircleShape representation;
   Vec2f position;
   float radius;
   unsigned parent_id;
@@ -19,34 +17,22 @@ protected:
 
 public:
   bool started_moving = false;
-  float x; 
-  float y;
+  const float& x = position.x;
+  const float& y = position.y;
 
-  /**
-   * <Constructor for Point class>
-   *
-   * @param _position initial position of a point
-   *
-   * */
   Point(Vec2f, unsigned, unsigned);
   Point(const Point&);
 
-  Point operator*(float const);
-  Point operator+(Point const&);
+  Point operator*(float const) const;
+  Point operator+(Point const&) const;
 
-  unsigned get_parent_id();
-  unsigned get_id();
-  Vec2f get_position();
-  void set_color(sf::Color);
+  unsigned get_parent_id() const;
+  unsigned get_id() const;
+  Vec2f get_position() const;
+  float get_radius() const;
 
-  /**
-   * <computes distance from given position to this point>
-   *
-   * @param pos position that we compute distance from
-   * */
-  float dist_from_point(Vec2f pos);  
-  bool mouse_in(Vec2f mpos);
+  float dist_from_point(Vec2f pos) const;  
+  float dist_from_point(const Point& other) const;  
+  bool mouse_in(Vec2f mpos) const;
   void update_position(Vec2f pos);
-
-  void draw(sf::RenderWindow *window);
 };

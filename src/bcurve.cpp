@@ -1,5 +1,8 @@
 #include "../include/bcurve.hpp"
 
+#include<iostream>
+using std::cout;
+
 BCurve::BCurve(unsigned id) : id { id } {
 }
 
@@ -9,16 +12,18 @@ BCurve::BCurve(Vec2f pos, unsigned id) : id { id } {
 
 BCurve::BCurve(const BCurve& other, unsigned id) : id { id } {
   for(auto const& p: other.points) {
-    spawn_point({p->x, p->y});
+    spawn_point(p->get_position());
   }
 }
 
-float orientation(const std::shared_ptr<Point>& p, const std::shared_ptr<Point>& q, const std::shared_ptr<Point>& r) {
+float orientation(const std::shared_ptr<Point>& p, 
+                  const std::shared_ptr<Point>& q, 
+                  const std::shared_ptr<Point>& r) {
     return (q->y - p->y) * (r->x - q->x) - (q->x - p->x) * (r->y - q->y);
 }
 
 float distance(const std::shared_ptr<Point>& p1, const std::shared_ptr<Point>& p2) {
-    return std::sqrt(std::pow(p1->x - p2->x, 2) + std::pow(p1->y - p2->y, 2));
+  return std::sqrt(std::pow(p1->x - p2->x, 2) + std::pow(p1->y - p2->y, 2));
 }
 
 void BCurve::spawn_point(Vec2f pos) {
@@ -165,7 +170,6 @@ std::vector<std::shared_ptr<Point>> BCurve::graham_scan(std::vector<std::shared_
     hull.push_back(points[i]);
   }
 
-  //std::cout << "hull size = " << hull.size() << std::endl;
   return hull;
 }
 
@@ -176,12 +180,18 @@ void BCurve::update() {
 }
 
 void BCurve::draw_points(sf::RenderWindow *window, bool active) {
+  sf::CircleShape cp;
+  cp.setFillColor(sf::Color::White);
+  cp.setOutlineThickness(2.0f);
+  cp.setOutlineColor(sf::Color::Red);
   for(auto p: points) {
+    float rad = p->get_radius();
+    cp.setPosition(p->get_position());
+    cp.setOrigin({rad, rad});
+    cp.setRadius(rad);
     if(active) 
-      p->set_color(sf::Color::Yellow);
-    else 
-      p->set_color(sf::Color::White);
-    p->draw(window);
+      cp.setFillColor(sf::Color::Yellow);
+    window->draw(cp);
   }
 }
 
@@ -202,14 +212,17 @@ void BCurve::draw_convex_hull(sf::RenderWindow *window) {
 }
 
 void BCurve::draw_bezier_lines(sf::RenderWindow *window) {
-  if(convex_hull.size() < 3) 
+  //std::cout <<"ch size: " << convex_hull.size()<<std::endl;
+  if(points.size() < 3) 
     return;
 
   for (size_t i = 0; i < bezier_points.size() - 1; ++i) {
     // linie do zrobienia iluzji krzywej beziera
     sf::Vertex line[] = {
-      sf::Vertex(sf::Vector2f(bezier_points[i]->x, bezier_points[i]->y), sf::Color::Green),
-      sf::Vertex(sf::Vector2f(bezier_points[i + 1]->x, bezier_points[i + 1]->y), sf::Color::Green)
+      sf::Vertex(sf::Vector2f(bezier_points[i]->x, bezier_points[i]->y), 
+          sf::Color::Green),
+      sf::Vertex(sf::Vector2f(bezier_points[i + 1]->x, bezier_points[i + 1]->y), 
+          sf::Color::Green)
     };
     window->draw(line, 2, sf::Lines);
   }

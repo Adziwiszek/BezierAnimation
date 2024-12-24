@@ -1,4 +1,5 @@
 #include "../include/frame.hpp"
+#include <iostream>
 
 Frame::Frame(unsigned _id): id {_id}
 {}
