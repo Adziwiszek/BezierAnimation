@@ -76,6 +76,13 @@ int main(int argc, char **argv)
 
   sf::Clock clock;
 
+  // help text 
+  std::string help_text = 
+    "m - move state\ng - add curve state\nh - add point state \
+    \nn - normal state\ns - save to file\na - play animation \
+    \nf - new frame\ne - next frame\nq - previous frame\nup/down - change fps";
+  std::cout << help_text << std::endl;
+
   while (window.isOpen())
   {
     sf::Time dt = clock.restart();

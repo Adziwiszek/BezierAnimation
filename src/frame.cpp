@@ -31,11 +31,11 @@ void Frame::add_point_to_current_curve(Vec2f pos) {
 
 std::shared_ptr<BCurve> Frame::get_active_curve(Vec2f mpos) {
   for(const auto &curve: curves) {
-    if(curve->get_size() > 0 && curve->get_size() < 3
+    if(curve->get_points_count() > 0 && curve->get_points_count() < 3
         || curve->mouse_in_control_point(mpos)) {
       return curve; 
     }
-    if(curve->mouse_in(mpos)) {
+    if(curve->mouse_in_curve(mpos)) {
       return curve;
     }
   }

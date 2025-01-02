@@ -40,18 +40,18 @@ unsigned BCurve::get_id() {
   return id;
 }
 
-unsigned BCurve::get_size() {
-  return points.size();
-}
-
 std::shared_ptr<Point> BCurve::get_point(size_t index) {
   // TODO: handle wrong index
   // if(index >= points.size()) 
   return points[index];
 }
 
-size_t BCurve::points_count() const {
+size_t BCurve::get_points_count() const {
   return points.size();
+}
+
+size_t BCurve::get_bc_points_count() const {
+  return bc_points.size();
 }
 
 size_t BCurve::mouse_over_point(Vec2f mpos) {
@@ -62,8 +62,8 @@ size_t BCurve::mouse_over_point(Vec2f mpos) {
   return SIZE_MAX;
 }
 
-bool BCurve::mouse_in(Vec2f mpos) {
-  for(const auto& p: bezier_points) {
+bool BCurve::mouse_in_curve(Vec2f mpos) {
+  for(const auto& p: bc_points) {
     if(p->mouse_in(mpos)) {
       return true;
     }
@@ -78,6 +78,36 @@ bool BCurve::mouse_in_control_point(Vec2f mpos) {
     }
   }
   return false;
+}
+
+Vec2f BCurve::linear_bezier_eval(unsigned int n, float t) {
+  float h = 1.0;
+  float u = 1.0 - t;
+  unsigned int n1 = n + 1;
+  Vec2f Q(points[0]->x, points[0]->y);
+
+  if(t <= 0.5) {
+    u = t / u;
+    for(int k = 1; k < n; k++)
+    {
+      h = h * u * (n1 - k);
+      h = h / (k + h);
+      float h1 = 1 - h;
+      Q.x = h1 * Q.x + h * (points[k]->x);
+      Q.y = h1 * Q.y + h * (points[k]->y);
+    }
+  } else {
+    u = u / t;
+    for(int k = 1; k < n; k++)
+    {
+      h = h * (n1 - k);
+      h = h / (k * u + h);
+      float h1 = 1 - h;
+      Q.x = h1 * Q.x + h * (points[k]->x);
+      Q.y = h1 * Q.y + h * (points[k]->y);
+    }
+  }
+  return Q;
 }
 
 std::shared_ptr<Point> BCurve::deCasteljau(float t) {
@@ -115,10 +145,9 @@ vector<std::shared_ptr<Point>> BCurve::generate_curve_points(int n) {
     return res;
 
   for(int i = 0; i <= n; i++) {
-    //std::cout << i << std::endl;
     float t = static_cast<float>(i) / static_cast<float>(n);
-    res.push_back(deCasteljau(t));
-    //res.push_back(horner_point(t));
+    Vec2f p_coords = linear_bezier_eval(points.size(), t);
+    res.push_back(std::make_shared<Point>(p_coords, id, i));
   }
   return res;
 }
@@ -176,7 +205,7 @@ std::vector<std::shared_ptr<Point>> BCurve::graham_scan(std::vector<std::shared_
 void BCurve::update() {
   convex_hull = graham_scan(points);
   int curve_points = 20 + (int)(points.size() / 2)*7;
-  bezier_points = generate_curve_points(curve_points);
+  bc_points = generate_curve_points(curve_points);
 }
 
 void BCurve::draw_points(sf::RenderWindow *window, bool active) {
@@ -216,12 +245,12 @@ void BCurve::draw_bezier_lines(sf::RenderWindow *window) {
   if(points.size() < 3) 
     return;
 
-  for (size_t i = 0; i < bezier_points.size() - 1; ++i) {
+  for (size_t i = 0; i < bc_points.size() - 1; ++i) {
     // linie do zrobienia iluzji krzywej beziera
     sf::Vertex line[] = {
-      sf::Vertex(sf::Vector2f(bezier_points[i]->x, bezier_points[i]->y), 
+      sf::Vertex(sf::Vector2f(bc_points[i]->x, bc_points[i]->y), 
           sf::Color::Green),
-      sf::Vertex(sf::Vector2f(bezier_points[i + 1]->x, bezier_points[i + 1]->y), 
+      sf::Vertex(sf::Vector2f(bc_points[i + 1]->x, bc_points[i + 1]->y), 
           sf::Color::Green)
     };
     window->draw(line, 2, sf::Lines);
