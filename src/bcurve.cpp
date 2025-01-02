@@ -125,20 +125,6 @@ std::shared_ptr<Point> BCurve::deCasteljau(float t) {
   return controlPoints[0];
 }
 
-Point BCurve:: horner_point(float t) {
-  float u { 1 - t };
-  float bc { 1 };
-  float tn { 1 };
-  std::shared_ptr<Point> tmp = std::make_shared<Point>(*points[0]);
-  int n = points.size();
-  for(int i = 1; i < n; i++) {
-    tn *= t;
-    bc *= ((float)(n - i + 1))/i;
-    tmp = std::make_shared<Point>((*tmp + *points[i] * tn * t) * u);
-  }
-  return *tmp + *points[n - 1] * t * tn;
-}
-
 vector<std::shared_ptr<Point>> BCurve::generate_curve_points(int n) {
   vector<std::shared_ptr<Point>> res;
   if(points.size() < 3)

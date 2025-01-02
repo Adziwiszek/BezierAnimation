@@ -19,6 +19,7 @@ set(SOURCES
     src/bcurve.cpp
     src/user.cpp
     src/frame.cpp
+    src/drawer.cpp
 )
 
 set(HEADERS
@@ -26,10 +27,11 @@ set(HEADERS
   include/bcurve.hpp
   include/user.hpp
   include/history.hpp
+  include/drawer.hpp
 )
 
 add_executable(BezierAnimation ${SOURCES} ${HEADERS})
-target_link_libraries(BezierAnimation PRIVATE sfml-graphics sfml-window sfml-system sfml-network)
+target_link_libraries(BezierAnimation PRIVATE sfml-graphics sfml-window sfml-system)
 target_compile_features(BezierAnimation PRIVATE cxx_std_23)
 
 if(WIN32)

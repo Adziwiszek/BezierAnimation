@@ -11,6 +11,7 @@
 #include "point.hpp"
 #include "bcurve.hpp"
 #include "frame.hpp"
+#include "drawer.hpp"
 
 struct InputState {
   bool left_mouse_down = false;
@@ -61,9 +62,11 @@ private:
   float current_time_between_frames{0};
   unsigned animation_frame_index;
 
+  Drawer drawer;
+
 public:
-  User(); 
-  User(Frames, unsigned);
+  User(sf::RenderWindow& _window); 
+  User(Frames, unsigned, sf::RenderWindow&);
   // handle user input
   void handle_input(sf::Event event, InputState& input); 
   void handle_mouse_pressed(const InputState& input);

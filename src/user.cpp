@@ -2,7 +2,7 @@
 #include <fstream>
 #include <ranges>
 
-User::User() {
+User::User(sf::RenderWindow& _window): drawer(_window) {
   //curves.push_back(BCurve()); 
   //active_curve = &curves[0];
   //active_curve = nullptr;
@@ -11,8 +11,8 @@ User::User() {
   frame_index = 0;
 }
 
-User::User(Frames frames, unsigned fc)
-  : frames {frames}, frame_counter {fc} {
+User::User(Frames frames, unsigned fc, sf::RenderWindow& _window)
+  : frames {frames}, frame_counter {fc}, drawer(_window) {
   active_frame = frames[0];
   frame_index = 0;
 }
@@ -270,7 +270,8 @@ void User::draw_curve_points(sf::RenderWindow *window) {
     if(active_frame->active_curve && 
         curve->get_id() == active_frame->active_curve->get_id())
       active = true;
-    curve->draw_points(window, active);
+    //curve->draw_points(window, active);
+    drawer.draw_control_points(curve->points, active);
   }
 }
 

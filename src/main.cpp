@@ -61,7 +61,7 @@ int main(int argc, char **argv)
     f.push_back(std::make_shared<Frame>(0)); 
   }
   sf::RenderWindow window(sf::VideoMode(800, 600), "Bezier Animations");
-  User user(f, f.size());
+  User user(f, f.size(), window);
   InputState input_state;
   
   sf::Font font;
