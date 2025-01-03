@@ -16,12 +16,12 @@ private:
   unsigned point_counter {0};   // count of how many points have been placed
 
   vector<std::shared_ptr<Point>> convex_hull;
-  vector<std::shared_ptr<Point>> bc_points;
 
   std::vector<std::shared_ptr<Point>> 
     graham_scan(std::vector<std::shared_ptr<Point>> points);
 public:
   bool started_moving {false};
+  vector<std::shared_ptr<Point>> bc_points;
   vector<std::shared_ptr<Point>> points;
 
   BCurve(unsigned id);                      // basic constructor

@@ -27,3 +27,26 @@ void Drawer::draw_control_points(const std::vector<std::shared_ptr<Point>>& cont
     draw_point(*p, active);
   }
 }
+
+void Drawer::draw_bc_lines(const std::vector<std::shared_ptr<Point>>& bc_line_points,
+      sf::Color color, float thickness) {
+  if(bc_line_points.empty())
+    return;
+
+  for (size_t i = 0; i < bc_line_points.size() - 1; ++i) {
+    Point p1(*bc_line_points[i]);
+    Point p2(*bc_line_points[i+1]);
+    Vec2f direction(p2.get_position() - p1.get_position());
+    float length = std::sqrt(direction.x*direction.x + direction.y*direction.y);
+
+    sf::RectangleShape line(Vec2f(length, thickness));
+    line.setFillColor(color);
+    line.setPosition(p1.get_position());
+    line.setRotation(std::atan2(direction.y, direction.x) * 180.f / M_PI);
+    window.draw(line);
+  }
+}
+
+void Drawer::draw_convex_hull(const std::vector<std::shared_ptr<Point>>& ch_points) {
+  
+}

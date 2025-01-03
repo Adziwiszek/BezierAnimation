@@ -283,7 +283,8 @@ void User::draw_convex_hull(sf::RenderWindow *window) {
 
 void User::draw_bezier_curve(sf::RenderWindow *window) {
   for(auto curve: active_frame->curves) {
-    curve->draw_bezier_lines(window);
+    drawer.draw_bc_lines(curve->bc_points, sf::Color::Green);
+    //curve->draw_bezier_lines(window);
   }
 }
 
