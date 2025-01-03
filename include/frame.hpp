@@ -23,6 +23,8 @@ public:
 
   void add_curve(Vec2f);
   void add_point_to_current_curve(Vec2f);
+  void delete_curve_by_id(unsigned);
+  void delete_point_from_current_curve(unsigned);
   std::shared_ptr<Point> get_active_point(Vec2f);
   std::shared_ptr<BCurve> get_active_curve(Vec2f);
 };

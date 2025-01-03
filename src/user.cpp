@@ -54,6 +54,7 @@ void User::save_to_file(std::string path) {
 void User::handle_mouse_pressed(const InputState& input) {
   if (!input.left_mouse_down) return;
 
+  // TODO: fix this shit
   if(current_state == State::AddCurve) {
     add_new_curve(input.mouse_position);
   } else if(current_state == State::AddPoint && active_frame->active_curve) {
@@ -68,11 +69,16 @@ void User::handle_mouse_pressed(const InputState& input) {
     if(active_frame->active_point && current_state == State::Delete) {
       std::cout << "deleting point with id = " << active_frame->active_point->get_id() << std::endl;
       active_frame->active_curve->delete_point_by_id(active_frame->active_point->get_id());
+    } // deleting curve, if we have not clicked on a point
+    else if(active_frame->active_curve && current_state == State::Delete) { 
+      std::cout << "deleting curve with id = " << active_frame->active_curve->get_id() << std::endl;
+      active_frame->delete_curve_by_id(active_frame->active_curve->get_id());
     }
   } 
 }
 
 void User::handle_key_pressed(sf::Keyboard::Key key, const InputState& input) {
+  // TODO: fix this switch hell
   switch (key) {
     case sf::Keyboard::Key::G:
       switch_to_state(State::AddCurve, "AddCurve");
@@ -219,6 +225,7 @@ void User::add_point_to_current_curve(Vec2f pos) {
 }
 
 void User::update(const InputState& input) {
+  // move this thing that handles mous input to some input class 
   if(input.left_mouse_down) {
     if(active_frame->active_point && current_state == State::Normal) {
     } else if(current_state == State::Move && input.mouse_delta != Vec2f{0,0}) {

@@ -76,6 +76,7 @@ public:
   void update(const InputState& input); 
   void switch_to_state(State new_state, const std::string& state_name);
   void add_new_curve(Vec2f);
+  void delete_curve_by_id(unsigned);
   void add_point_to_current_curve(Vec2f);
   // manage frames of animation
   void add_frame(bool);

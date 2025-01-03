@@ -29,6 +29,34 @@ void Frame::add_point_to_current_curve(Vec2f pos) {
   }
 }
 
+void Frame::delete_curve_by_id(unsigned id) {
+  try {
+    curves.erase(
+      std::remove_if(curves.begin(), curves.end(),
+        [id](const std::shared_ptr<BCurve>&c) {
+          return c->get_id() == id;
+        }),
+      curves.end()
+    ); 
+  } catch(const std::exception& e) {
+    std::cout << "Error when trying to delete curve: " << e.what() << std::endl;
+  }
+}
+
+void Frame::delete_point_from_current_curve(unsigned id) {
+  try {
+    curves.erase(
+      std::remove_if(curves.begin(), curves.end(),
+        [id](const std::shared_ptr<BCurve>&c) {
+          return c->get_id() == id;
+        }),
+      curves.end()
+    ); 
+  } catch(const std::exception& e) {
+    std::cout << "Error when trying to delete curve: " << e.what() << std::endl;
+  }
+}
+
 std::shared_ptr<BCurve> Frame::get_active_curve(Vec2f mpos) {
   for(const auto &curve: curves) {
     if(curve->get_points_count() > 0 && curve->get_points_count() < 3
