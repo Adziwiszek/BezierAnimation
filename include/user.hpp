@@ -48,6 +48,7 @@ private:
     AddCurve,
     AddPoint, 
     PlayAnimation,
+    Delete,
   };
   // state:
   // frames

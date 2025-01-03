@@ -17,13 +17,13 @@ private:
   unsigned point_counter {0};   // count of how many points have been placed
 
   vector<std::shared_ptr<Point>> convex_hull;
+  vector<std::shared_ptr<Point>> bc_points;
+  vector<std::shared_ptr<Point>> points;
 
   std::vector<std::shared_ptr<Point>> 
     graham_scan(std::vector<std::shared_ptr<Point>> points);
 public:
   bool started_moving {false};
-  vector<std::shared_ptr<Point>> bc_points;
-  vector<std::shared_ptr<Point>> points;
 
   BCurve(unsigned id);                      // basic constructor
   BCurve(Vec2f pos, unsigned id);           // immediately spawns point
@@ -37,6 +37,7 @@ public:
   const Points& get_bc_line_points() const;
 
   void spawn_point(Vec2f pos);
+  void delete_point_by_id(unsigned id);
   void undo_last_point(); 
 
   std::shared_ptr<Point> get_point(size_t index); 
@@ -46,12 +47,7 @@ public:
   bool mouse_in_control_point(Vec2f);
 
   Vec2f linear_bezier_eval(unsigned int n, float t);
-  std::shared_ptr<Point> deCasteljau(float t);
   vector<std::shared_ptr<Point>> generate_curve_points(int n);
   void update(); 
-
-  void draw_points(sf::RenderWindow *window, bool active);
-  void draw_convex_hull(sf::RenderWindow *window); 
-  void draw_bezier_lines(sf::RenderWindow *window); 
 };
 

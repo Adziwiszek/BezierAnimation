@@ -36,7 +36,7 @@ void User::save_to_file(std::string path) {
   for(const auto& frame: frames) {
     for(auto [curve_id, curve] : frame->curves | std::views::enumerate) {
       bool started {false};
-      for(const auto& point: curve->points) {
+      for(const auto& point: curve->get_control_points()) {
         if(!started) {
           put_to_stream(output, "ADDC", point->x, point->y, frame->get_id(), 0);
           started = true;
@@ -59,11 +59,16 @@ void User::handle_mouse_pressed(const InputState& input) {
   } else if(current_state == State::AddPoint && active_frame->active_curve) {
     add_point_to_current_curve(input.mouse_position);
   } else if(current_state == State::Normal ||
-      current_state == State::Move) {
+      current_state == State::Move || current_state == State::Delete) {
     active_frame->active_point = 
       active_frame->get_active_point(input.mouse_position);
     active_frame->active_curve = 
       active_frame->get_active_curve(input.mouse_position);
+    // deleting point 
+    if(active_frame->active_point && current_state == State::Delete) {
+      std::cout << "deleting point with id = " << active_frame->active_point->get_id() << std::endl;
+      active_frame->active_curve->delete_point_by_id(active_frame->active_point->get_id());
+    }
   } 
 }
 
@@ -102,6 +107,9 @@ void User::handle_key_pressed(sf::Keyboard::Key key, const InputState& input) {
       break;
     case sf::Keyboard::Key::Q:
       prev_frame();
+      break;
+    case sf::Keyboard::Key::D:
+      switch_to_state(State::Delete, "Delete point");
       break;
     case sf::Keyboard::Key::Z:
       /*if(active_curve && input.ctrl_pressed) {
@@ -219,7 +227,7 @@ void User::update(const InputState& input) {
         active_frame->active_point->started_moving = true;
       } else if(active_frame->active_curve) {
         active_frame->active_curve->started_moving = true;
-        for(const auto &point: active_frame->active_curve->points) {
+        for(const auto &point: active_frame->active_curve->get_control_points()) {
           if(!point) continue;
           Vec2f new_pos { point->x + input.mouse_delta.x,
                         point->y + input.mouse_delta.y };

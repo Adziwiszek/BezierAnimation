@@ -44,7 +44,7 @@ std::shared_ptr<BCurve> Frame::get_active_curve(Vec2f mpos) {
 
 std::shared_ptr<Point> Frame::get_active_point(Vec2f mpos) {
   for(const auto &curve: curves) {
-    for(const auto &point: curve->points) {
+    for(const auto &point: curve->get_control_points()) {
       if(point->mouse_in(mpos)) {
         return point;
       }

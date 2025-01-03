@@ -30,6 +30,20 @@ void BCurve::spawn_point(Vec2f pos) {
   points.push_back(std::make_shared<Point>(pos, id, point_counter++));
 }
 
+void BCurve::delete_point_by_id(unsigned id) {
+  try {
+    points.erase(
+      std::remove_if(points.begin(), points.end(),
+        [id](const std::shared_ptr<Point>&p) {
+          return p->get_id() == id;
+        }),
+      points.end()
+    ); 
+  } catch(const std::exception& e) {
+    std::cout << "Error: " << e.what() << std::endl;
+  }
+}
+
 void BCurve::undo_last_point() {
   if(points.size() > 0) {
     points.pop_back();
@@ -122,21 +136,6 @@ Vec2f BCurve::linear_bezier_eval(unsigned int n, float t) {
   return Q;
 }
 
-std::shared_ptr<Point> BCurve::deCasteljau(float t) {
-  // Create a copy of control points to work with
-  std::vector<std::shared_ptr<Point>> controlPoints = points;
-  for (size_t r = 1; r < controlPoints.size(); ++r) {
-    for (size_t i = 0; i < controlPoints.size() - r; ++i) {
-      // Linear interpolation between adjacent points
-      controlPoints[i] = std::make_shared<Point>(
-          *controlPoints[i] * (1 - t) + *controlPoints[i + 1] * t);
-    }
-  }
-
-  // The final point is the point on the Bézier curve
-  return controlPoints[0];
-}
-
 vector<std::shared_ptr<Point>> BCurve::generate_curve_points(int n) {
   vector<std::shared_ptr<Point>> res;
   if(points.size() < 3)
@@ -205,54 +204,4 @@ void BCurve::update() {
   int curve_points = 20 + (int)(points.size() / 2)*7;
   bc_points = generate_curve_points(curve_points);
 }
-
-void BCurve::draw_points(sf::RenderWindow *window, bool active) {
-  sf::CircleShape cp;
-  cp.setFillColor(sf::Color::White);
-  cp.setOutlineThickness(2.0f);
-  cp.setOutlineColor(sf::Color::Red);
-  for(auto p: points) {
-    float rad = p->get_radius();
-    cp.setPosition(p->get_position());
-    cp.setOrigin({rad, rad});
-    cp.setRadius(rad);
-    if(active) 
-      cp.setFillColor(sf::Color::Yellow);
-    window->draw(cp);
-  }
-}
-
-void BCurve::draw_convex_hull(sf::RenderWindow *window) {
-  // If convex hull is too small we dont draw it
-  if(convex_hull.size() < 3) 
-    return;
-
-  for (size_t i = 0; i < convex_hull.size(); ++i) {
-    // linia od od itego do i+1 wierzcholka otoczki wypuklej
-    sf::Vertex line[] = {
-      sf::Vertex(sf::Vector2f(convex_hull[i]->x, convex_hull[i]->y), sf::Color::Blue),
-      sf::Vertex(sf::Vector2f(convex_hull[(i+1) % convex_hull.size()]->x,
-            convex_hull[(i+1) % convex_hull.size()]->y), sf::Color::Blue)
-    };
-    window->draw(line, 2, sf::Lines);
-  }
-}
-
-void BCurve::draw_bezier_lines(sf::RenderWindow *window) {
-  //std::cout <<"ch size: " << convex_hull.size()<<std::endl;
-  if(points.size() < 3) 
-    return;
-
-  for (size_t i = 0; i < bc_points.size() - 1; ++i) {
-    // linie do zrobienia iluzji krzywej beziera
-    sf::Vertex line[] = {
-      sf::Vertex(sf::Vector2f(bc_points[i]->x, bc_points[i]->y), 
-          sf::Color::Green),
-      sf::Vertex(sf::Vector2f(bc_points[i + 1]->x, bc_points[i + 1]->y), 
-          sf::Color::Green)
-    };
-    window->draw(line, 2, sf::Lines);
-  }
-}
-
 
