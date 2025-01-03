@@ -9,6 +9,7 @@
 
 using Vec2f = sf::Vector2f;
 using std::unique_ptr, std::vector;
+using Points = std::vector<std::shared_ptr<Point>>;
 
 class BCurve {
 private: 
@@ -31,6 +32,9 @@ public:
   unsigned get_id();
   size_t get_points_count() const;
   size_t get_bc_points_count() const;
+  const Points& get_convex_hull_points() const; 
+  const Points& get_control_points() const;
+  const Points& get_bc_line_points() const;
 
   void spawn_point(Vec2f pos);
   void undo_last_point(); 

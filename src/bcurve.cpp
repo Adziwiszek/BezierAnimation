@@ -54,6 +54,18 @@ size_t BCurve::get_bc_points_count() const {
   return bc_points.size();
 }
 
+const Points& BCurve::get_convex_hull_points() const {
+  return convex_hull;
+}
+
+const Points& BCurve::get_control_points() const {
+  return points;
+}
+
+const Points& BCurve::get_bc_line_points() const {
+  return bc_points;
+}
+
 size_t BCurve::mouse_over_point(Vec2f mpos) {
   for(size_t i = 0; i < points.size(); i++){ 
     if(points[i]->mouse_in(mpos))

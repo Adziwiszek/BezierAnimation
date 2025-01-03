@@ -48,5 +48,16 @@ void Drawer::draw_bc_lines(const std::vector<std::shared_ptr<Point>>& bc_line_po
 }
 
 void Drawer::draw_convex_hull(const std::vector<std::shared_ptr<Point>>& ch_points) {
-  
+  if(ch_points.empty())
+    return;
+
+  for (size_t i = 0; i < ch_points.size(); ++i) {
+    // linia od od itego do i+1 wierzcholka otoczki wypuklej
+    sf::Vertex line[] = {
+      sf::Vertex(sf::Vector2f(ch_points[i]->x, ch_points[i]->y), sf::Color::Blue),
+      sf::Vertex(sf::Vector2f(ch_points[(i+1) % ch_points.size()]->x,
+            ch_points[(i+1) % ch_points.size()]->y), sf::Color::Blue)
+    };
+    window.draw(line, 2, sf::Lines);
+  }
 }

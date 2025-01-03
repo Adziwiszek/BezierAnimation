@@ -271,19 +271,20 @@ void User::draw_curve_points(sf::RenderWindow *window) {
         curve->get_id() == active_frame->active_curve->get_id())
       active = true;
     //curve->draw_points(window, active);
-    drawer.draw_control_points(curve->points, active);
+    drawer.draw_control_points(curve->get_control_points(), active);
   }
 }
 
 void User::draw_convex_hull(sf::RenderWindow *window) {
   for(auto curve: active_frame->curves) {
-    curve->draw_convex_hull(window);
+    drawer.draw_convex_hull(curve->get_convex_hull_points());
+    //curve->draw_convex_hull(window);
   }
 }
 
 void User::draw_bezier_curve(sf::RenderWindow *window) {
   for(auto curve: active_frame->curves) {
-    drawer.draw_bc_lines(curve->bc_points, sf::Color::Green);
+    drawer.draw_bc_lines(curve->get_bc_line_points(), sf::Color::Green, 3.0);
     //curve->draw_bezier_lines(window);
   }
 }
