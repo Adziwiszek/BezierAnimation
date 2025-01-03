@@ -86,8 +86,5 @@ public:
   // saving files 
   void save_to_file(std::string);
   // drawing program
-  void draw_curve_points(sf::RenderWindow *window); 
-  void draw_convex_hull(sf::RenderWindow *window);
-  void draw_bezier_curve(sf::RenderWindow *window);
   void draw(sf::RenderWindow *window);
 };

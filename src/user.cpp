@@ -264,38 +264,21 @@ void User::update(const InputState& input) {
   }
 }
 
-void User::draw_curve_points(sf::RenderWindow *window) {
-  for(auto curve: active_frame->curves) {
-    bool active = false;
-    if(active_frame->active_curve && 
-        curve->get_id() == active_frame->active_curve->get_id())
-      active = true;
-    //curve->draw_points(window, active);
-    drawer.draw_control_points(curve->get_control_points(), active);
-  }
-}
-
-void User::draw_convex_hull(sf::RenderWindow *window) {
-  for(auto curve: active_frame->curves) {
-    drawer.draw_convex_hull(curve->get_convex_hull_points());
-    //curve->draw_convex_hull(window);
-  }
-}
-
-void User::draw_bezier_curve(sf::RenderWindow *window) {
-  for(auto curve: active_frame->curves) {
-    drawer.draw_bc_lines(curve->get_bc_line_points(), sf::Color::Green, 3.0);
-    //curve->draw_bezier_lines(window);
-  }
-}
-
 void User::draw(sf::RenderWindow *window) {
-  //if(current_state != State::MoveCurve)
-  if(current_state != State::PlayAnimation) {
-    draw_curve_points(window);
+  for(auto curve: active_frame->curves) {
+    // drawing control points
+    if(current_state != State::PlayAnimation) {
+      bool active = false;
+      if(active_frame->active_curve && 
+          curve->get_id() == active_frame->active_curve->get_id())
+        active = true;
+      drawer.draw_control_points(curve->get_control_points(), active);
+    }
+    // drawing bezier curve
+    drawer.draw_bc_lines(curve->get_bc_line_points(), sf::Color::Green, 3.0);
+    // drawing convex hull
+    drawer.draw_convex_hull(curve->get_convex_hull_points());
   }
-  //draw_convex_hull(window);
-  draw_bezier_curve(window);
 }
 
 
