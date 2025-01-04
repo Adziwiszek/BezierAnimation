@@ -2,7 +2,9 @@
 #include <fstream>
 #include <ranges>
 
-User::User(sf::RenderWindow& _window): drawer(_window) {
+User::User(sf::RenderWindow& _window) : 
+    input_handler(frames, active_frame, current_state, 
+    frame_counter, frame_index, actions), drawer(_window) {
   //curves.push_back(BCurve()); 
   //active_curve = &curves[0];
   //active_curve = nullptr;
@@ -12,7 +14,9 @@ User::User(sf::RenderWindow& _window): drawer(_window) {
 }
 
 User::User(Frames frames, unsigned fc, sf::RenderWindow& _window)
-  : frames {frames}, frame_counter {fc}, drawer(_window) {
+  : frames {frames}, frame_counter {fc}, drawer(_window),
+    input_handler(frames, active_frame, current_state, 
+    frame_counter, frame_index, actions){
   active_frame = frames[0];
   frame_index = 0;
 }
@@ -57,20 +61,26 @@ void User::handle_mouse_pressed(const InputState& input) {
   // TODO: fix this shit
   if(current_state == State::AddCurve) {
     add_new_curve(input.mouse_position);
+    actions.push_back("added a curve");
+
   } else if(current_state == State::AddPoint && active_frame->active_curve) {
     add_point_to_current_curve(input.mouse_position);
-  } else if(current_state == State::Normal ||
-      current_state == State::Move || current_state == State::Delete) {
+    actions.push_back("added a point");
+
+  } else if(current_state == State::Normal || current_state == State::Move || current_state == State::Delete) {
     active_frame->active_point = 
       active_frame->get_active_point(input.mouse_position);
     active_frame->active_curve = 
       active_frame->get_active_curve(input.mouse_position);
+
     // deleting point 
     if(active_frame->active_point && current_state == State::Delete) {
+      actions.push_back("deleted point");
       std::cout << "deleting point with id = " << active_frame->active_point->get_id() << std::endl;
       active_frame->active_curve->delete_point_by_id(active_frame->active_point->get_id());
     } // deleting curve, if we have not clicked on a point
     else if(active_frame->active_curve && current_state == State::Delete) { 
+      actions.push_back("deleted curve");
       std::cout << "deleting curve with id = " << active_frame->active_curve->get_id() << std::endl;
       active_frame->delete_curve_by_id(active_frame->active_curve->get_id());
     }
@@ -107,11 +117,14 @@ void User::handle_key_pressed(sf::Keyboard::Key key, const InputState& input) {
     case sf::Keyboard::Key::F:
       add_frame(true);
       next_frame();
+      actions.push_back("added frame");
       break;
     case sf::Keyboard::Key::E:
+      actions.push_back("next frame");
       next_frame();
       break;
     case sf::Keyboard::Key::Q:
+      actions.push_back("previous frame");
       prev_frame();
       break;
     case sf::Keyboard::Key::D:
@@ -226,7 +239,7 @@ void User::add_point_to_current_curve(Vec2f pos) {
 
 void User::update(const InputState& input) {
   // move this thing that handles mous input to some input class 
-  if(input.left_mouse_down) {
+  /*if(input.left_mouse_down) {
     if(active_frame->active_point && current_state == State::Normal) {
     } else if(current_state == State::Move && input.mouse_delta != Vec2f{0,0}) {
       if(active_frame->active_point) {
@@ -242,10 +255,12 @@ void User::update(const InputState& input) {
         }
       }
     }
-  }
+  }*/
+  input_handler.handle_mouse_movement(input);
   // we dropped of a point
   if(!input.left_mouse_down && active_frame->active_point && 
       active_frame->active_point->started_moving) {
+    actions.push_back("moved point");
     std::cout << "-------------\nmoved point\nparent curve id = " 
       << active_frame->active_point->get_parent_id() 
       << "\npoint id = " << active_frame->active_point->get_id()
@@ -258,6 +273,7 @@ void User::update(const InputState& input) {
   // we dropped of a curve
   if(!input.left_mouse_down && active_frame->active_curve && 
       active_frame->active_curve->started_moving) {
+    actions.push_back("moved curve");
     std::cout << "-------------\nmoved curve\n" 
       << "id = "<< active_frame->active_curve->get_id() <<std::endl;
     active_frame->active_curve->started_moving = false;

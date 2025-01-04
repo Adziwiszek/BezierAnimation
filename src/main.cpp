@@ -83,10 +83,18 @@ int main(int argc, char **argv)
     \nf - new frame\ne - next frame\nq - previous frame\nup/down - change fps";
   std::cout << help_text << std::endl;
 
+  /* MAIN LOOP
+   * 1) get user input
+   * 2) check if they clicked on a point or a curve (set appropriate vars)
+   * 3) do stuff with the input (move, add, delete, etc)
+   * 4) update world
+   * */
   while (window.isOpen())
   {
     sf::Time dt = clock.restart();
     input_state.update_mouse(window);
+    input_state.update_dt(dt.asSeconds()); 
+
     sf::Event event;
     while (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed)
@@ -96,8 +104,7 @@ int main(int argc, char **argv)
       user.handle_input(event, input_state);
     }
 
-    input_state.update_dt(dt.asSeconds()); 
-    // update users points
+    // update user 
     user.update(input_state);
     std::string state_text = 
       "frame = "+ std::to_string(user.get_frame_index()) + "/" 
@@ -111,6 +118,10 @@ int main(int argc, char **argv)
     window.display();
   }
   
+  for(const auto& a: user.actions) {
+    std::cout << a << std::endl;
+  }
+
   return 0;
 }
 
