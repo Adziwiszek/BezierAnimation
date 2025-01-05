@@ -14,6 +14,15 @@ Frame::Frame(const Frame& other, unsigned _id)
   }
 }
 
+Frame::Frame(const std::shared_ptr<Frame>& other, unsigned _id):
+  curve_counter{other->curve_counter}, id{_id} {
+  // deep copy of others curves
+  for (const auto& curve : other->curves) {
+    auto new_curve = BCurve(*curve, curve_counter++);
+    curves.push_back(std::make_shared<BCurve>(new_curve)); 
+  }
+}
+
 unsigned Frame::get_id() {
   return id;
 }

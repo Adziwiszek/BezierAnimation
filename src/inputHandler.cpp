@@ -2,7 +2,7 @@
 
 using std::cout;
 
-InputHandler::InputHandler(std::vector<std::shared_ptr<Frame>>& frames,
+InputHandler::InputHandler(std::shared_ptr<Frames> frames,
                          std::shared_ptr<Frame>& active_frame,
                          State& current_state,
                          unsigned& frame_counter,
@@ -89,7 +89,7 @@ void InputHandler::switch_to_state(State new_state, const std::string& state_nam
   std::cout << "Switched to " << state_name << "!\n";
   current_state = new_state;
   if(current_state == PlayAnimation) {
-    active_frame = frames[frame_index];
+    active_frame = (*frames)[frame_index];
   } else {
     //animation_frame_index = 0;
   }
@@ -134,25 +134,25 @@ void InputHandler::handle_mouse_movement(const InputState& input) {
 void InputHandler::add_frame(bool copy_frame) {
   std::shared_ptr<Frame> new_frame;
   if(copy_frame) {
-    new_frame = std::make_shared<Frame>(*frames[frame_index], frame_counter++);
+    new_frame = std::make_shared<Frame>((*frames)[frame_index], frame_counter++);
   } else { 
     new_frame = std::make_shared<Frame>(frame_counter++);
   }
   // if frame we are adding is first we do special stuff
-  if(frames.empty() || frame_index == frames.size()-1) {
-    frames.push_back(new_frame);
+  if(frames->empty() || frame_index == frames->size()-1) {
+    frames->push_back(new_frame);
   } else {
-    frames.insert(frames.begin() + frame_index + 1, new_frame);
+    frames->insert(frames->begin() + frame_index + 1, new_frame);
   }
 }
 void InputHandler::next_frame() {
-  if(frame_index < frames.size() - 1) { 
-    active_frame = frames[++frame_index];
+  if(frame_index < frames->size() - 1) { 
+    active_frame = (*frames)[++frame_index];
   }
 }
 void InputHandler::prev_frame() {
   if(frame_index > 0) { 
-    active_frame = frames[--frame_index];
+    active_frame = (*frames)[--frame_index];
   }
 }
 

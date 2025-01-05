@@ -14,9 +14,7 @@
 #include "drawer.hpp"
 #include "inputHandler.hpp"
 #include "userUtils.hpp"
-
-
-using Frames = std::vector<std::shared_ptr<Frame>>;
+#include "animationManager.hpp"
 
 class User {
 private:
@@ -24,7 +22,7 @@ private:
   // frames
   unsigned frame_counter {0};
   unsigned frame_index {0};
-  Frames frames; 
+  std::shared_ptr<Frames> frames; 
   std::shared_ptr<Frame> active_frame;
 
   State current_state { Normal };
@@ -35,7 +33,7 @@ private:
 
   Drawer drawer;
   InputHandler input_handler;
-
+  AnimationManager animation_manager;
 public:
   std::vector<std::string> actions;
   User(sf::RenderWindow& _window); 

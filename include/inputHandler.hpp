@@ -18,7 +18,7 @@ protected:
 
 class InputHandler {
 public:
-  InputHandler(std::vector<std::shared_ptr<Frame>>& frames, 
+  InputHandler(std::shared_ptr<Frames> frames, 
               std::shared_ptr<Frame>& active_frame,
               State& current_state,
               unsigned& frame_counter,
@@ -30,9 +30,9 @@ public:
   //move down eventually 
   void handle_mouse_movement(const InputState& input);
   void handle_mouse_pressed(const InputState& input);
-private:
   void handle_key_pressed(sf::Keyboard::Key key, const InputState& input);
   void handle_mouse_release(const InputState& input);
+private:
 
   void add_new_curve(Vec2f pos);
   void add_point_to_active_curve(Vec2f pos);
@@ -49,7 +49,7 @@ private:
   //TODO
   // add animationManager that handles all animation things like fps
   // frame index, counter, playing frames (changing indexes) etc
-  std::vector<std::shared_ptr<Frame>>& frames;
+  std::shared_ptr<Frames> frames;
   std::shared_ptr<Frame>& active_frame;
   State& current_state;
   unsigned& frame_counter;

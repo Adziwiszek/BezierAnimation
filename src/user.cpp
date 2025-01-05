@@ -2,22 +2,28 @@
 #include <fstream>
 #include <ranges>
 
-User::User(sf::RenderWindow& _window) : 
+User::User(sf::RenderWindow& _window) : frames{std::make_shared<Frames>()},
     input_handler(frames, active_frame, current_state, 
-    frame_counter, frame_index, actions), drawer(_window) {
+    frame_counter, frame_index, actions), drawer(_window), 
+    animation_manager (frames) {
   //curves.push_back(BCurve()); 
   //active_curve = &curves[0];
   //active_curve = nullptr;
   add_frame(false);
-  active_frame = frames[0];
+  //active_frame = (*frames)[0];
+  active_frame = frames->at(0);
   frame_index = 0;
 }
 
-User::User(Frames frames, unsigned fc, sf::RenderWindow& _window)
-  : frames {frames}, frame_counter {fc}, drawer(_window),
+User::User(Frames _frames, unsigned fc, sf::RenderWindow& _window)
+  : frames {std::make_shared<Frames>(std::move(_frames))}, 
+    frame_counter {fc}, 
+    drawer(_window),
     input_handler(frames, active_frame, current_state, 
-    frame_counter, frame_index, actions){
-  active_frame = frames[0];
+        frame_counter, frame_index, actions),
+    animation_manager (frames) {
+  //active_frame = frames[0];
+  active_frame = frames->at(0);
   frame_index = 0;
 }
 
@@ -36,8 +42,8 @@ void User::save_to_file(std::string path) {
     std::cerr << "Error: failed to open: " << path << std::endl;
     return;
   }
-  output << std::to_string(frames.size()) << std::endl;
-  for(const auto& frame: frames) {
+  output << std::to_string(frames->size()) << std::endl;
+  for(const auto& frame: *frames) {
     for(auto [curve_id, curve] : frame->curves | std::views::enumerate) {
       bool started {false};
       for(const auto& point: curve->get_control_points()) {
@@ -113,7 +119,6 @@ void User::handle_input(sf::Event event, InputState& input) {
     if (event.mouseButton.button == sf::Mouse::Left) {
       input.left_mouse_down = true;
       input.mouse_position = {(float)event.mouseButton.x, (float)event.mouseButton.y};
-      //handle_mouse_pressed(input);
       input_handler.handle_mouse_pressed(input);
     }
   }
@@ -148,33 +153,33 @@ unsigned User::get_frame_index() {
 }
 
 unsigned User::get_frame_count() {
-  return frames.size();
+  return frames->size();
 }
 
 void User::add_frame(bool copy_frame) {
   std::shared_ptr<Frame> new_frame;
   if(copy_frame) {
-    new_frame = std::make_shared<Frame>(*frames[frame_index], frame_counter++);
+    new_frame = std::make_shared<Frame>(*((*frames)[frame_index]), frame_counter++);
   } else { 
     new_frame = std::make_shared<Frame>(frame_counter++);
   }
   // if frame we are adding is first we do special stuff
-  if(frames.empty() || frame_index == frames.size()-1) {
-    frames.push_back(new_frame);
+  if(frames->empty() || frame_index == frames->size()-1) {
+    frames->push_back(new_frame);
   } else {
-    frames.insert(frames.begin() + frame_index + 1, new_frame);
+    frames->insert(frames->begin() + frame_index + 1, new_frame);
   }
 }
 
 void User::next_frame() {
-  if(frame_index < frames.size() - 1) { 
-    active_frame = frames[++frame_index];
+  if(frame_index < frames->size() - 1) { 
+    active_frame = (*frames)[++frame_index];
   }
 }
 
 void User::prev_frame() {
   if(frame_index > 0) { 
-    active_frame = frames[--frame_index];
+    active_frame = (*frames)[--frame_index];
   }
 }
 
@@ -183,7 +188,7 @@ void User::switch_to_state(State new_state, const std::string& state_name="some 
     std::cout << "Switched to " << state_name << "!\n";
     current_state = new_state;
     if(current_state != PlayAnimation) {
-      active_frame = frames[frame_index];
+      active_frame = (*frames)[frame_index];
     } else {
       animation_frame_index = 0;
     }
@@ -235,13 +240,8 @@ void User::update(const InputState& input) {
   }
 
   if(current_state == State::PlayAnimation) {
-    current_time_between_frames += input.dt;
-    float time_to_switch = 1.0f / (float)fps;
-    if(current_time_between_frames >= time_to_switch) {
-      animation_frame_index = (animation_frame_index + 1) % frames.size();
-      current_time_between_frames = 0.0;
-    }
-    active_frame = frames[animation_frame_index];
+    unsigned anim_id = animation_manager.next_frame(input.dt);
+    active_frame = (*frames)[anim_id];
   }
 
   for(auto& curve: active_frame->curves) {

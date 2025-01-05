@@ -21,6 +21,7 @@ set(SOURCES
     src/frame.cpp
     src/drawer.cpp
     src/inputHandler.cpp
+    src/animationManager.cpp
 )
 
 set(HEADERS
@@ -31,6 +32,7 @@ set(HEADERS
   include/drawer.hpp
   include/inputHandler.hpp
   include/userUtils.hpp
+  include/animationManager.hpp
 )
 
 add_executable(BezierAnimation ${SOURCES} ${HEADERS})

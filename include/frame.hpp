@@ -18,6 +18,7 @@ public:
 
   Frame(unsigned);
   Frame(const Frame&, unsigned);
+  Frame(const std::shared_ptr<Frame>&, unsigned);
 
   unsigned get_id();
 
@@ -28,3 +29,5 @@ public:
   std::shared_ptr<Point> get_active_point(Vec2f);
   std::shared_ptr<BCurve> get_active_curve(Vec2f);
 };
+
+using Frames = std::vector<std::shared_ptr<Frame>>;
