@@ -55,38 +55,6 @@ void User::save_to_file(std::string path) {
   std::cout<<"saved succesfully!"<<std::endl;
 }
 
-void User::handle_mouse_pressed(const InputState& input) {
-  if (!input.left_mouse_down) return;
-
-  // TODO: fix this shit
-  if(current_state == State::AddCurve) {
-    add_new_curve(input.mouse_position);
-    actions.push_back("added a curve");
-
-  } else if(current_state == State::AddPoint && active_frame->active_curve) {
-    add_point_to_current_curve(input.mouse_position);
-    actions.push_back("added a point");
-
-  } else if(current_state == State::Normal || current_state == State::Move || current_state == State::Delete) {
-    active_frame->active_point = 
-      active_frame->get_active_point(input.mouse_position);
-    active_frame->active_curve = 
-      active_frame->get_active_curve(input.mouse_position);
-
-    // deleting point 
-    if(active_frame->active_point && current_state == State::Delete) {
-      actions.push_back("deleted point");
-      std::cout << "deleting point with id = " << active_frame->active_point->get_id() << std::endl;
-      active_frame->active_curve->delete_point_by_id(active_frame->active_point->get_id());
-    } // deleting curve, if we have not clicked on a point
-    else if(active_frame->active_curve && current_state == State::Delete) { 
-      actions.push_back("deleted curve");
-      std::cout << "deleting curve with id = " << active_frame->active_curve->get_id() << std::endl;
-      active_frame->delete_curve_by_id(active_frame->active_curve->get_id());
-    }
-  } 
-}
-
 void User::handle_key_pressed(sf::Keyboard::Key key, const InputState& input) {
   // TODO: fix this switch hell
   switch (key) {
@@ -145,7 +113,8 @@ void User::handle_input(sf::Event event, InputState& input) {
     if (event.mouseButton.button == sf::Mouse::Left) {
       input.left_mouse_down = true;
       input.mouse_position = {(float)event.mouseButton.x, (float)event.mouseButton.y};
-      handle_mouse_pressed(input);
+      //handle_mouse_pressed(input);
+      input_handler.handle_mouse_pressed(input);
     }
   }
   if (event.type == sf::Event::MouseButtonReleased) {
@@ -224,6 +193,7 @@ void User::switch_to_state(State new_state, const std::string& state_name="some 
 void User::add_new_curve(Vec2f pos) {
   if(active_frame) {
     active_frame->add_curve(pos);
+    std::cout << "DUPA1\n";
     current_state = State::AddPoint;
   }
 }
@@ -238,25 +208,9 @@ void User::add_point_to_current_curve(Vec2f pos) {
 }
 
 void User::update(const InputState& input) {
-  // move this thing that handles mous input to some input class 
-  /*if(input.left_mouse_down) {
-    if(active_frame->active_point && current_state == State::Normal) {
-    } else if(current_state == State::Move && input.mouse_delta != Vec2f{0,0}) {
-      if(active_frame->active_point) {
-        active_frame->active_point->update_position(input.mouse_position);
-        active_frame->active_point->started_moving = true;
-      } else if(active_frame->active_curve) {
-        active_frame->active_curve->started_moving = true;
-        for(const auto &point: active_frame->active_curve->get_control_points()) {
-          if(!point) continue;
-          Vec2f new_pos { point->x + input.mouse_delta.x,
-                        point->y + input.mouse_delta.y };
-          point->update_position(new_pos); 
-        }
-      }
-    }
-  }*/
+  //handling input here idk
   input_handler.handle_mouse_movement(input);
+
   // we dropped of a point
   if(!input.left_mouse_down && active_frame->active_point && 
       active_frame->active_point->started_moving) {
@@ -308,7 +262,7 @@ void User::draw(sf::RenderWindow *window) {
     // drawing bezier curve
     drawer.draw_bc_lines(curve->get_bc_line_points(), sf::Color::Green, 3.0);
     // drawing convex hull
-    drawer.draw_convex_hull(curve->get_convex_hull_points());
+    // drawer.draw_convex_hull(curve->get_convex_hull_points());
   }
 }
 

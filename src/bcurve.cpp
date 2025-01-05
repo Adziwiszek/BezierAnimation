@@ -40,7 +40,8 @@ void BCurve::delete_point_by_id(unsigned id) {
       points.end()
     ); 
   } catch(const std::exception& e) {
-    std::cout << "Error: " << e.what() << std::endl;
+    std::cerr << "Error when deleting point in BCurve" << std::endl;
+    throw e;
   }
 }
 

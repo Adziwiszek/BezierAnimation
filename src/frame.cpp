@@ -53,7 +53,8 @@ void Frame::delete_point_from_current_curve(unsigned id) {
       curves.end()
     ); 
   } catch(const std::exception& e) {
-    std::cout << "Error when trying to delete curve: " << e.what() << std::endl;
+    std::cerr << "Error when trying to delete curve in Frame: " << std::endl;
+    throw e;
   }
 }
 
