@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <ranges>
+#include <sstream>
 #include "frame.hpp"
 
 class AnimationState {
@@ -15,6 +16,7 @@ public:
   void add_frame(bool copy_frame);
 
   unsigned get_frame_index();
+  unsigned get_frame_count();
   std::shared_ptr<Frame> get_active_frame();
 
   void save_to_file(std::string filename);

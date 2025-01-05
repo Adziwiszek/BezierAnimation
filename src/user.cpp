@@ -25,6 +25,10 @@ User::User(Frames _frames, unsigned fc, sf::RenderWindow& _window)
   active_frame = frames->at(0);
 }
 
+void User::init_empty() {
+  frames->push_back(std::make_shared<Frame>(0)); 
+}
+
 void User::handle_input(sf::Event event, InputState& input) {
   input_handler.handle_event(event, input);
 }
@@ -42,7 +46,7 @@ unsigned User::get_frame_index() {
 }
 
 unsigned User::get_frame_count() {
-  return frames->size();
+  return animation_state.get_frame_count();
 }
 
 void User::update(const InputState& input) {
@@ -82,6 +86,14 @@ void User::update(const InputState& input) {
   for(auto& curve: active_frame->curves) {
     curve->update();
   }
+}
+
+void User::save_to_file(std::string path) {
+  animation_state.save_to_file(path);
+}
+
+void User::load_from_file(std::string path) {
+  animation_state.load_from_file(path);
 }
 
 void User::draw(sf::RenderWindow *window) {

@@ -28,6 +28,7 @@ public:
   std::vector<std::string> actions;
   User(sf::RenderWindow& _window); 
   User(Frames, unsigned, sf::RenderWindow&);
+  void init_empty();
   // handle user input
   void handle_input(sf::Event event, InputState& input); 
   // update state
@@ -38,6 +39,7 @@ public:
   unsigned get_fps();
   // saving files 
   void save_to_file(std::string);
+  void load_from_file(std::string);
   // drawing program
   void draw(sf::RenderWindow *window);
 };
