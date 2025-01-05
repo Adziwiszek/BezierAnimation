@@ -2,15 +2,15 @@
 #include <fstream>
 #include <ranges>
 
-User::User(sf::RenderWindow& _window) : frames{std::make_shared<Frames>()},
+User::User(sf::RenderWindow& _window) : 
+    frames{std::make_shared<Frames>()},
+    drawer(_window), 
+    animation_manager(frames),
+    animation_state(frames),
     input_handler(frames, active_frame, current_state, 
-    frame_counter, frame_index, actions), drawer(_window), 
-    animation_manager (frames) {
-  //curves.push_back(BCurve()); 
-  //active_curve = &curves[0];
-  //active_curve = nullptr;
+    frame_counter, frame_index, actions, animation_state) {
+
   input_handler.add_frame(false);
-  //active_frame = (*frames)[0];
   active_frame = frames->at(0);
   frame_index = 0;
 }
@@ -19,10 +19,11 @@ User::User(Frames _frames, unsigned fc, sf::RenderWindow& _window)
   : frames {std::make_shared<Frames>(std::move(_frames))}, 
     frame_counter {fc}, 
     drawer(_window),
+    animation_manager(frames),
+    animation_state(frames),
     input_handler(frames, active_frame, current_state, 
-        frame_counter, frame_index, actions),
-    animation_manager (frames) {
-  //active_frame = frames[0];
+        frame_counter, frame_index, actions, animation_state) {
+  
   active_frame = frames->at(0);
   frame_index = 0;
 }

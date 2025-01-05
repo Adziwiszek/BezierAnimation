@@ -5,11 +5,7 @@
 #include <memory>
 #include <cmath>
 #include <iostream>
-#include <tuple>
-#include <array>
 
-#include "point.hpp"
-#include "bcurve.hpp"
 #include "frame.hpp"
 #include "drawer.hpp"
 #include "inputHandler.hpp"
@@ -18,7 +14,6 @@
 
 class User {
 private:
-  // state:
   // frames
   unsigned frame_counter {0};
   unsigned frame_index {0};
@@ -26,32 +21,20 @@ private:
   std::shared_ptr<Frame> active_frame;
 
   State current_state { Normal };
-  //Playing animation
-  unsigned fps {30};
-  float current_time_between_frames{0};
-  unsigned animation_frame_index;
 
   Drawer drawer;
   InputHandler input_handler;
   AnimationManager animation_manager;
+  AnimationState animation_state;
 public:
   std::vector<std::string> actions;
   User(sf::RenderWindow& _window); 
   User(Frames, unsigned, sf::RenderWindow&);
   // handle user input
   void handle_input(sf::Event event, InputState& input); 
-  void handle_mouse_pressed(const InputState& input);
-  void handle_key_pressed(sf::Keyboard::Key key, const InputState& input);
   // update state
   void update(const InputState& input); 
-  void switch_to_state(State new_state, const std::string& state_name);
-  void add_new_curve(Vec2f);
-  void delete_curve_by_id(unsigned);
-  void add_point_to_current_curve(Vec2f);
   // manage frames of animation
-  void add_frame(bool);
-  void next_frame();
-  void prev_frame();
   unsigned get_frame_index();
   unsigned get_frame_count();
   unsigned get_fps();

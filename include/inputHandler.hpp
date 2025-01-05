@@ -7,6 +7,7 @@
 
 #include "frame.hpp"
 #include "userUtils.hpp"
+#include "animationState.hpp"
 
 class KeyEvent {
 public:
@@ -23,7 +24,8 @@ public:
               State& current_state,
               unsigned& frame_counter,
               unsigned& frame_index,
-              std::vector<std::string>& actions);
+              std::vector<std::string>& actions,
+              AnimationState& _anim_state);
 
   void handle_event(sf::Event event, InputState& input);
   void update(const InputState& input);
@@ -49,6 +51,7 @@ private:
   //TODO
   // add animationManager that handles all animation things like fps
   // frame index, counter, playing frames (changing indexes) etc
+  AnimationState& animation_state;
   std::shared_ptr<Frames> frames;
   std::shared_ptr<Frame>& active_frame;
   State& current_state;

@@ -7,9 +7,15 @@ InputHandler::InputHandler(std::shared_ptr<Frames> frames,
                          State& current_state,
                          unsigned& frame_counter,
                          unsigned& frame_index,
-                         std::vector<std::string>& actions)
-  : frames(frames), active_frame(active_frame), current_state(current_state),
-    frame_counter(frame_counter), frame_index(frame_index), actions(actions) {}
+                         std::vector<std::string>& actions,
+                         AnimationState& _anim_state)
+  : frames(frames), 
+    active_frame(active_frame), 
+    current_state(current_state),
+    frame_counter(frame_counter), 
+    frame_index(frame_index), 
+    actions(actions),
+    animation_state{_anim_state} {}
 
 
 void InputHandler::handle_event(sf::Event event, InputState& input) {

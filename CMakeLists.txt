@@ -22,17 +22,18 @@ set(SOURCES
     src/drawer.cpp
     src/inputHandler.cpp
     src/animationManager.cpp
+    src/animationState.cpp
 )
 
 set(HEADERS
   include/point.hpp
   include/bcurve.hpp
   include/user.hpp
-  include/history.hpp
   include/drawer.hpp
   include/inputHandler.hpp
   include/userUtils.hpp
   include/animationManager.hpp
+  include/animationState.hpp
 )
 
 add_executable(BezierAnimation ${SOURCES} ${HEADERS})
