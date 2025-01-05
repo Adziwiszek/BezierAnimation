@@ -2,21 +2,14 @@
 
 using std::cout;
 
-InputHandler::InputHandler(std::shared_ptr<Frames> frames,
-                         std::shared_ptr<Frame>& active_frame,
+InputHandler::InputHandler(std::shared_ptr<Frame>& active_frame,
                          State& current_state,
-                         unsigned& frame_counter,
-                         unsigned& frame_index,
                          std::vector<std::string>& actions,
                          AnimationState& _anim_state)
-  : frames(frames), 
-    active_frame(active_frame), 
+  : active_frame(active_frame), 
     current_state(current_state),
-    frame_counter(frame_counter), 
-    frame_index(frame_index), 
     actions(actions),
     animation_state{_anim_state} {}
-
 
 void InputHandler::handle_event(sf::Event event, InputState& input) {
   if (event.type == sf::Event::MouseButtonPressed) {
@@ -121,7 +114,7 @@ void InputHandler::switch_to_state(State new_state, const std::string& state_nam
   std::cout << "Switched to " << state_name << "!\n";
   current_state = new_state;
   if(current_state == PlayAnimation) {
-    active_frame = (*frames)[frame_index];
+    active_frame = animation_state.get_active_frame();
   } else {
     //animation_frame_index = 0;
   }
@@ -164,28 +157,13 @@ void InputHandler::handle_mouse_movement(const InputState& input) {
 }
 
 void InputHandler::add_frame(bool copy_frame) {
-  std::shared_ptr<Frame> new_frame;
-  if(copy_frame) {
-    new_frame = std::make_shared<Frame>((*frames)[frame_index], frame_counter++);
-  } else { 
-    new_frame = std::make_shared<Frame>(frame_counter++);
-  }
-  // if frame we are adding is first we do special stuff
-  if(frames->empty() || frame_index == frames->size()-1) {
-    frames->push_back(new_frame);
-  } else {
-    frames->insert(frames->begin() + frame_index + 1, new_frame);
-  }
+  animation_state.add_frame(copy_frame);
 }
 void InputHandler::next_frame() {
-  if(frame_index < frames->size() - 1) { 
-    active_frame = (*frames)[++frame_index];
-  }
+  animation_state.next_frame();
 }
 void InputHandler::prev_frame() {
-  if(frame_index > 0) { 
-    active_frame = (*frames)[--frame_index];
-  }
+  animation_state.prev_frame();
 }
 
 void InputHandler::handle_key_pressed(sf::Keyboard::Key key, const InputState& input) {

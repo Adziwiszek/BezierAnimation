@@ -7,8 +7,8 @@ User::User(sf::RenderWindow& _window) :
     drawer(_window), 
     animation_manager(frames),
     animation_state(frames),
-    input_handler(frames, active_frame, current_state, 
-    frame_counter, frame_index, actions, animation_state) {
+    input_handler(active_frame, current_state, 
+      actions, animation_state) {
 
   input_handler.add_frame(false);
   active_frame = frames->at(0);
@@ -21,8 +21,8 @@ User::User(Frames _frames, unsigned fc, sf::RenderWindow& _window)
     drawer(_window),
     animation_manager(frames),
     animation_state(frames),
-    input_handler(frames, active_frame, current_state, 
-        frame_counter, frame_index, actions, animation_state) {
+    input_handler(active_frame, current_state, 
+      actions, animation_state) {
   
   active_frame = frames->at(0);
   frame_index = 0;
@@ -75,7 +75,7 @@ unsigned update_index(Frames &frames, Frames::iterator it) {
 }
 
 unsigned User::get_frame_index() {
-  return frame_index + 1;
+  return animation_state.get_frame_index() + 1;
 }
 
 unsigned User::get_frame_count() {
@@ -112,6 +112,8 @@ void User::update(const InputState& input) {
   if(current_state == State::PlayAnimation) {
     unsigned anim_id = animation_manager.next_frame(input.dt);
     active_frame = (*frames)[anim_id];
+  } else {
+    active_frame = animation_state.get_active_frame();
   }
 
   for(auto& curve: active_frame->curves) {

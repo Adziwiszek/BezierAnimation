@@ -19,11 +19,8 @@ protected:
 
 class InputHandler {
 public:
-  InputHandler(std::shared_ptr<Frames> frames, 
-              std::shared_ptr<Frame>& active_frame,
+  InputHandler(std::shared_ptr<Frame>& active_frame,
               State& current_state,
-              unsigned& frame_counter,
-              unsigned& frame_index,
               std::vector<std::string>& actions,
               AnimationState& _anim_state);
 
@@ -52,10 +49,7 @@ private:
   // add animationManager that handles all animation things like fps
   // frame index, counter, playing frames (changing indexes) etc
   AnimationState& animation_state;
-  std::shared_ptr<Frames> frames;
   std::shared_ptr<Frame>& active_frame;
   State& current_state;
-  unsigned& frame_counter;
-  unsigned& frame_index;
   std::vector<std::string>& actions;
 };
