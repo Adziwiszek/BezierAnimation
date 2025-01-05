@@ -23,10 +23,8 @@ int main(int argc, char **argv)
       std::cout<<"loading from file..."<< std::endl;
       user.load_from_file(std::string(argv[1]));
     }
-  } else {
-    user.init_empty();
-  }
-  
+  }   
+
   sf::Font font;
   if(!font.loadFromFile("Roboto-Black.ttf")) {
     std::cerr << "Error: Could not load font!" << std::endl;

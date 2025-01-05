@@ -3,7 +3,7 @@
 using std::cout, std::endl;
 
 AnimationState::AnimationState(std::shared_ptr<Frames> _frames):
-  frames{std::move(_frames)}, active_frame{} {}
+  frames{_frames}, active_frame{} {}
 
 void AnimationState::next_frame() {
   if(frame_index < frames->size() - 1) { 

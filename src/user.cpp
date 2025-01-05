@@ -78,6 +78,7 @@ void User::update(const InputState& input) {
 
   if(current_state == State::PlayAnimation) {
     unsigned anim_id = animation_manager.next_frame(input.dt);
+    //cout<<"anim_id = "<<anim_id<<std::endl;
     active_frame = (*frames)[anim_id];
   } else {
     active_frame = animation_state.get_active_frame();
