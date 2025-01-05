@@ -12,6 +12,32 @@ InputHandler::InputHandler(std::shared_ptr<Frames> frames,
     frame_counter(frame_counter), frame_index(frame_index), actions(actions) {}
 
 
+void InputHandler::handle_event(sf::Event event, InputState& input) {
+  if (event.type == sf::Event::MouseButtonPressed) {
+    if (event.mouseButton.button == sf::Mouse::Left) {
+      input.left_mouse_down = true;
+      input.mouse_position = {(float)event.mouseButton.x, (float)event.mouseButton.y};
+      handle_mouse_pressed(input);
+    }
+  }
+  if (event.type == sf::Event::MouseButtonReleased) {
+    if (event.mouseButton.button == sf::Mouse::Left) {
+      //active_point = nullptr;
+      input.left_mouse_down = false;
+    }
+  }
+
+  if(event.type == sf::Event::KeyPressed) {
+    input.update_key(event.key.code, true);
+    handle_key_pressed(event.key.code, input);
+  }
+  if(event.type == sf::Event::KeyReleased) {
+    if(event.key.scancode == sf::Keyboard::Scan::Z) {
+      input.update_key(event.key.code, false);
+    }
+  }
+}
+
 void InputHandler::handle_mouse_pressed(const InputState& input) {
   if(!input.left_mouse_down)
     return;

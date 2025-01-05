@@ -9,7 +9,7 @@ User::User(sf::RenderWindow& _window) : frames{std::make_shared<Frames>()},
   //curves.push_back(BCurve()); 
   //active_curve = &curves[0];
   //active_curve = nullptr;
-  add_frame(false);
+  input_handler.add_frame(false);
   //active_frame = (*frames)[0];
   active_frame = frames->at(0);
   frame_index = 0;
@@ -61,87 +61,12 @@ void User::save_to_file(std::string path) {
   std::cout<<"saved succesfully!"<<std::endl;
 }
 
-void User::handle_key_pressed(sf::Keyboard::Key key, const InputState& input) {
-  // TODO: fix this switch hell
-  switch (key) {
-    case sf::Keyboard::Key::G:
-      switch_to_state(State::AddCurve, "AddCurve");
-      break;
-    case sf::Keyboard::Key::N:
-      switch_to_state(State::Normal, "Normal");
-      break;
-    case sf::Keyboard::Key::M:
-      switch_to_state(State::Move, "Move");
-      break;
-    case sf::Keyboard::Key::H:
-      switch_to_state(State::AddPoint, "AddPoint");
-      break;
-    case sf::Keyboard::Key::A:
-      switch_to_state(State::PlayAnimation, "PlayAnimation");
-      break;
-    case sf::Keyboard::Key::S:
-      save_to_file("test.txt");
-      break;
-    case sf::Keyboard::Key::Up:
-      fps += 1;
-      break;
-    case sf::Keyboard::Key::Down:
-      fps -= 1;
-      break;
-    case sf::Keyboard::Key::F:
-      add_frame(true);
-      next_frame();
-      actions.push_back("added frame");
-      break;
-    case sf::Keyboard::Key::E:
-      actions.push_back("next frame");
-      next_frame();
-      break;
-    case sf::Keyboard::Key::Q:
-      actions.push_back("previous frame");
-      prev_frame();
-      break;
-    case sf::Keyboard::Key::D:
-      switch_to_state(State::Delete, "Delete point");
-      break;
-    case sf::Keyboard::Key::Z:
-      /*if(active_curve && input.ctrl_pressed) {
-        active_curve->undo_last_point();
-      }*/
-      break;
-    default:
-      break;
-  }
-}
-
 void User::handle_input(sf::Event event, InputState& input) {
-  if (event.type == sf::Event::MouseButtonPressed) {
-    if (event.mouseButton.button == sf::Mouse::Left) {
-      input.left_mouse_down = true;
-      input.mouse_position = {(float)event.mouseButton.x, (float)event.mouseButton.y};
-      input_handler.handle_mouse_pressed(input);
-    }
-  }
-  if (event.type == sf::Event::MouseButtonReleased) {
-    if (event.mouseButton.button == sf::Mouse::Left) {
-      //active_point = nullptr;
-      input.left_mouse_down = false;
-    }
-  }
-
-  if(event.type == sf::Event::KeyPressed) {
-    input.update_key(event.key.code, true);
-    handle_key_pressed(event.key.code, input);
-  }
-  if(event.type == sf::Event::KeyReleased) {
-    if(event.key.scancode == sf::Keyboard::Scan::Z) {
-      input.update_key(event.key.code, false);
-    }
-  }
+  input_handler.handle_event(event, input);
 }
 
 unsigned User::get_fps() {
-  return fps;
+  return animation_manager.get_fsp();
 }
 
 unsigned update_index(Frames &frames, Frames::iterator it) {
@@ -154,62 +79,6 @@ unsigned User::get_frame_index() {
 
 unsigned User::get_frame_count() {
   return frames->size();
-}
-
-void User::add_frame(bool copy_frame) {
-  std::shared_ptr<Frame> new_frame;
-  if(copy_frame) {
-    new_frame = std::make_shared<Frame>(*((*frames)[frame_index]), frame_counter++);
-  } else { 
-    new_frame = std::make_shared<Frame>(frame_counter++);
-  }
-  // if frame we are adding is first we do special stuff
-  if(frames->empty() || frame_index == frames->size()-1) {
-    frames->push_back(new_frame);
-  } else {
-    frames->insert(frames->begin() + frame_index + 1, new_frame);
-  }
-}
-
-void User::next_frame() {
-  if(frame_index < frames->size() - 1) { 
-    active_frame = (*frames)[++frame_index];
-  }
-}
-
-void User::prev_frame() {
-  if(frame_index > 0) { 
-    active_frame = (*frames)[--frame_index];
-  }
-}
-
-void User::switch_to_state(State new_state, const std::string& state_name="some state") {
-  if (current_state != new_state) {
-    std::cout << "Switched to " << state_name << "!\n";
-    current_state = new_state;
-    if(current_state != PlayAnimation) {
-      active_frame = (*frames)[frame_index];
-    } else {
-      animation_frame_index = 0;
-    }
-  }
-}
-
-void User::add_new_curve(Vec2f pos) {
-  if(active_frame) {
-    active_frame->add_curve(pos);
-    std::cout << "DUPA1\n";
-    current_state = State::AddPoint;
-  }
-}
-
-void User::add_point_to_current_curve(Vec2f pos) {
-  if(active_frame) {
-    active_frame->add_point_to_current_curve(pos);
-    /*std::cout <<
-      "spawned point for curve with id = " << active_curve->get_id() << std::endl;
-    */
-  }
 }
 
 void User::update(const InputState& input) {
@@ -265,7 +134,4 @@ void User::draw(sf::RenderWindow *window) {
     // drawer.draw_convex_hull(curve->get_convex_hull_points());
   }
 }
-
-
-
 

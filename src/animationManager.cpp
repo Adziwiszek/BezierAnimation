@@ -2,7 +2,6 @@
 
 AnimationManager::AnimationManager(std::shared_ptr<Frames> _frames): 
   frames {std::move(_frames)} {
-  cout << "FRAMES SIZE = " << frames->size() << std::endl;
 }
 
 unsigned AnimationManager::next_frame(float dt) {
@@ -15,10 +14,7 @@ unsigned AnimationManager::next_frame(float dt) {
     if(animation_frame_index >= frames->size()) {
       animation_frame_index = 0;
     }
-    cout << "FRAMES SIZE = " << frames->size() << std::endl;
 
-/*    cout << "frames size = " << frames.size() 
-      << "current frame = " << animation_frame_index << " \n";*/
     return animation_frame_index;
 }
 

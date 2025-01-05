@@ -32,6 +32,7 @@ public:
   void handle_mouse_pressed(const InputState& input);
   void handle_key_pressed(sf::Keyboard::Key key, const InputState& input);
   void handle_mouse_release(const InputState& input);
+  void add_frame(bool copy_frame);
 private:
 
   void add_new_curve(Vec2f pos);
@@ -42,7 +43,6 @@ private:
   void move_active_point(Vec2f pos);
   void move_active_curver(Vec2f pos);
 
-  void add_frame(bool copy_frame);
   void next_frame();
   void prev_frame();
 
