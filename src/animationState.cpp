@@ -41,8 +41,38 @@ std::shared_ptr<Frame> AnimationState::get_active_frame() {
   return frames->at(frame_index);
 }
 
-void AnimationState::save_to_file(std::string filename) {
+void put_to_stream(std::ofstream& output, std::string name, float x, float y, 
+      int fid, int cid) {
+  output << name << " " 
+    << x << " " 
+    << y << " "
+    << fid << " " 
+    << cid << std::endl;
+}
 
+void AnimationState::save_to_file(std::string path) {
+  std::ofstream output(path);
+  if(!output) {
+    std::cerr << "Error: failed to open: " << path << std::endl;
+    return;
+  }
+  output << std::to_string(frames->size()) << std::endl;
+  for(const auto& frame: *frames) {
+    for(auto [curve_id, curve] : frame->curves | std::views::enumerate) {
+      bool started {false};
+      for(const auto& point: curve->get_control_points()) {
+        if(!started) {
+          put_to_stream(output, "ADDC", point->x, point->y, frame->get_id(), 0);
+          started = true;
+        } else {
+          put_to_stream(output, "ADDP", point->x, point->y, 
+              frame->get_id(), curve_id);
+        }
+      }
+    }
+  }
+  output.close();
+  std::cout<<"saved succesfully!"<<std::endl;
 }
 void AnimationState::load_from_file(std::string filename) {
 

@@ -15,8 +15,6 @@
 class User {
 private:
   // frames
-  unsigned frame_counter {0};
-  unsigned frame_index {0};
   std::shared_ptr<Frames> frames; 
   std::shared_ptr<Frame> active_frame;
 

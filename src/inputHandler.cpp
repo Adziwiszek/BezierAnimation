@@ -184,6 +184,7 @@ void InputHandler::handle_key_pressed(sf::Keyboard::Key key, const InputState& i
       switch_to_state(State::PlayAnimation, "PlayAnimation");
       break;
     case sf::Keyboard::Key::S:
+      animation_state.save_to_file("test.txt");
       //save_to_file("test.txt");
       break;
     case sf::Keyboard::Key::Up:

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fstream>
+#include <ranges>
 #include "frame.hpp"
 
 class AnimationState {
