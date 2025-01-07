@@ -7,9 +7,9 @@ User::User(sf::RenderWindow& _window) :
     drawer(_window), 
     animation_manager(frames),
     animation_state(frames),
+    ui_manager(_window),
     input_handler(active_frame, current_state, 
-      actions, animation_state),
-    ui_manager(_window)
+      actions, animation_state, ui_manager)
     {
 
   input_handler.add_frame(false);
@@ -21,10 +21,10 @@ User::User(Frames _frames, unsigned fc, sf::RenderWindow& _window)
     drawer(_window),
     animation_manager(frames),
     animation_state(frames),
+    ui_manager(_window),
     input_handler(active_frame, current_state, 
-      actions, animation_state),
-    ui_manager(_window) {
-  
+      actions, animation_state, ui_manager)
+     {
   active_frame = frames->at(0);
 }
 

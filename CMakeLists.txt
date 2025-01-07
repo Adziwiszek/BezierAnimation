@@ -34,6 +34,7 @@ set(HEADERS
   include/userUtils.hpp
   include/animationManager.hpp
   include/animationState.hpp
+  include/uiManager.hpp
 )
 
 add_executable(BezierAnimation ${SOURCES} ${HEADERS})

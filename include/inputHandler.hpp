@@ -8,6 +8,7 @@
 #include "frame.hpp"
 #include "userUtils.hpp"
 #include "animationState.hpp"
+#include "uiManager.hpp"
 
 class KeyEvent {
 public:
@@ -22,7 +23,8 @@ public:
   InputHandler(std::shared_ptr<Frame>& active_frame,
               State& current_state,
               std::vector<std::string>& actions,
-              AnimationState& _anim_state);
+              AnimationState& _anim_state,
+              UI::Manager& _uiman);
 
   void handle_event(sf::Event event, InputState& input);
   void update(const InputState& input);
@@ -33,7 +35,6 @@ public:
   void handle_mouse_release(const InputState& input);
   void add_frame(bool copy_frame);
 private:
-
   void add_new_curve(Vec2f pos);
   void add_point_to_active_curve(Vec2f pos);
   void handle_point_deletion();
@@ -45,10 +46,8 @@ private:
   void next_frame();
   void prev_frame();
 
-  //TODO
-  // add animationManager that handles all animation things like fps
-  // frame index, counter, playing frames (changing indexes) etc
   AnimationState& animation_state;
+  UI::Manager& ui_manager;
   std::shared_ptr<Frame>& active_frame;
   State& current_state;
   std::vector<std::string>& actions;

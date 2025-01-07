@@ -5,11 +5,13 @@ using std::cout;
 InputHandler::InputHandler(std::shared_ptr<Frame>& active_frame,
                          State& current_state,
                          std::vector<std::string>& actions,
-                         AnimationState& _anim_state)
+                         AnimationState& _anim_state,
+                         UI::Manager& _uiman)
   : active_frame(active_frame), 
     current_state(current_state),
     actions(actions),
-    animation_state{_anim_state} {}
+    animation_state{_anim_state},
+    ui_manager{_uiman} {}
 
 void InputHandler::handle_event(sf::Event event, InputState& input) {
   if (event.type == sf::Event::MouseButtonPressed) {
@@ -40,6 +42,7 @@ void InputHandler::handle_event(sf::Event event, InputState& input) {
 void InputHandler::handle_mouse_pressed(const InputState& input) {
   if(!input.left_mouse_down)
     return;
+  ui_manager.handle_click(input.mouse_position);
   switch(current_state) {
     case State::AddCurve:
       add_new_curve(input.mouse_position);

@@ -34,7 +34,7 @@ int main(int argc, char **argv)
   frame_info.setFont(font);
   frame_info.setCharacterSize(24);
   frame_info.setFillColor(sf::Color::White);
-  frame_info.setPosition(0.f, 0.f);
+  frame_info.setPosition(150.f, 0.f);
 
   sf::Clock clock;
 
