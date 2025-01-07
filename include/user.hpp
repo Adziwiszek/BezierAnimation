@@ -5,6 +5,7 @@
 #include <memory>
 #include <cmath>
 #include <iostream>
+#include <unordered_map>
 
 #include "frame.hpp"
 #include "drawer.hpp"
@@ -52,16 +53,41 @@ namespace UI {
   };
 
   class ImageElement : public Element {
+    sf::Sprite sprite;
   public:
     ImageElement() {
       set_size({40.0, 40.0});
     }
-    void draw(sf::RenderWindow& _window) {
+    void draw(sf::RenderWindow& _window) override {
       _window.draw(background);
+      if(sprite.getTexture())
+        _window.draw(sprite);
     }
-    Vec2f calculate_size() {
-      //std::cout << "image elem size.y = " << size.y << std::endl;
-      return size;}
+    Vec2f calculate_size() override {return size;}
+    void set_texture(const sf::Texture* texture) {
+      if(texture) {
+        sprite.setTexture(*texture); 
+        update_sprite_size();
+      }
+    }
+    void set_position(Vec2f _pos) {
+        Element::set_position(_pos);
+        sprite.setPosition(position);
+    }
+    void set_size(Vec2f _size) {
+        Element::set_size(_size);
+        update_sprite_size();
+    }
+    void update_sprite_size() {
+      if (sprite.getTexture()) {
+        const sf::Vector2u textureSize = sprite.getTexture()->getSize();
+        const Vec2f scale{
+            size.x / static_cast<float>(textureSize.x),
+            size.y / static_cast<float>(textureSize.y)
+        };
+        sprite.setScale(scale.x, scale.y);
+      }
+    }
   };
 
   class Container : public Element {
@@ -108,7 +134,6 @@ namespace UI {
     }
     void draw(sf::RenderWindow& _window) {
       Vec2f final_size {calculate_size()};
-      //std::cout<< "my size y = " << size.y << std::endl;
 
       if(stretch_height) {
         final_size.y = _window.getSize().y;
@@ -135,12 +160,12 @@ namespace UI {
 
   class Manager {
     std::vector<std::unique_ptr<Element>> elements;
+    std::unordered_map<std::string, sf::Texture> textures;
     sf::RenderWindow& window;
   public:
     Manager(sf::RenderWindow& _window): window{_window} {
       auto testcont = std::make_unique<Container>();
       testcont->set_position({0.0, 0.0});
-      //testcont->stretch_height = true;
       testcont->set_color(sf::Color::Cyan);
       testcont->set_padding(Padding{5.0, 5.0, 5.0, 5.0});
       testcont->set_orientation(Orientation::Vertical);
@@ -173,12 +198,31 @@ namespace UI {
     void drawUI() {
       Vec2f window_size{window.getSize()};
       for(auto& elem: elements) {
-        Vec2f final_size{0.0, 0.0};
-
-        elem->set_size(final_size);
         elem->draw(window);
       }
     }
+    bool load_texture(const std::string& path) {
+      if(textures.find(path) != textures.end()) {
+          return true; 
+      }
+
+      sf::Texture texture;
+      if (!texture.loadFromFile(path)) {
+          std::cerr << "Failed to load texture: " << path << std::endl;
+          return false;
+      }
+
+      textures[path] = std::move(texture);
+      return true;
+    } 
+    const sf::Texture* get_texture(const std::string& path) const {
+      auto it = textures.find(path);
+      if (it != textures.end()) {
+          return &it->second;
+      }
+      return nullptr;
+    }
+
   };
 };
 
