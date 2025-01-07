@@ -8,7 +8,9 @@ User::User(sf::RenderWindow& _window) :
     animation_manager(frames),
     animation_state(frames),
     input_handler(active_frame, current_state, 
-      actions, animation_state) {
+      actions, animation_state),
+    ui_manager(_window)
+    {
 
   input_handler.add_frame(false);
   active_frame = frames->at(0);
@@ -20,7 +22,8 @@ User::User(Frames _frames, unsigned fc, sf::RenderWindow& _window)
     animation_manager(frames),
     animation_state(frames),
     input_handler(active_frame, current_state, 
-      actions, animation_state) {
+      actions, animation_state),
+    ui_manager(_window) {
   
   active_frame = frames->at(0);
 }
@@ -112,5 +115,7 @@ void User::draw(sf::RenderWindow *window) {
     // drawing convex hull
     // drawer.draw_convex_hull(curve->get_convex_hull_points());
   }
+
+  ui_manager.drawUI();
 }
 

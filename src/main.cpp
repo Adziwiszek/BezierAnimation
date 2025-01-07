@@ -11,6 +11,7 @@ using Vec2f = sf::Vector2f;
 
 int main(int argc, char **argv)
 {
+  //sf::RenderWindow window(sf::VideoMode(1920, 1080), "Bezier Animations", sf::Style::Fullscreen);
   sf::RenderWindow window(sf::VideoMode(800, 600), "Bezier Animations");
   User user(window);
   InputState input_state;
@@ -73,6 +74,7 @@ int main(int argc, char **argv)
       "\nfps = " + std::to_string(user.get_fps());
     frame_info.setString(state_text);
 
+    //window.clear(sf::Color{109, 121, 140});
     window.clear(sf::Color::Black);
     user.draw(&window);
     window.draw(frame_info);
