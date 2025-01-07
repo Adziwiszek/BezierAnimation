@@ -5,8 +5,6 @@
 #include <memory>
 #include <cmath>
 #include <iostream>
-#include <unordered_map>
-#include <functional>
 
 #include "frame.hpp"
 #include "drawer.hpp"

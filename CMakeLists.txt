@@ -23,6 +23,7 @@ set(SOURCES
     src/inputHandler.cpp
     src/animationManager.cpp
     src/animationState.cpp
+    src/uiManager.cpp
 )
 
 set(HEADERS

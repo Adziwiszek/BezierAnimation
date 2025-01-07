@@ -34,12 +34,12 @@ public:
   void handle_key_pressed(sf::Keyboard::Key key, const InputState& input);
   void handle_mouse_release(const InputState& input);
   void add_frame(bool copy_frame);
+  void switch_to_state(State new_state, const std::string& state_name);
 private:
   void add_new_curve(Vec2f pos);
   void add_point_to_active_curve(Vec2f pos);
   void handle_point_deletion();
   void handle_curve_deletion();
-  void switch_to_state(State new_state, const std::string& state_name);
   void move_active_point(Vec2f pos);
   void move_active_curver(Vec2f pos);
 
