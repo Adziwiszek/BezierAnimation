@@ -2,21 +2,26 @@
 #include <iostream>
 using std::cout, std::endl;
 
-AnimationState::AnimationState(std::shared_ptr<Frames> _frames):
-  frames{_frames}, active_frame{} {}
+AnimationState::AnimationState(std::shared_ptr<Frames> _frames,
+    AnimationManager& am, std::shared_ptr<Frame>& af):
+  frames{_frames}, active_frame{af}, animation_manager{am} {}
 
 void AnimationState::next_frame() {
   if(frame_index < frames->size() - 1) { 
     active_frame = (*frames)[++frame_index];
-    std::cout << "new frame id = " << active_frame->get_id() << std::endl;
+    /*std::cout << "new frame id = " << active_frame->get_id() << std::endl;
+    std::cout << "frames size = " << frames->size() << std::endl;*/
   }
 }
 void AnimationState::prev_frame() {
   if(frame_index > 0) { 
     active_frame = (*frames)[--frame_index];
-    std::cout << "new frame id = " << active_frame->get_id() << std::endl;
+    /*std::cout << "new frame id = " << active_frame->get_id() << std::endl;
+    std::cout << "frames size = " << frames->size() << std::endl;*/
   }
 }
+
+
 void AnimationState::add_frame(bool copy_frame) {
   std::shared_ptr<Frame> new_frame;
   if(copy_frame) {
@@ -96,10 +101,14 @@ void AnimationState::load_from_file(std::string path) {
   std::string line;
   std::getline(input, line);
   int n_frames = std::stoi(line);
-  Frames new_frames;
+
+  frames->clear();
+  frames->reserve(n_frames);
+
   for(int i = 0; i < n_frames; i++) {
-    new_frames.push_back(std::make_shared<Frame>(i));
+    frames->push_back(std::make_shared<Frame>(i));
   }
+
   while(std::getline(input, line)) {
     std::istringstream stream(line);
     std::string action, _x, _y, _f_id, _c_id, r, g, b, t;
@@ -112,14 +121,14 @@ void AnimationState::load_from_file(std::string path) {
       float thick = std::stof(t);
       if(action == "ADDC") {
         /*cout<<"f_id = "<<f_id<<endl; 
-        cout<<"new_frames size = "<<new_frames.size()<<endl;
+        cout<<"frames size = "<<frames.size()<<endl;
         cout << "thick = " << thick << endl;
         cout << "colors = " << (int)col.r << (int)col.g << (int)col.b << endl;*/
-        new_frames[f_id]->add_curve({x, y}, thick, col); 
+        frames->at(f_id)->add_curve({x, y}, thick, col); 
         //cout << "DUPA1\n";
       } else if(action == "ADDP") {
-        new_frames[f_id]->active_curve = new_frames[f_id]->curves[c_id];
-        new_frames[f_id]->add_point_to_current_curve({x, y}); 
+        frames->at(f_id)->active_curve = frames->at(f_id)->curves[c_id];
+        frames->at(f_id)->add_point_to_current_curve({x, y}); 
       } 
     } else {
       std::cerr << "file error" << std::endl;
@@ -127,6 +136,5 @@ void AnimationState::load_from_file(std::string path) {
   }
   std::cout << "success!" << std::endl;
   input.close();
-  frames = std::make_shared<Frames>(new_frames);
 }
 

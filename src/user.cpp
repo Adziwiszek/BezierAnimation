@@ -5,8 +5,8 @@
 User::User(sf::RenderWindow& _window) : 
     frames{std::make_shared<Frames>()},
     drawer(_window), 
-    animation_manager(frames),
-    animation_state(frames),
+    animation_manager(frames, active_frame),
+    animation_state(frames, animation_manager, active_frame),
     ui_manager(_window, input_handler, drawing_settings, current_state, animation_state),
     input_handler(active_frame, current_state, 
       actions, animation_state, ui_manager, drawing_settings)
@@ -14,7 +14,6 @@ User::User(sf::RenderWindow& _window) :
 
   input_handler.add_frame(false);
   active_frame = frames->at(0);
-  std::cout << "first frame id = " << active_frame->get_id() << std::endl;
 }
 
 /*User::User(Frames _frames, unsigned fc, sf::RenderWindow& _window)
@@ -81,9 +80,10 @@ void User::update(const InputState& input) {
   }
 
   if(current_state == State::PlayAnimation) {
-    unsigned anim_id = animation_manager.next_frame(input.dt);
-    //cout<<"anim_id = "<<anim_id<<std::endl;
-    active_frame = (*frames)[anim_id];
+    animation_manager.play_animation(input.dt);
+    /*unsigned anim_id = animation_manager.next_frame(input.dt);
+    cout<<"anim_id = "<<anim_id<<std::endl;
+    active_frame = (*frames)[anim_id];*/
   } else {
     active_frame = animation_state.get_active_frame();
   }
