@@ -63,8 +63,8 @@ namespace UI {
   };
 
   class Container : public Element {
-    Orientation orientation;
     std::vector<std::unique_ptr<Element>> children;
+    Orientation orientation;
     Vec2f spacing{0.0f, 20.0f};
     bool auto_size_x{true};
     bool auto_size_y{true};

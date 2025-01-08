@@ -184,32 +184,76 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
   testcont2->set_color(sf::Color::Cyan);
   testcont2->set_padding(Padding{10.0, 10.0, 10.0, 10.0});
   testcont2->set_orientation(Orientation::Vertical);
-  testcont2->add_elem(std::make_unique<ImageElement>(
-        sf::Color::Red,
-        [&drawing_settings]() {
-          std::cout << "dupa\n";
-          drawing_settings.color = sf::Color::Red;
-        }));
+  testcont2->add_elem(std::make_unique<ImageElement>());
   testcont2->add_elem(std::make_unique<ImageElement>());
   testcont2->add_elem(std::make_unique<ImageElement>());
   testcont2->add_elem(std::make_unique<ImageElement>());
 
-  auto testcont3 = std::make_unique<Container>(); 
-  testcont3->set_position({0.0, 0.0});
-  testcont3->set_orientation(Orientation::Horizontal);
-  testcont3->stretch_height = true;
-  testcont3->set_color(sf::Color::Cyan);
-  testcont3->set_padding(Padding{0.0, 0.0, 0.0, 0.0});
-  testcont3->add_elem(std::move(testcont));
-  testcont3->add_elem(std::move(testcont2));
+  auto color_container = std::make_unique<Container>();
+  color_container->set_color(sf::Color::Cyan);
+  color_container->set_padding(Padding{10.0, 10.0, 10.0, 10.0});
+  color_container->set_orientation(Orientation::Vertical);
+  auto add_color_button = [&color_container, &drawing_settings] (sf::Color col) {
+    color_container->add_elem(std::make_unique<ImageElement>(
+          col,
+          [&drawing_settings, col]() {
+            drawing_settings.color = col;
+          }));
+  };
+  add_color_button(sf::Color::Green);
+  add_color_button(sf::Color::Red);
+  add_color_button(sf::Color::Blue);
+  add_color_button(sf::Color::White);
 
-  elements.push_back(std::move(testcont3));
+  auto size_container = std::make_unique<Container>();
+  size_container->set_color(sf::Color::Cyan);
+  size_container->set_padding(Padding{10.0, 10.0, 10.0, 10.0});
+  size_container->set_orientation(Orientation::Vertical);
+  auto add_size_button = [&size_container, &drawing_settings] (float thick) {
+    size_container->add_elem(std::make_unique<ImageElement>(
+          sf::Color::Yellow,
+          [&drawing_settings, thick]() {
+            drawing_settings.thickness = thick;
+          }));
+  };
+  add_size_button(3.0);
+  add_size_button(5.0);
+  add_size_button(7.0);
+  add_size_button(11.0);
+
+  auto col1 = std::make_unique<Container>(); 
+  col1->set_position({0.0, 0.0});
+  col1->set_orientation(Orientation::Vertical);
+  col1->stretch_height = true;
+  col1->set_color(sf::Color::Cyan);
+  col1->set_padding(Padding{0.0, 0.0, 0.0, 0.0});
+  col1->add_elem(std::move(testcont));
+  col1->add_elem(std::move(size_container));
+
+  auto col2 = std::make_unique<Container>(); 
+  col2->set_position({0.0, 0.0});
+  col2->set_orientation(Orientation::Vertical);
+  col2->stretch_height = true;
+  col2->set_color(sf::Color::Cyan);
+  col2->set_padding(Padding{0.0, 0.0, 0.0, 0.0});
+  col2->add_elem(std::move(testcont2));
+  col2->add_elem(std::move(color_container));
+
+  auto final_container = std::make_unique<Container>(); 
+  final_container->set_position({0.0, 0.0});
+  final_container->set_orientation(Orientation::Horizontal);
+  final_container->stretch_height = true;
+  final_container->set_color(sf::Color::Cyan);
+  final_container->set_padding(Padding{0.0, 0.0, 0.0, 0.0});
+  final_container->add_elem(std::move(col1));
+  final_container->add_elem(std::move(col2));
+
+  elements.push_back(std::move(final_container));
 
   for(const auto& elem: elements) {
     max_size.x = std::max(max_size.x, elem->calculate_size().x);
     max_size.y = std::max(max_size.y, elem->calculate_size().y);
   }
-  std::cout << "max size x = " << max_size.x << std::endl;
 }
 
 void Manager::drawUI() {
