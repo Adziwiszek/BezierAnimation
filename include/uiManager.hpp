@@ -6,12 +6,15 @@
 #include <memory>
 #include <unordered_map>
 #include <functional>
+#include <algorithm>
 #include "frame.hpp"
 #include "userUtils.hpp"
 
 class InputHandler;
 
 namespace UI {
+  constexpr static float selected_thick{6.0};
+  constexpr static float unselected_thick{3.0};
   enum Orientation {
     Vertical,
     Horizontal
@@ -35,7 +38,8 @@ namespace UI {
     bool stretch_height{false};
     bool stretch_width{false};
 
-    virtual void draw(sf::RenderWindow& _window) = 0;
+    virtual void draw(sf::RenderWindow& _window,
+        std::vector<std::string> selected) = 0;
     virtual Vec2f calculate_size() = 0;
     virtual void on_click(const sf::Vector2f& mpos) = 0;
     void set_position(Vec2f _pos); 
@@ -44,15 +48,20 @@ namespace UI {
   };
 
   class ImageElement : public Element {
+    std::string name;
     sf::Sprite sprite;
     std::function<void()> on_click_lam;
   public:
-    ImageElement();
-    ImageElement(sf::Color color);
-    ImageElement(sf::Color color, std::function<void()> handler);
-    ImageElement(const sf::Texture* texture);
-    ImageElement(const sf::Texture* texture, std::function<void()> handler);
-    void draw(sf::RenderWindow& _window) override;
+    float outline_thickness{3.0};
+
+    ImageElement(std::string name);
+    ImageElement(sf::Color color, std::string name);
+    ImageElement(sf::Color color, std::function<void()> handler, std::string name);
+    ImageElement(const sf::Texture* texture, std::string name);
+    ImageElement(const sf::Texture* texture, 
+        std::function<void()> handler, std::string name);
+    void draw(sf::RenderWindow& _window,
+        std::vector<std::string> selected) override;
     Vec2f calculate_size() override;
     void set_texture(const sf::Texture* texture);
     void set_position(Vec2f _pos);
@@ -70,22 +79,26 @@ namespace UI {
     bool auto_size_y{true};
     Vec2f max_children_size{0.0, 0.0};
   public:
-    void on_click(const sf::Vector2f& mpos);
+    void on_click(const sf::Vector2f& mpos) override;
     void set_padding(Padding _pad);
     void add_elem(std::unique_ptr<Element> elem);
     void set_orientation(Orientation _or);
-    Vec2f calculate_size();
-    void draw(sf::RenderWindow& _window);
+    Vec2f calculate_size() override;
+    void draw(sf::RenderWindow& _window,
+        std::vector<std::string> selected) override;
   };
 
   class Manager {
     std::vector<std::unique_ptr<Element>> elements;
     std::unordered_map<std::string, sf::Texture> textures;
     sf::RenderWindow& window;
+    DrawingSettings& drawing_settings;
+
+
   public:
     Vec2f max_size{0.0, 0.0};
     Manager(sf::RenderWindow& _window, InputHandler& input_handler,
-        DrawingSettings& drawing_settings);
+        DrawingSettings& ds);
     void drawUI();
     bool load_texture(const std::string& path);
     const sf::Texture* get_texture(const std::string& path) const;

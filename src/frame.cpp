@@ -28,13 +28,6 @@ unsigned Frame::get_id() {
 }
 
 void Frame::add_curve(Vec2f pos, float thick, sf::Color col) {
-  std::cout << "color(rgb) = " << (int)col.r << " " << (int)col.g 
-    << " " << (int)col.b << std::endl;
-  std::cout << "thickness  = " << thick << std::endl;
-  //std::cout << "color(rgb) = " << col.r << " " << col.g << " " << col.b << std::endl;
-  
-  if(col == sf::Color::Red)
-    std::cout << "color red\n";
   curves.push_back(std::make_shared<BCurve>(pos, curve_counter++, thick, col));
   active_curve = curves[curves.size() - 1];
 }

@@ -1,7 +1,16 @@
 #include "../include/uiManager.hpp"
 #include "../include/inputHandler.hpp"
 
+#define STR_VALUE(arg)      #arg
 using UI::Element, UI::ImageElement, UI::Container, UI::Manager;
+
+std::string color_to_string(const sf::Color& color) {
+  if (color == sf::Color::Green) return "Green";
+  if (color == sf::Color::Red) return "Red";
+  if (color == sf::Color::Blue) return "Blue";
+  if (color == sf::Color::White) return "White";
+  return "Unknown";
+}
 
 void Element::set_position(Vec2f _pos) {
   position = _pos;
@@ -17,28 +26,41 @@ void Element::set_color(sf::Color color) {
   background.setFillColor(color);
 }
 
-ImageElement::ImageElement() {
+ImageElement::ImageElement(std::string name) {
+  this->name = name;
+  background.setOutlineColor(sf::Color::Black);
   set_size({40.0, 40.0});
 } 
 
-ImageElement::ImageElement(sf::Color color): ImageElement() {
+ImageElement::ImageElement(sf::Color color, std::string name): ImageElement(name) {
   background.setFillColor(color);
 }
-ImageElement::ImageElement(sf::Color color, std::function<void()> handler):
-  ImageElement(color) {
+ImageElement::ImageElement(sf::Color color, std::function<void()> handler, 
+    std::string name):
+  ImageElement(color, name) {
     set_on_click(handler);
 }
 
-ImageElement::ImageElement(const sf::Texture* texture): ImageElement() {
+ImageElement::ImageElement(const sf::Texture* texture, std::string name):
+  ImageElement(name) {
   set_texture(texture); 
 }
 
-ImageElement::ImageElement(const sf::Texture* texture, std::function<void()> handler):
-  ImageElement(texture) {
+ImageElement::ImageElement(const sf::Texture* texture, std::function<void()> handler,
+    std::string name):
+  ImageElement(texture, name) {
     set_on_click(handler);
 }
 
-void ImageElement::draw(sf::RenderWindow& _window) {
+void ImageElement::draw(sf::RenderWindow& _window,
+        std::vector<std::string> selected) {
+  if (std::find(selected.begin(), selected.end(), name) != selected.end()) {
+    outline_thickness = selected_thick;
+  } else {
+    outline_thickness = unselected_thick;
+  }
+
+  background.setOutlineThickness(outline_thickness);
   _window.draw(background);
   if(sprite.getTexture()) {
     sprite.setPosition(position);
@@ -135,7 +157,8 @@ Vec2f Container::calculate_size() {
   return my_size;
 }
 
-void Container::draw(sf::RenderWindow& _window) {
+void Container::draw(sf::RenderWindow& _window, 
+    std::vector<std::string> selected) {
   Vec2f final_size {calculate_size()};
 
   if(stretch_height) {
@@ -148,7 +171,7 @@ void Container::draw(sf::RenderWindow& _window) {
   Vec2f pos = position + Vec2f{padding.west, padding.north};
   for(auto& elem: children) {
     elem->set_position(pos);
-    elem->draw(_window);
+    elem->draw(_window, selected);
     switch(orientation) {
       case UI::Orientation::Horizontal:
         pos.x += spacing.x + elem->size.x;
@@ -159,46 +182,54 @@ void Container::draw(sf::RenderWindow& _window) {
     }
   }
 }
-
 Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
-    DrawingSettings& drawing_settings): window{_window} {
+    DrawingSettings& ds): window{_window}, drawing_settings{ds} {
+
+
   if(!load_texture("assets/cursor.png")) {
     std::cout << "failed to load cursor.png" << std::endl;
   }
+  auto add_change_state_button = 
+    [&input_handler] (std::unique_ptr<Container>& cont, State state) {
+      cont->add_elem(std::make_unique<ImageElement>(
+            sf::Color::White,
+            [&input_handler, state]() { 
+              input_handler.switch_to_state(state,"..."); 
+            }, "state" )); 
+    };
 
-  auto testcont = std::make_unique<Container>();
-  testcont->set_color(sf::Color::Cyan);
-  testcont->set_padding(Padding{10.0, 10.0, 10.0, 10.0});
-  testcont->set_orientation(Orientation::Vertical);
-  testcont->add_elem(std::make_unique<ImageElement>(
+  auto action_cont1 = std::make_unique<Container>();
+  action_cont1->set_color(sf::Color::Cyan);
+  action_cont1->set_padding(Padding{10.0, 10.0, 10.0, 10.0});
+  action_cont1->set_orientation(Orientation::Vertical);
+  action_cont1->add_elem(std::make_unique<ImageElement>(
         get_texture("assets/cursor.png"),
         [&input_handler]() { 
-          std::cout << "dupa\n";
-          input_handler.switch_to_state(State::Normal,"Normal"); 
-        } ));
-  testcont->add_elem(std::make_unique<ImageElement>());
-  testcont->add_elem(std::make_unique<ImageElement>());
-  testcont->add_elem(std::make_unique<ImageElement>());
+          input_handler.switch_to_state(State::Move,"Move"); 
+        }, "cursor" ));
+  add_change_state_button(action_cont1, State::AddCurve);
+  add_change_state_button(action_cont1, State::AddPoint);
+  add_change_state_button(action_cont1, State::Delete);
 
-  auto testcont2 = std::make_unique<Container>();
-  testcont2->set_color(sf::Color::Cyan);
-  testcont2->set_padding(Padding{10.0, 10.0, 10.0, 10.0});
-  testcont2->set_orientation(Orientation::Vertical);
-  testcont2->add_elem(std::make_unique<ImageElement>());
-  testcont2->add_elem(std::make_unique<ImageElement>());
-  testcont2->add_elem(std::make_unique<ImageElement>());
-  testcont2->add_elem(std::make_unique<ImageElement>());
+  auto action_cont2 = std::make_unique<Container>();
+  action_cont2->set_color(sf::Color::Cyan);
+  action_cont2->set_padding(Padding{10.0, 10.0, 10.0, 10.0});
+  action_cont2->set_orientation(Orientation::Vertical);
+  action_cont2->add_elem(std::make_unique<ImageElement>("dupa"));
+  action_cont2->add_elem(std::make_unique<ImageElement>("dupa"));
+  action_cont2->add_elem(std::make_unique<ImageElement>("dupa"));
+  action_cont2->add_elem(std::make_unique<ImageElement>("dupa"));
 
   auto color_container = std::make_unique<Container>();
   color_container->set_color(sf::Color::Cyan);
   color_container->set_padding(Padding{10.0, 10.0, 10.0, 10.0});
   color_container->set_orientation(Orientation::Vertical);
-  auto add_color_button = [&color_container, &drawing_settings] (sf::Color col) {
+  auto add_color_button = [&color_container, this] (sf::Color col) {
     color_container->add_elem(std::make_unique<ImageElement>(
           col,
-          [&drawing_settings, col]() {
+          [col, this]() {
             drawing_settings.color = col;
-          }));
+          }, color_to_string(col)));
   };
   add_color_button(sf::Color::Green);
   add_color_button(sf::Color::Red);
@@ -209,12 +240,12 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
   size_container->set_color(sf::Color::Cyan);
   size_container->set_padding(Padding{10.0, 10.0, 10.0, 10.0});
   size_container->set_orientation(Orientation::Vertical);
-  auto add_size_button = [&size_container, &drawing_settings] (float thick) {
+  auto add_size_button = [&size_container, this] (float thick) {
     size_container->add_elem(std::make_unique<ImageElement>(
           sf::Color::Yellow,
-          [&drawing_settings, thick]() {
+          [this, thick]() {
             drawing_settings.thickness = thick;
-          }));
+          }, std::to_string(thick)));
   };
   add_size_button(3.0);
   add_size_button(5.0);
@@ -227,7 +258,7 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
   col1->stretch_height = true;
   col1->set_color(sf::Color::Cyan);
   col1->set_padding(Padding{0.0, 0.0, 0.0, 0.0});
-  col1->add_elem(std::move(testcont));
+  col1->add_elem(std::move(action_cont1));
   col1->add_elem(std::move(size_container));
 
   auto col2 = std::make_unique<Container>(); 
@@ -236,7 +267,7 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
   col2->stretch_height = true;
   col2->set_color(sf::Color::Cyan);
   col2->set_padding(Padding{0.0, 0.0, 0.0, 0.0});
-  col2->add_elem(std::move(testcont2));
+  col2->add_elem(std::move(action_cont2));
   col2->add_elem(std::move(color_container));
 
   auto final_container = std::make_unique<Container>(); 
@@ -258,8 +289,12 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
 
 void Manager::drawUI() {
   Vec2f window_size{window.getSize()};
+  std::vector<std::string> selected;
+  selected.push_back(color_to_string(drawing_settings.color));
+  selected.push_back(std::to_string(drawing_settings.thickness));
+
   for(auto& elem: elements) {
-    elem->draw(window);
+    elem->draw(window, selected);
   }
 }
 
