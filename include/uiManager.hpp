@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <functional>
 #include <algorithm>
+
+#include "animationState.hpp"
 #include "frame.hpp"
 #include "userUtils.hpp"
 
@@ -58,15 +60,16 @@ namespace UI {
     std::string input;
     State& current_state;
     bool started_typing{false};
+    AnimationState& animation_state;
   public:
-    TextInput(State& cs, Vec2f pos): current_state{cs},
-      center_pos{pos} { 
+    TextInput(State& cs, Vec2f pos, AnimationState& as): 
+      current_state{cs}, center_pos{pos}, animation_state{as} { 
       if (!font.loadFromFile("assets/Roboto-Black.ttf")) {
           throw std::runtime_error("Failed to load font");
       }
       text.setFont(font);
       text.setCharacterSize(24);
-      text.setFillColor(sf::Color::White);
+      text.setFillColor(sf::Color::Black);
     }
     Vec2f calculate_size() override {return size;}
     void on_click(const sf::Vector2f& mpos) override {}
@@ -80,6 +83,7 @@ namespace UI {
         // enter
         if (event.text.unicode == 13) {
           std::cout << "saving to file = " << input << std::endl;
+          animation_state.save_to_file(input);
           current_state = State::Normal;
           started_typing = false;
         }
@@ -96,11 +100,25 @@ namespace UI {
     }
     void draw(sf::RenderWindow& window, 
         std::vector<std::string> selected) override {
-      text.setString(input);
-      text.setPosition(center_pos);
+      text.setString("Enter file path: " + input);
+
+      sf::FloatRect text_bounds = text.getLocalBounds();
+      background.setSize({text_bounds.width + 20.0f, text_bounds.height + 20.0f});
+      background.setFillColor(sf::Color::Cyan);
+      Vec2f bg_pos = {
+          center_pos.x - text_bounds.width/2,
+          center_pos.y - text_bounds.height/2
+          };
+      Vec2f txt_pos = {
+          bg_pos.x - (background.getSize().x - text_bounds.width)/2,
+          bg_pos.y - (background.getSize().y - text_bounds.height)/2 + 5.0f
+        };
+      text.setPosition(bg_pos);
+      background.setPosition(txt_pos);
+      window.draw(background);
       window.draw(text);
     }
-    std::string getInput() const {
+    std::string get_input() const {
       return input;
     }
   };
@@ -156,7 +174,7 @@ namespace UI {
   public:
     Vec2f max_size{0.0, 0.0};
     Manager(sf::RenderWindow& _window, InputHandler& input_handler,
-        DrawingSettings& ds, State& st);
+        DrawingSettings& ds, State& st, AnimationState& animation_state);
     void drawUI();
     void handle_input(sf::Event event);
     bool load_texture(const std::string& path);

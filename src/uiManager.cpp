@@ -154,6 +154,10 @@ Vec2f Container::calculate_size() {
     my_size.x -= spacing.x;
     my_size.y = max_size_y + padding.north + padding.south;
   }
+  if(min_width > 0)
+    my_size.x = std::max(my_size.x, min_width);
+  if(min_height > 0)
+    my_size.y = std::max(my_size.y, min_height);
   return my_size;
 }
 
@@ -183,7 +187,7 @@ void Container::draw(sf::RenderWindow& _window,
   }
 }
 Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
-    DrawingSettings& ds, State& st): window{_window}, drawing_settings{ds},
+    DrawingSettings& ds, State& st, AnimationState& animation_state): window{_window}, drawing_settings{ds},
     current_state{st}{
   if(!load_texture("assets/cursor.png")) {
     std::cout << "failed to load cursor.png" << std::endl;
@@ -279,7 +283,8 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
   final_container->add_elem(std::move(col2));
 
   auto text_inp = std::make_unique<TextInput>(current_state, 
-      Vec2f{(float)window.getSize().x/2, (float)window.getSize().y/2});
+      Vec2f{(float)window.getSize().x/2, (float)window.getSize().y/2},
+      animation_state);
   elements.push_back(std::move(text_inp));
   elements.push_back(std::move(final_container));
 

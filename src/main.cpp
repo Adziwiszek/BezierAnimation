@@ -74,8 +74,8 @@ int main(int argc, char **argv)
       "\nfps = " + std::to_string(user.get_fps());
     frame_info.setString(state_text);
 
-    //window.clear(sf::Color{109, 121, 140});
-    window.clear(sf::Color::Black);
+    window.clear(sf::Color{66, 66, 66});
+    //window.clear(sf::Color::Black);
     user.draw(&window);
     window.draw(frame_info);
     window.display();

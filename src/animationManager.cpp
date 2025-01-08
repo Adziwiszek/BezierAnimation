@@ -11,7 +11,7 @@ unsigned AnimationManager::next_frame(float dt) {
       animation_frame_index = (animation_frame_index + 1) % frames->size();
       current_time_between_frames = 0.0;
     }
-    cout<<"frames size = "<<frames->size()<<std::endl;
+
     if(animation_frame_index >= frames->size()) {
       animation_frame_index = 0;
     }

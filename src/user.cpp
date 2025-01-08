@@ -7,26 +7,27 @@ User::User(sf::RenderWindow& _window) :
     drawer(_window), 
     animation_manager(frames),
     animation_state(frames),
-    ui_manager(_window, input_handler, drawing_settings, current_state),
+    ui_manager(_window, input_handler, drawing_settings, current_state, animation_state),
     input_handler(active_frame, current_state, 
       actions, animation_state, ui_manager, drawing_settings)
     {
 
   input_handler.add_frame(false);
   active_frame = frames->at(0);
+  std::cout << "first frame id = " << active_frame->get_id() << std::endl;
 }
 
-User::User(Frames _frames, unsigned fc, sf::RenderWindow& _window)
+/*User::User(Frames _frames, unsigned fc, sf::RenderWindow& _window)
   : frames {std::make_shared<Frames>(std::move(_frames))}, 
     drawer(_window),
     animation_manager(frames),
     animation_state(frames),
-    ui_manager(_window, input_handler, drawing_settings, current_state),
+    ui_manager(_window, input_handler, drawing_settings, current_state, animation_state),
     input_handler(active_frame, current_state, 
       actions, animation_state, ui_manager, drawing_settings)
      {
   active_frame = frames->at(0);
-}
+}*/
 
 void User::init_empty() {
   frames->push_back(std::make_shared<Frame>(0)); 
