@@ -9,6 +9,8 @@ AnimationState::AnimationState(std::shared_ptr<Frames> _frames,
 void AnimationState::next_frame() {
   if(frame_index < frames->size() - 1) { 
     active_frame = (*frames)[++frame_index];
+    active_frame->active_curve = nullptr;
+    active_frame->active_point = nullptr;
     /*std::cout << "new frame id = " << active_frame->get_id() << std::endl;
     std::cout << "frames size = " << frames->size() << std::endl;*/
   }
@@ -16,6 +18,8 @@ void AnimationState::next_frame() {
 void AnimationState::prev_frame() {
   if(frame_index > 0) { 
     active_frame = (*frames)[--frame_index];
+    active_frame->active_curve = nullptr;
+    active_frame->active_point = nullptr;
     /*std::cout << "new frame id = " << active_frame->get_id() << std::endl;
     std::cout << "frames size = " << frames->size() << std::endl;*/
   }
@@ -133,6 +137,10 @@ void AnimationState::load_from_file(std::string path) {
     } else {
       std::cerr << "file error" << std::endl;
     }
+  }
+  for(auto& frame: *frames) {
+    frame->active_curve = nullptr;
+    frame->active_point = nullptr;
   }
   std::cout << "success!" << std::endl;
   input.close();

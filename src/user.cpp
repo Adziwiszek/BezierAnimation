@@ -79,11 +79,11 @@ void User::update(const InputState& input) {
     active_frame->active_curve = nullptr;
   }
 
-  drawing_settings.update_settings(selected_curve, active_frame->active_curve);
 
   if(current_state == State::PlayAnimation) {
     animation_manager.play_animation(input.dt);
   } else {
+    drawing_settings.update_settings(selected_curve, active_frame->active_curve);
     active_frame = animation_state.get_active_frame();
   }
 
@@ -98,12 +98,20 @@ void User::save_to_file(std::string path) {
 
 void User::load_from_file(std::string path) {
   animation_state.load_from_file(path);
+  active_frame->active_curve = nullptr;
+  active_frame->active_point = nullptr;
 }
 
+// TODO add faded drawing
+//
+
 void User::draw(sf::RenderWindow *window) {
-  for(auto curve: active_frame->curves) {
+  for(unsigned i = 0; i < active_frame->curves.size(); i++) {
+  //for(auto curve: active_frame->curves) {
+    auto curve = active_frame->curves[i];
     // drawing control points
-    if(current_state != State::PlayAnimation) {
+    if(current_state != State::PlayAnimation && active_frame->active_curve &&
+        active_frame->active_curve->get_id() == curve->get_id()) {
       bool active = false;
       if(active_frame->active_curve && 
           curve->get_id() == active_frame->active_curve->get_id())
