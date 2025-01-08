@@ -79,11 +79,10 @@ void User::update(const InputState& input) {
     active_frame->active_curve = nullptr;
   }
 
+  drawing_settings.update_settings(selected_curve, active_frame->active_curve);
+
   if(current_state == State::PlayAnimation) {
     animation_manager.play_animation(input.dt);
-    /*unsigned anim_id = animation_manager.next_frame(input.dt);
-    cout<<"anim_id = "<<anim_id<<std::endl;
-    active_frame = (*frames)[anim_id];*/
   } else {
     active_frame = animation_state.get_active_frame();
   }

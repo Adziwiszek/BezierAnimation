@@ -21,8 +21,38 @@ enum State {
 };
 
 struct DrawingSettings {
+  float old_thick{3.0f};
+  sf::Color old_col{sf::Color::Green};
+  float selected_thick{3.0f};
+  sf::Color selected_col{sf::Color::Green};
   float thickness{3.0f};
   sf::Color color{sf::Color::Green};
+
+  void update_settings(bool& selected_curve, std::shared_ptr<BCurve>& active_curve) {
+    if(active_curve) {
+      if(!selected_curve) {
+        selected_curve = true;
+        old_col = selected_col;
+        old_thick = selected_thick;
+        selected_thick = active_curve->get_thickness();
+        selected_col = active_curve->get_color();
+      } else {
+        active_curve->set_color(selected_col);
+        active_curve->set_thickness(selected_thick);
+        color = selected_col;
+        thickness = selected_thick;
+      }
+    } else {
+      if(selected_curve) {
+        selected_col = old_col;
+        selected_thick = old_thick;
+      } else {
+        color = selected_col;
+        thickness = selected_thick;
+      }
+      selected_curve = false;
+    }
+  }
 };
 
 struct InputState {

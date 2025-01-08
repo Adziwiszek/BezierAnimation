@@ -1,6 +1,6 @@
 #include "../include/animationManager.hpp"
 
-AnimationManager::AnimationManager(std::shared_ptr<Frames> _frames,
+AnimationManager::AnimationManager(std::shared_ptr<Frames>& _frames,
     std::shared_ptr<Frame>& af): 
   frames {_frames}, active_frame{af} {
 }
@@ -22,10 +22,10 @@ unsigned AnimationManager::next_frame(float dt) {
 
 void AnimationManager::play_animation(float dt) {
   unsigned anim_id = next_frame(dt);
-  cout<<"anim_id = "<<anim_id<<std::endl;
   active_frame = (*frames)[anim_id];
 }
 
 unsigned AnimationManager::get_fsp() const {
   return fps;
 }
+

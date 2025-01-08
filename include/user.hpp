@@ -15,9 +15,9 @@
 
 class User {
 private:
-  // frames
   std::shared_ptr<Frames> frames; 
   std::shared_ptr<Frame> active_frame;
+  bool selected_curve{false};
 
   State current_state { Normal };
 

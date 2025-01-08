@@ -231,7 +231,7 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
     color_container->add_elem(std::make_unique<ImageElement>(
           col,
           [col, this]() {
-            drawing_settings.color = col;
+            drawing_settings.selected_col = col;
           }, color_to_string(col)));
   };
   add_color_button(sf::Color::Green);
@@ -247,7 +247,7 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
     size_container->add_elem(std::make_unique<ImageElement>(
           sf::Color::Yellow,
           [this, thick]() {
-            drawing_settings.thickness = thick;
+            drawing_settings.selected_thick = thick;
           }, std::to_string(thick)));
   };
   add_size_button(3.0);
