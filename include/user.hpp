@@ -17,7 +17,7 @@ class User {
 private:
   std::shared_ptr<Frames> frames; 
   std::shared_ptr<Frame> active_frame;
-  bool selected_curve{false};
+
 
   State current_state { Normal };
 
@@ -35,7 +35,7 @@ public:
   // handle user input
   void handle_input(sf::Event event, InputState& input); 
   // update state
-  void update(const InputState& input); 
+  void update(InputState& input); 
   // manage frames of animation
   unsigned get_frame_index();
   unsigned get_frame_count();

@@ -59,6 +59,7 @@ struct InputState {
   bool left_mouse_down = false;
   bool z_pressed = false;
   bool ctrl_pressed = false;
+  bool selected_curve = false;
   Vec2f mouse_position;
   Vec2f prev_mouse_position { 0.0f, 0.0f }; 
   Vec2f mouse_delta;

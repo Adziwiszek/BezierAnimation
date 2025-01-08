@@ -31,7 +31,7 @@ public:
   void update(const InputState& input);
   //move down eventually 
   void handle_mouse_movement(const InputState& input);
-  void handle_mouse_pressed(const InputState& input);
+  void handle_mouse_pressed(InputState& input);
   void handle_key_pressed(sf::Keyboard::Key key, const InputState& input);
   void handle_mouse_release(const InputState& input);
   void add_frame(bool copy_frame);

@@ -44,12 +44,14 @@ void InputHandler::handle_event(sf::Event event, InputState& input) {
   }
 }
 
-void InputHandler::handle_mouse_pressed(const InputState& input) {
+void InputHandler::handle_mouse_pressed(InputState& input) {
   if(!input.left_mouse_down)
     return;
+
   ui_manager.handle_click(input.mouse_position);
   if(input.mouse_position.x < ui_manager.max_size.x) 
     return;
+
   switch(current_state) {
     case State::AddCurve:
       add_new_curve(input.mouse_position);
@@ -64,6 +66,9 @@ void InputHandler::handle_mouse_pressed(const InputState& input) {
     case State::Normal:
     case State::Move:
     case State::Delete:
+      active_frame->active_point = nullptr;
+      active_frame->active_curve = nullptr;
+      drawing_settings.update_settings(input.selected_curve, active_frame->active_curve);
       active_frame->active_point = active_frame->get_active_point(input.mouse_position);
       active_frame->active_curve = active_frame->get_active_curve(input.mouse_position);
       

@@ -52,7 +52,7 @@ unsigned User::get_frame_count() {
   return animation_state.get_frame_count();
 }
 
-void User::update(const InputState& input) {
+void User::update(InputState& input) {
   //handling input here idk
   input_handler.handle_mouse_movement(input);
 
@@ -83,7 +83,7 @@ void User::update(const InputState& input) {
   if(current_state == State::PlayAnimation) {
     animation_manager.play_animation(input.dt);
   } else {
-    drawing_settings.update_settings(selected_curve, active_frame->active_curve);
+    drawing_settings.update_settings(input.selected_curve, active_frame->active_curve);
     active_frame = animation_state.get_active_frame();
   }
 
