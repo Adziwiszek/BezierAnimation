@@ -70,6 +70,8 @@ namespace UI {
       text.setFont(font);
       text.setCharacterSize(24);
       text.setFillColor(sf::Color::Black);
+      background.setOutlineColor(sf::Color::Black);
+      background.setOutlineThickness(3.0f);
     }
     Vec2f calculate_size() override {return size;}
     void on_click(const sf::Vector2f& mpos) override {}

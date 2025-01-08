@@ -30,11 +30,13 @@ void Drawer::draw_control_points(const std::vector<std::shared_ptr<Point>>& cont
 
 void Drawer::draw_bc_lines(const std::vector<std::shared_ptr<Point>>& bc_line_points,
       sf::Color color, float thickness) {
-  if(bc_line_points.empty())
+  if(bc_line_points.size() < 2)
     return;
 
+  sf::VertexArray quad(sf::Quads);
+
   for (size_t i = 0; i < bc_line_points.size() - 1; ++i) {
-    Point p1(*bc_line_points[i]);
+    /*Point p1(*bc_line_points[i]);
     Point p2(*bc_line_points[i+1]);
     Vec2f direction(p2.get_position() - p1.get_position());
     float length = std::sqrt(direction.x*direction.x + direction.y*direction.y);
@@ -43,8 +45,25 @@ void Drawer::draw_bc_lines(const std::vector<std::shared_ptr<Point>>& bc_line_po
     line.setFillColor(color);
     line.setPosition(p1.get_position());
     line.setRotation(std::atan2(direction.y, direction.x) * 180.f / M_PI);
-    window.draw(line);
+    window.draw(line);*/
+    Vec2f p1 = bc_line_points[i]->get_position();
+    Vec2f p2 = bc_line_points[i + 1]->get_position();
+
+    Vec2f direction = p2 - p1;
+    float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    Vec2f unitDir = direction / length;
+
+    // Perpendicular vector for thickness
+    Vec2f perp(-unitDir.y, unitDir.x);
+    Vec2f offset = perp * (thickness / 2.0f);
+
+    // Define the four corners of the thick line segment
+    quad.append(sf::Vertex(p1 - offset, color));
+    quad.append(sf::Vertex(p2 - offset, color));
+    quad.append(sf::Vertex(p2 + offset, color));
+    quad.append(sf::Vertex(p1 + offset, color));
   }
+  window.draw(quad);
 }
 
 void Drawer::draw_convex_hull(const std::vector<std::shared_ptr<Point>>& ch_points) {

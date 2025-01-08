@@ -226,7 +226,7 @@ std::vector<std::shared_ptr<Point>> BCurve::graham_scan(std::vector<std::shared_
 
 void BCurve::update() {
   convex_hull = graham_scan(points);
-  int curve_points = 20 + (int)(points.size() / 2)*7;
+  int curve_points = 20 + (int)(points.size() / 2)*7*thickness;
   bc_points = generate_curve_points(curve_points);
 }
 

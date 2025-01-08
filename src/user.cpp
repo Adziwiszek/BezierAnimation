@@ -76,7 +76,7 @@ void User::update(InputState& input) {
     std::cout << "-------------\nmoved curve\n" 
       << "id = "<< active_frame->active_curve->get_id() <<std::endl;
     active_frame->active_curve->started_moving = false;
-    active_frame->active_curve = nullptr;
+    //active_frame->active_curve = nullptr;
   }
 
 

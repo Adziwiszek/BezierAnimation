@@ -195,7 +195,12 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
      !load_texture("assets/trashcan.png") ||
      !load_texture("assets/addpoint.png") ||
      !load_texture("assets/addcurve.png") ||
-     !load_texture("assets/save.png")) {
+     !load_texture("assets/save.png") ||
+     !load_texture("assets/size1.png") ||
+     !load_texture("assets/size2.png") ||
+     !load_texture("assets/size3.png") ||
+     !load_texture("assets/size4.png") 
+  ) {
     std::cout << "failed to load some .png" << std::endl;
   }
   auto add_change_state_button = 
@@ -246,17 +251,17 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
   size_container->set_color(sf::Color::Cyan);
   size_container->set_padding(Padding{10.0, 10.0, 10.0, 10.0});
   size_container->set_orientation(Orientation::Vertical);
-  auto add_size_button = [&size_container, this] (float thick) {
+  auto add_size_button = [&size_container, this] (float thick, std::string filename) {
     size_container->add_elem(std::make_unique<ImageElement>(
-          sf::Color::Yellow,
+          get_texture("assets/"+filename),
           [this, thick]() {
             drawing_settings.selected_thick = thick;
           }, std::to_string(thick)));
   };
-  add_size_button(3.0);
-  add_size_button(5.0);
-  add_size_button(7.0);
-  add_size_button(11.0);
+  add_size_button(3.0, "size1.png");
+  add_size_button(5.0, "size2.png");
+  add_size_button(7.0, "size3.png");
+  add_size_button(11.0, "size4.png");
 
   auto col1 = std::make_unique<Container>(); 
   col1->set_position({0.0, 0.0});
