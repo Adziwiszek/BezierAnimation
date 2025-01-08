@@ -69,6 +69,7 @@ void InputHandler::handle_mouse_pressed(InputState& input) {
       active_frame->active_point = nullptr;
       active_frame->active_curve = nullptr;
       drawing_settings.update_settings(input.selected_curve, active_frame->active_curve);
+
       active_frame->active_point = active_frame->get_active_point(input.mouse_position);
       active_frame->active_curve = active_frame->get_active_curve(input.mouse_position);
       

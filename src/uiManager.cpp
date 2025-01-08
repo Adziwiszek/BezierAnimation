@@ -189,13 +189,20 @@ void Container::draw(sf::RenderWindow& _window,
 Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
     DrawingSettings& ds, State& st, AnimationState& animation_state): window{_window}, drawing_settings{ds},
     current_state{st}{
-  if(!load_texture("assets/cursor.png")) {
-    std::cout << "failed to load cursor.png" << std::endl;
+  if(!load_texture("assets/cursor.png") ||
+     !load_texture("assets/start.png") ||
+     !load_texture("assets/pause.png") ||
+     !load_texture("assets/trashcan.png") ||
+     !load_texture("assets/addpoint.png") ||
+     !load_texture("assets/addcurve.png") ||
+     !load_texture("assets/save.png")) {
+    std::cout << "failed to load some .png" << std::endl;
   }
   auto add_change_state_button = 
-    [&input_handler] (std::unique_ptr<Container>& cont, State state) {
+    [&input_handler, this] (std::unique_ptr<Container>& cont, State state,
+        std::string filename) {
       cont->add_elem(std::make_unique<ImageElement>(
-            sf::Color::White,
+            get_texture("assets/"+filename),
             [&input_handler, state]() { 
               input_handler.switch_to_state(state,"..."); 
             }, "state" )); 
@@ -205,22 +212,18 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
   action_cont1->set_color(sf::Color::Cyan);
   action_cont1->set_padding(Padding{10.0, 10.0, 10.0, 10.0});
   action_cont1->set_orientation(Orientation::Vertical);
-  action_cont1->add_elem(std::make_unique<ImageElement>(
-        get_texture("assets/cursor.png"),
-        [&input_handler]() { 
-          input_handler.switch_to_state(State::Move,"Move"); 
-        }, "cursor" ));
-  add_change_state_button(action_cont1, State::AddCurve);
-  add_change_state_button(action_cont1, State::AddPoint);
-  add_change_state_button(action_cont1, State::Delete);
+  add_change_state_button(action_cont1, State::Move, "cursor.png");
+  add_change_state_button(action_cont1, State::AddCurve, "addcurve.png");
+  add_change_state_button(action_cont1, State::AddPoint, "addpoint.png");
+  add_change_state_button(action_cont1, State::Delete, "trashcan.png");
 
   auto action_cont2 = std::make_unique<Container>();
   action_cont2->set_color(sf::Color::Cyan);
   action_cont2->set_padding(Padding{10.0, 10.0, 10.0, 10.0});
   action_cont2->set_orientation(Orientation::Vertical);
-  action_cont2->add_elem(std::make_unique<ImageElement>("dupa"));
-  action_cont2->add_elem(std::make_unique<ImageElement>("dupa"));
-  action_cont2->add_elem(std::make_unique<ImageElement>("dupa"));
+  add_change_state_button(action_cont2, State::Saving, "save.png");
+  add_change_state_button(action_cont2, State::PlayAnimation, "start.png");
+  add_change_state_button(action_cont2, State::Move, "pause.png");
   action_cont2->add_elem(std::make_unique<ImageElement>("dupa"));
 
   auto color_container = std::make_unique<Container>();

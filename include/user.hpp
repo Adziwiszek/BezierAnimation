@@ -19,7 +19,7 @@ private:
   std::shared_ptr<Frame> active_frame;
 
 
-  State current_state { Normal };
+  State current_state { Move };
 
   DrawingSettings drawing_settings;
   Drawer drawer;
