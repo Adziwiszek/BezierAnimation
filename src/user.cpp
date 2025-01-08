@@ -7,7 +7,7 @@ User::User(sf::RenderWindow& _window) :
     drawer(_window), 
     animation_manager(frames),
     animation_state(frames),
-    ui_manager(_window, input_handler, drawing_settings),
+    ui_manager(_window, input_handler, drawing_settings, current_state),
     input_handler(active_frame, current_state, 
       actions, animation_state, ui_manager, drawing_settings)
     {
@@ -21,7 +21,7 @@ User::User(Frames _frames, unsigned fc, sf::RenderWindow& _window)
     drawer(_window),
     animation_manager(frames),
     animation_state(frames),
-    ui_manager(_window, input_handler, drawing_settings),
+    ui_manager(_window, input_handler, drawing_settings, current_state),
     input_handler(active_frame, current_state, 
       actions, animation_state, ui_manager, drawing_settings)
      {

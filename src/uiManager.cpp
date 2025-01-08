@@ -183,9 +183,8 @@ void Container::draw(sf::RenderWindow& _window,
   }
 }
 Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
-    DrawingSettings& ds): window{_window}, drawing_settings{ds} {
-
-
+    DrawingSettings& ds, State& st): window{_window}, drawing_settings{ds},
+    current_state{st}{
   if(!load_texture("assets/cursor.png")) {
     std::cout << "failed to load cursor.png" << std::endl;
   }
@@ -279,6 +278,8 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
   final_container->add_elem(std::move(col1));
   final_container->add_elem(std::move(col2));
 
+  auto text_inp = std::make_unique<TextInput>(current_state);
+  elements.push_back(std::move(text_inp));
   elements.push_back(std::move(final_container));
 
   for(const auto& elem: elements) {
@@ -294,6 +295,9 @@ void Manager::drawUI() {
   selected.push_back(std::to_string(drawing_settings.thickness));
 
   for(auto& elem: elements) {
+    if (dynamic_cast<UI::TextInput*>(elem.get()) && current_state == State::Saving) {
+      elem->draw(window, selected);
+    }    
     elem->draw(window, selected);
   }
 }
@@ -324,6 +328,12 @@ const sf::Texture* Manager::get_texture(const std::string& path) const {
 void Manager::handle_click(const sf::Vector2f& mpos) {
   for(const auto& elem: elements) {
     elem->on_click(mpos); 
+  }
+}
+
+void Manager::handle_input(sf::Event event) {
+  for(const auto& elem: elements) {
+    elem->handle_input(event); 
   }
 }
 

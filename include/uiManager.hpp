@@ -3,6 +3,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <type_traits>
 #include <memory>
 #include <unordered_map>
 #include <functional>
@@ -25,6 +26,7 @@ namespace UI {
     float north;
     float south;
   };
+  
 
   class Element {
   protected:
@@ -42,9 +44,56 @@ namespace UI {
         std::vector<std::string> selected) = 0;
     virtual Vec2f calculate_size() = 0;
     virtual void on_click(const sf::Vector2f& mpos) = 0;
+    virtual void update() {}
+    virtual void handle_input(sf::Event event) {}
     void set_position(Vec2f _pos); 
     void set_size(Vec2f _size);
     void set_color(sf::Color color);
+  };
+
+  class TextInput : public Element {
+    sf::Font font;
+    sf::Text text;
+    std::string input;
+    State& current_state;
+  public:
+    TextInput(State& cs): current_state{cs} { 
+      if (!font.loadFromFile("assets/Roboto-Black.ttf")) {
+          throw std::runtime_error("Failed to load font");
+      }
+      text.setFont(font);
+      text.setCharacterSize(24);
+      text.setFillColor(sf::Color::White);
+      text.setPosition(50, 50);
+    }
+    Vec2f calculate_size() override {return size;}
+    void on_click(const sf::Vector2f& mpos) override {}
+    void handle_input(sf::Event event) override {
+      std::cout << "textint = " << input<<"\n";
+      if (event.type == sf::Event::TextEntered) {
+        // enter
+        if (event.text.unicode == 13) {
+          std::cout << "saving to file = " << input << std::endl;
+          current_state = State::Normal;
+        }
+        if (event.text.unicode == 8 && !input.empty()) {
+          input.pop_back();  // Remove last character
+        }
+        else if (event.text.unicode < 128 && event.text.unicode != 8) {
+          input += static_cast<char>(event.text.unicode);
+        }
+      }
+    }
+    void update() override {
+      text.setString("Enter file path: " + input);
+    }
+    void draw(sf::RenderWindow& window, 
+        std::vector<std::string> selected) override {
+      window.draw(text);
+    }
+    std::string getInput() const {
+      return input;
+    }
   };
 
   class ImageElement : public Element {
@@ -93,13 +142,14 @@ namespace UI {
     std::unordered_map<std::string, sf::Texture> textures;
     sf::RenderWindow& window;
     DrawingSettings& drawing_settings;
-
+    State& current_state;
 
   public:
     Vec2f max_size{0.0, 0.0};
     Manager(sf::RenderWindow& _window, InputHandler& input_handler,
-        DrawingSettings& ds);
+        DrawingSettings& ds, State& st);
     void drawUI();
+    void handle_input(sf::Event event);
     bool load_texture(const std::string& path);
     const sf::Texture* get_texture(const std::string& path) const;
     void handle_click(const sf::Vector2f& mpos);

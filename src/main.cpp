@@ -27,7 +27,7 @@ int main(int argc, char **argv)
   }   
 
   sf::Font font;
-  if(!font.loadFromFile("Roboto-Black.ttf")) {
+  if(!font.loadFromFile("assets/Roboto-Black.ttf")) {
     std::cerr << "Error: Could not load font!" << std::endl;
   }
   sf::Text frame_info;
