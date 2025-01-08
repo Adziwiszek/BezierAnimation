@@ -28,24 +28,11 @@ void Drawer::draw_control_points(const std::vector<std::shared_ptr<Point>>& cont
   }
 }
 
-void Drawer::draw_bc_lines(const std::vector<std::shared_ptr<Point>>& bc_line_points,
-      sf::Color color, float thickness) {
-  if(bc_line_points.size() < 2)
-    return;
-
+void draw_using_quads(const std::vector<std::shared_ptr<Point>>& bc_line_points,
+      sf::Color color, float thickness, sf::RenderWindow& window) {
   sf::VertexArray quad(sf::Quads);
 
   for (size_t i = 0; i < bc_line_points.size() - 1; ++i) {
-    /*Point p1(*bc_line_points[i]);
-    Point p2(*bc_line_points[i+1]);
-    Vec2f direction(p2.get_position() - p1.get_position());
-    float length = std::sqrt(direction.x*direction.x + direction.y*direction.y);
-
-    sf::RectangleShape line(Vec2f(length, thickness));
-    line.setFillColor(color);
-    line.setPosition(p1.get_position());
-    line.setRotation(std::atan2(direction.y, direction.x) * 180.f / M_PI);
-    window.draw(line);*/
     Vec2f p1 = bc_line_points[i]->get_position();
     Vec2f p2 = bc_line_points[i + 1]->get_position();
 
@@ -64,6 +51,49 @@ void Drawer::draw_bc_lines(const std::vector<std::shared_ptr<Point>>& bc_line_po
     quad.append(sf::Vertex(p1 + offset, color));
   }
   window.draw(quad);
+}
+
+
+void draw_using_lines(const std::vector<std::shared_ptr<Point>>& bc_line_points,
+      sf::Color color, float thickness, sf::RenderWindow& window) {
+  for (size_t i = 0; i < bc_line_points.size() - 1; ++i) {
+    Point p1(*bc_line_points[i]);
+    Point p2(*bc_line_points[i+1]);
+    Vec2f direction(p2.get_position() - p1.get_position());
+    float length = std::sqrt(direction.x*direction.x + direction.y*direction.y);
+
+    sf::RectangleShape line(Vec2f(length, thickness));
+    line.setFillColor(color);
+    line.setPosition(p1.get_position());
+    line.setRotation(std::atan2(direction.y, direction.x) * 180.f / M_PI);
+    window.draw(line);
+  }
+}
+
+void draw_using_circles(const std::vector<std::shared_ptr<Point>>& bc_line_points,
+      sf::Color color, float thickness, sf::RenderWindow& window) {
+  for (size_t i = 0; i < bc_line_points.size() - 1; ++i) {
+    Vec2f p1 = bc_line_points[i]->get_position();
+    Vec2f p2 = bc_line_points[i + 1]->get_position();
+
+    float t = 0.0f;
+    while (t <= 1.0f) {
+      Vec2f point = (1 - t) * p1 + t * p2;
+      sf::CircleShape circle(thickness / 2.0f);
+      circle.setFillColor(color);
+      circle.setPosition(point - Vec2f(thickness / 2.0f, thickness / 2.0f));
+      window.draw(circle);
+      t += 0.05f;  // Adjust step size for smoother curves
+    }
+  }
+}
+
+void Drawer::draw_bc_lines(const std::vector<std::shared_ptr<Point>>& bc_line_points,
+      sf::Color color, float thickness) {
+  if(bc_line_points.size() < 2)
+    return;
+
+  draw_using_circles(bc_line_points, color, thickness, window);
 }
 
 void Drawer::draw_convex_hull(const std::vector<std::shared_ptr<Point>>& ch_points) {
