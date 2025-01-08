@@ -45,6 +45,8 @@ void InputHandler::handle_mouse_pressed(const InputState& input) {
   if(!input.left_mouse_down)
     return;
   ui_manager.handle_click(input.mouse_position);
+  if(input.mouse_position.x < ui_manager.max_size.x) 
+    return;
   switch(current_state) {
     case State::AddCurve:
       add_new_curve(input.mouse_position);

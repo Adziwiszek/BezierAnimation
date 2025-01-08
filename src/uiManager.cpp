@@ -209,6 +209,7 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
     max_size.x = std::max(max_size.x, elem->calculate_size().x);
     max_size.y = std::max(max_size.y, elem->calculate_size().y);
   }
+  std::cout << "max size x = " << max_size.x << std::endl;
 }
 
 void Manager::drawUI() {

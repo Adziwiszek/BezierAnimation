@@ -33,8 +33,6 @@ void User::init_empty() {
 }
 
 void User::handle_input(sf::Event event, InputState& input) {
-  /*if(input.mouse_position.x < ui_manager.max_size.x) 
-    return;*/
   input_handler.handle_event(event, input);
 }
 
