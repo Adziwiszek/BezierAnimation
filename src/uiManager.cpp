@@ -278,7 +278,8 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
   final_container->add_elem(std::move(col1));
   final_container->add_elem(std::move(col2));
 
-  auto text_inp = std::make_unique<TextInput>(current_state);
+  auto text_inp = std::make_unique<TextInput>(current_state, 
+      Vec2f{(float)window.getSize().x/2, (float)window.getSize().y/2});
   elements.push_back(std::move(text_inp));
   elements.push_back(std::move(final_container));
 
@@ -295,10 +296,12 @@ void Manager::drawUI() {
   selected.push_back(std::to_string(drawing_settings.thickness));
 
   for(auto& elem: elements) {
-    if (dynamic_cast<UI::TextInput*>(elem.get()) && current_state == State::Saving) {
+    if (dynamic_cast<UI::TextInput*>(elem.get())) {
+      if(current_state == State::Saving)
+        elem->draw(window, selected);
+    } else {   
       elem->draw(window, selected);
-    }    
-    elem->draw(window, selected);
+    }
   }
 }
 

@@ -52,29 +52,36 @@ namespace UI {
   };
 
   class TextInput : public Element {
+    Vec2f center_pos;
     sf::Font font;
     sf::Text text;
     std::string input;
     State& current_state;
+    bool started_typing{false};
   public:
-    TextInput(State& cs): current_state{cs} { 
+    TextInput(State& cs, Vec2f pos): current_state{cs},
+      center_pos{pos} { 
       if (!font.loadFromFile("assets/Roboto-Black.ttf")) {
           throw std::runtime_error("Failed to load font");
       }
       text.setFont(font);
       text.setCharacterSize(24);
       text.setFillColor(sf::Color::White);
-      text.setPosition(50, 50);
     }
     Vec2f calculate_size() override {return size;}
     void on_click(const sf::Vector2f& mpos) override {}
     void handle_input(sf::Event event) override {
       std::cout << "textint = " << input<<"\n";
       if (event.type == sf::Event::TextEntered) {
+        if(!started_typing) {
+          started_typing = true;
+          return;
+        }
         // enter
         if (event.text.unicode == 13) {
           std::cout << "saving to file = " << input << std::endl;
           current_state = State::Normal;
+          started_typing = false;
         }
         if (event.text.unicode == 8 && !input.empty()) {
           input.pop_back();  // Remove last character
@@ -89,6 +96,8 @@ namespace UI {
     }
     void draw(sf::RenderWindow& window, 
         std::vector<std::string> selected) override {
+      text.setString(input);
+      text.setPosition(center_pos);
       window.draw(text);
     }
     std::string getInput() const {
