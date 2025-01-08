@@ -21,6 +21,7 @@ private:
 
   State current_state { Normal };
 
+  DrawingSettings drawing_settings;
   Drawer drawer;
   InputHandler input_handler;
   AnimationManager animation_manager;

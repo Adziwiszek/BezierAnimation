@@ -21,6 +21,14 @@ ImageElement::ImageElement() {
   set_size({40.0, 40.0});
 } 
 
+ImageElement::ImageElement(sf::Color color): ImageElement() {
+  background.setFillColor(color);
+}
+ImageElement::ImageElement(sf::Color color, std::function<void()> handler):
+  ImageElement(color) {
+    set_on_click(handler);
+}
+
 ImageElement::ImageElement(const sf::Texture* texture): ImageElement() {
   set_texture(texture); 
 }
@@ -152,30 +160,36 @@ void Container::draw(sf::RenderWindow& _window) {
   }
 }
 
-Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler): window{_window} {
+Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
+    DrawingSettings& drawing_settings): window{_window} {
   if(!load_texture("assets/cursor.png")) {
     std::cout << "failed to load cursor.png" << std::endl;
   }
 
   auto testcont = std::make_unique<Container>();
   testcont->set_color(sf::Color::Cyan);
-  testcont->set_padding(Padding{20.0, 10.0, 20.0, 20.0});
+  testcont->set_padding(Padding{10.0, 10.0, 10.0, 10.0});
   testcont->set_orientation(Orientation::Vertical);
   testcont->add_elem(std::make_unique<ImageElement>(
         get_texture("assets/cursor.png"),
-        [&input_handler]() {
-        input_handler.switch_to_state(State::Normal,"Normal");
-        std::cout<<"dupa\n";
+        [&input_handler]() { 
+          std::cout << "dupa\n";
+          input_handler.switch_to_state(State::Normal,"Normal"); 
         } ));
   testcont->add_elem(std::make_unique<ImageElement>());
   testcont->add_elem(std::make_unique<ImageElement>());
   testcont->add_elem(std::make_unique<ImageElement>());
 
   auto testcont2 = std::make_unique<Container>();
-  testcont2->set_color(sf::Color::Green);
-  testcont2->set_padding(Padding{10.0, 20.0, 20.0, 30.0});
+  testcont2->set_color(sf::Color::Cyan);
+  testcont2->set_padding(Padding{10.0, 10.0, 10.0, 10.0});
   testcont2->set_orientation(Orientation::Vertical);
-  testcont2->add_elem(std::make_unique<ImageElement>());
+  testcont2->add_elem(std::make_unique<ImageElement>(
+        sf::Color::Red,
+        [&drawing_settings]() {
+          std::cout << "dupa\n";
+          drawing_settings.color = sf::Color::Red;
+        }));
   testcont2->add_elem(std::make_unique<ImageElement>());
   testcont2->add_elem(std::make_unique<ImageElement>());
   testcont2->add_elem(std::make_unique<ImageElement>());
@@ -184,12 +198,17 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler): window
   testcont3->set_position({0.0, 0.0});
   testcont3->set_orientation(Orientation::Horizontal);
   testcont3->stretch_height = true;
-  testcont3->set_color(sf::Color::Red);
+  testcont3->set_color(sf::Color::Cyan);
   testcont3->set_padding(Padding{0.0, 0.0, 0.0, 0.0});
   testcont3->add_elem(std::move(testcont));
   testcont3->add_elem(std::move(testcont2));
 
   elements.push_back(std::move(testcont3));
+
+  for(const auto& elem: elements) {
+    max_size.x = std::max(max_size.x, elem->calculate_size().x);
+    max_size.y = std::max(max_size.y, elem->calculate_size().y);
+  }
 }
 
 void Manager::drawUI() {

@@ -8,7 +8,7 @@
 #include "bcurve.hpp"
 #include "frame.hpp"
 #include "drawer.hpp"
-#include "userUtils.hpp"
+//#include "userUtils.hpp"
 
 enum State {
   Normal, 
@@ -17,6 +17,11 @@ enum State {
   AddPoint, 
   PlayAnimation,
   Delete,
+};
+
+struct DrawingSettings {
+  float thickness{3.0f};
+  sf::Color color{sf::Color::Green};
 };
 
 struct InputState {

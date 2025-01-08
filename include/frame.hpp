@@ -22,7 +22,7 @@ public:
 
   unsigned get_id();
 
-  void add_curve(Vec2f);
+  void add_curve(Vec2f, float, sf::Color);
   void add_point_to_current_curve(Vec2f);
   void delete_curve_by_id(unsigned);
   void delete_point_from_current_curve(unsigned);

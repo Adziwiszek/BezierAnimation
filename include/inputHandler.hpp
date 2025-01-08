@@ -24,7 +24,8 @@ public:
               State& current_state,
               std::vector<std::string>& actions,
               AnimationState& _anim_state,
-              UI::Manager& _uiman);
+              UI::Manager& _uiman,
+              DrawingSettings& ds);
 
   void handle_event(sf::Event event, InputState& input);
   void update(const InputState& input);
@@ -46,6 +47,7 @@ private:
   void next_frame();
   void prev_frame();
 
+  DrawingSettings& drawing_settings;
   AnimationState& animation_state;
   UI::Manager& ui_manager;
   std::shared_ptr<Frame>& active_frame;

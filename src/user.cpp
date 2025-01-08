@@ -7,9 +7,9 @@ User::User(sf::RenderWindow& _window) :
     drawer(_window), 
     animation_manager(frames),
     animation_state(frames),
-    ui_manager(_window, input_handler),
+    ui_manager(_window, input_handler, drawing_settings),
     input_handler(active_frame, current_state, 
-      actions, animation_state, ui_manager)
+      actions, animation_state, ui_manager, drawing_settings)
     {
 
   input_handler.add_frame(false);
@@ -21,9 +21,9 @@ User::User(Frames _frames, unsigned fc, sf::RenderWindow& _window)
     drawer(_window),
     animation_manager(frames),
     animation_state(frames),
-    ui_manager(_window, input_handler),
+    ui_manager(_window, input_handler, drawing_settings),
     input_handler(active_frame, current_state, 
-      actions, animation_state, ui_manager)
+      actions, animation_state, ui_manager, drawing_settings)
      {
   active_frame = frames->at(0);
 }
@@ -33,6 +33,8 @@ void User::init_empty() {
 }
 
 void User::handle_input(sf::Event event, InputState& input) {
+  /*if(input.mouse_position.x < ui_manager.max_size.x) 
+    return;*/
   input_handler.handle_event(event, input);
 }
 
@@ -111,7 +113,8 @@ void User::draw(sf::RenderWindow *window) {
       drawer.draw_control_points(curve->get_control_points(), active);
     }
     // drawing bezier curve
-    drawer.draw_bc_lines(curve->get_bc_line_points(), sf::Color::Green, 3.0);
+    drawer.draw_bc_lines(curve->get_bc_line_points(), 
+        curve->get_color(), curve->get_thickness());
     // drawing convex hull
     // drawer.draw_convex_hull(curve->get_convex_hull_points());
   }

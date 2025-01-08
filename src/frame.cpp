@@ -27,8 +27,8 @@ unsigned Frame::get_id() {
   return id;
 }
 
-void Frame::add_curve(Vec2f pos) {
-  curves.push_back(std::make_shared<BCurve>(pos, curve_counter++));
+void Frame::add_curve(Vec2f pos, float thick, sf::Color col) {
+  curves.push_back(std::make_shared<BCurve>(pos, curve_counter++, thick, col));
   active_curve = curves[curves.size() - 1];
 }
 

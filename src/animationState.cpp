@@ -98,11 +98,9 @@ void AnimationState::load_from_file(std::string path) {
       int f_id = std::stoi(_f_id);
       int c_id = std::stoi(_c_id);
       if(action == "ADDC") {
-        cout<<"DUPA\n";
-        cout<<"f_id = "<<f_id<<endl; 
-        cout<<"new_frames size = "<<new_frames.size()<<endl;
-        new_frames[f_id]->add_curve({x, y}); 
-        cout<<"DUPA2\n";
+        //cout<<"f_id = "<<f_id<<endl; 
+        //cout<<"new_frames size = "<<new_frames.size()<<endl;
+        new_frames[f_id]->add_curve({x, y}, 3.0f, sf::Color::Green); 
       } else if(action == "ADDP") {
         new_frames[f_id]->active_curve = new_frames[f_id]->curves[c_id];
         new_frames[f_id]->add_point_to_current_curve({x, y}); 

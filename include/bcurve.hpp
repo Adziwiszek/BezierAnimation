@@ -16,6 +16,9 @@ private:
   unsigned id;                  // unique id of this curve
   unsigned point_counter {0};   // count of how many points have been placed
 
+  float thickness{3.0f};
+  sf::Color color{sf::Color::Green};
+
   vector<std::shared_ptr<Point>> convex_hull;
   vector<std::shared_ptr<Point>> bc_points;
   vector<std::shared_ptr<Point>> points;
@@ -25,16 +28,21 @@ private:
 public:
   bool started_moving {false};
 
-  BCurve(unsigned id);                      // basic constructor
-  BCurve(Vec2f pos, unsigned id);           // immediately spawns point
-  BCurve(const BCurve& other, unsigned id); // copy constructor
+  BCurve(unsigned id, float thick, sf::Color col);            // basic constructor
+  BCurve(Vec2f pos, unsigned id, float thick, sf::Color col); // immediately spawns point
+  BCurve(const BCurve& other, unsigned id);                   // copy constructor
 
   unsigned get_id();
   size_t get_points_count() const;
   size_t get_bc_points_count() const;
+  float get_thickness() const;
+  sf::Color get_color() const;
   const Points& get_convex_hull_points() const; 
   const Points& get_control_points() const;
   const Points& get_bc_line_points() const;
+
+  void set_thickness(float);
+  void set_color(sf::Color);
 
   void spawn_point(Vec2f pos);
   void delete_point_by_id(unsigned id);

@@ -3,17 +3,23 @@
 #include<iostream>
 using std::cout;
 
-BCurve::BCurve(unsigned id) : id { id } {
+BCurve::BCurve(unsigned id, float thick, sf::Color col) : id { id } {
+  set_thickness(thick);
+  set_color(col);
 }
 
-BCurve::BCurve(Vec2f pos, unsigned id) : id { id } {
+BCurve::BCurve(Vec2f pos, unsigned id, float thick, sf::Color col):
+  BCurve(id, thick, col) {
+  set_color(col);
   spawn_point(pos);
 }
 
-BCurve::BCurve(const BCurve& other, unsigned id) : id { id } {
+BCurve::BCurve(const BCurve& other, unsigned id):
+  BCurve(id, other.get_thickness(), other.get_color()) {
   for(auto const& p: other.points) {
     spawn_point(p->get_position());
   }
+
 }
 
 float orientation(const std::shared_ptr<Point>& p, 
@@ -69,6 +75,14 @@ size_t BCurve::get_bc_points_count() const {
   return bc_points.size();
 }
 
+float BCurve::get_thickness() const {
+  return thickness;
+}
+
+sf::Color BCurve::get_color() const {
+  return color;
+}
+
 const Points& BCurve::get_convex_hull_points() const {
   return convex_hull;
 }
@@ -79,6 +93,16 @@ const Points& BCurve::get_control_points() const {
 
 const Points& BCurve::get_bc_line_points() const {
   return bc_points;
+}
+
+void BCurve::set_thickness(float t) {
+  if(t > 0) {
+    thickness = t;
+  }
+}
+
+void BCurve::set_color(sf::Color col) {
+  color = col;
 }
 
 size_t BCurve::mouse_over_point(Vec2f mpos) {

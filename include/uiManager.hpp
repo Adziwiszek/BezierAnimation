@@ -48,6 +48,8 @@ namespace UI {
     std::function<void()> on_click_lam;
   public:
     ImageElement();
+    ImageElement(sf::Color color);
+    ImageElement(sf::Color color, std::function<void()> handler);
     ImageElement(const sf::Texture* texture);
     ImageElement(const sf::Texture* texture, std::function<void()> handler);
     void draw(sf::RenderWindow& _window) override;
@@ -81,7 +83,9 @@ namespace UI {
     std::unordered_map<std::string, sf::Texture> textures;
     sf::RenderWindow& window;
   public:
-    Manager(sf::RenderWindow& _window, InputHandler& input_handler);
+    Vec2f max_size{0.0, 0.0};
+    Manager(sf::RenderWindow& _window, InputHandler& input_handler,
+        DrawingSettings& drawing_settings);
     void drawUI();
     bool load_texture(const std::string& path);
     const sf::Texture* get_texture(const std::string& path) const;

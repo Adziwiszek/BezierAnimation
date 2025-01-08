@@ -6,12 +6,14 @@ InputHandler::InputHandler(std::shared_ptr<Frame>& active_frame,
                          State& current_state,
                          std::vector<std::string>& actions,
                          AnimationState& _anim_state,
-                         UI::Manager& _uiman)
+                         UI::Manager& _uiman,
+                         DrawingSettings& ds)
   : active_frame(active_frame), 
     current_state(current_state),
     actions(actions),
     animation_state{_anim_state},
-    ui_manager{_uiman} {}
+    ui_manager{_uiman},
+    drawing_settings{ds} {}
 
 void InputHandler::handle_event(sf::Event event, InputState& input) {
   if (event.type == sf::Event::MouseButtonPressed) {
@@ -79,7 +81,7 @@ void InputHandler::add_new_curve(Vec2f pos) {
   if(!active_frame)
     return;
 
-  active_frame->add_curve(pos);
+  active_frame->add_curve(pos, drawing_settings.thickness, drawing_settings.color);
   switch_to_state(State::AddPoint, "AddPoint");
 }
 void InputHandler::add_point_to_active_curve(  Vec2f pos) {
