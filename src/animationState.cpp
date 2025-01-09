@@ -2,29 +2,31 @@
 #include <iostream>
 using std::cout, std::endl;
 
-AnimationState::AnimationState(std::shared_ptr<Frames> _frames,
-    AnimationManager& am, std::shared_ptr<Frame>& af):
-  frames{_frames}, active_frame{af}, animation_manager{am} {}
+AnimationState::AnimationState(AnimationManager& am):
+  animation_manager{am}, active_frame{nullptr},
+  frames{std::make_shared<Frames>()} {}
 
 void AnimationState::next_frame() {
   if(frame_index < frames->size() - 1) { 
     active_frame = (*frames)[++frame_index];
-    active_frame->active_curve = nullptr;
-    active_frame->active_point = nullptr;
-    /*std::cout << "new frame id = " << active_frame->get_id() << std::endl;
-    std::cout << "frames size = " << frames->size() << std::endl;*/
+  } else {
+    frame_index = 0;
+    //active_frame = (*frames)[0];
   }
+  active_frame->active_curve = nullptr;
+  active_frame->active_point = nullptr;
 }
+
 void AnimationState::prev_frame() {
   if(frame_index > 0) { 
     active_frame = (*frames)[--frame_index];
-    active_frame->active_curve = nullptr;
-    active_frame->active_point = nullptr;
-    /*std::cout << "new frame id = " << active_frame->get_id() << std::endl;
-    std::cout << "frames size = " << frames->size() << std::endl;*/
   }
+  if(frame_index == 0) {
+    frame_index = frames->size() - 1;
+  }
+  active_frame->active_curve = nullptr;
+  active_frame->active_point = nullptr;
 }
-
 
 void AnimationState::add_frame(bool copy_frame) {
   std::shared_ptr<Frame> new_frame;
@@ -39,6 +41,10 @@ void AnimationState::add_frame(bool copy_frame) {
   } else {
     frames->insert(frames->begin() + frame_index + 1, new_frame);
   }
+}
+
+void AnimationState::change_fps(int c) {
+  animation_manager.set_fps((int)animation_manager.get_fsp() + c);
 }
 
 unsigned AnimationState::get_frame_index() {
@@ -142,6 +148,12 @@ void AnimationState::load_from_file(std::string path) {
     frame->active_curve = nullptr;
     frame->active_point = nullptr;
   }
+  /*for(int i = 0; i < frames->size(); i++) {
+    next_frame();  
+  }
+  for(int i = 0; i < frames->size(); i++) {
+    prev_frame();  
+  }*/
   std::cout << "success!" << std::endl;
   input.close();
 }

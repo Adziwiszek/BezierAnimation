@@ -53,6 +53,10 @@ namespace UI {
     void set_color(sf::Color color);
   };
 
+  class Tooltip : public Element {
+
+  };
+
   class TextInput : public Element {
     Vec2f center_pos;
     sf::Font font;

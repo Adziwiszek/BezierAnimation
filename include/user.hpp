@@ -15,9 +15,8 @@
 
 class User {
 private:
-  std::shared_ptr<Frames> frames; 
-  std::shared_ptr<Frame> active_frame;
-
+  std::shared_ptr<Frame>& active_frame;
+  std::shared_ptr<Frames>& frames;
 
   State current_state { Move };
 
@@ -31,6 +30,10 @@ public:
   std::vector<std::string> actions;
   User(sf::RenderWindow& _window); 
   User(Frames, unsigned, sf::RenderWindow&);
+
+  // quickfixes
+  void set_active_frame(unsigned id);
+
   void init_empty();
   // handle user input
   void handle_input(sf::Event event, InputState& input); 
@@ -45,4 +48,6 @@ public:
   void load_from_file(std::string);
   // drawing program
   void draw(sf::RenderWindow *window);
+  void draw_bclines_from_frame(const std::shared_ptr<Frame>& frame,
+    sf::RenderWindow *window, sf::Uint8 opacity=255);
 };

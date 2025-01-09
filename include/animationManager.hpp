@@ -11,7 +11,8 @@ public:
   AnimationManager(std::shared_ptr<Frames>&, std::shared_ptr<Frame>&);
   unsigned next_frame(float);
   void play_animation(float dt);
-
+  
+  void set_fps(int);
   unsigned get_fsp() const;
 private:
   std::shared_ptr<Frame>& active_frame;

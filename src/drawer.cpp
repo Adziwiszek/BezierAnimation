@@ -72,6 +72,11 @@ void draw_using_lines(const std::vector<std::shared_ptr<Point>>& bc_line_points,
 
 void draw_using_circles(const std::vector<std::shared_ptr<Point>>& bc_line_points,
       sf::Color color, float thickness, sf::RenderWindow& window) {
+
+  sf::RenderTexture render_texture;
+  render_texture.create(window.getSize().x, window.getSize().y);
+  render_texture.clear(sf::Color::Transparent);
+
   for (size_t i = 0; i < bc_line_points.size() - 1; ++i) {
     Vec2f p1 = bc_line_points[i]->get_position();
     Vec2f p2 = bc_line_points[i + 1]->get_position();
@@ -82,18 +87,85 @@ void draw_using_circles(const std::vector<std::shared_ptr<Point>>& bc_line_point
       sf::CircleShape circle(thickness / 2.0f);
       circle.setFillColor(color);
       circle.setPosition(point - Vec2f(thickness / 2.0f, thickness / 2.0f));
-      window.draw(circle);
-      t += 0.05f;  // Adjust step size for smoother curves
+      render_texture.draw(circle, sf::BlendAlpha);
+      t += 0.1f;  // Adjust step size for smoother curves
     }
   }
+  render_texture.display();
+
+  sf::Sprite sprite(render_texture.getTexture());
+  window.draw(sprite, sf::BlendAlpha);
+}
+
+void draw_using_va(const std::vector<std::shared_ptr<Point>>& bc_line_points,
+      sf::Color color, float thickness, sf::RenderWindow& window) {
+
+    sf::VertexArray quads(sf::Quads);
+
+  for (size_t i = 0; i < bc_line_points.size() - 1; ++i) {
+    Vec2f p1 = bc_line_points[i]->get_position();
+    Vec2f p2 = bc_line_points[i + 1]->get_position();
+
+    // Calculate direction vector and perpendicular offset
+    Vec2f direction = p2 - p1;
+    float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    Vec2f unit_direction = direction / length;
+    Vec2f perpendicular(-unit_direction.y, unit_direction.x);
+
+    Vec2f offset = perpendicular * (thickness / 2.0f);
+
+    // Create the quad for this segment
+    quads.append(sf::Vertex(p1 - offset, color));
+    quads.append(sf::Vertex(p1 + offset, color));
+    quads.append(sf::Vertex(p2 + offset, color));
+    quads.append(sf::Vertex(p2 - offset, color));
+  }
+
+  window.draw(quads);
 }
 
 void Drawer::draw_bc_lines(const std::vector<std::shared_ptr<Point>>& bc_line_points,
-      sf::Color color, float thickness) {
+      sf::Color color, float thickness, sf::Uint8 opacity) {
+  if(bc_line_points.size() < 2)
+    return;
+  //color.a = 255*static_cast<sf::Uint8>(std::clamp(opacity, 0.0f, 1.0f));
+  color.a = opacity;
+  //draw_using_circles(bc_line_points, color, thickness, window);
+  draw_using_circles(bc_line_points, color, thickness, window);
+}
+
+void Drawer::draw_bc_lines_for_background(
+    const std::vector<std::shared_ptr<Point>>& bc_line_points,
+      sf::Color color, float thickness, sf::Uint8 opacity) {
   if(bc_line_points.size() < 2)
     return;
 
-  draw_using_circles(bc_line_points, color, thickness, window);
+  sf::RenderTexture render_texture;
+  render_texture.create(window.getSize().x, window.getSize().y);
+  render_texture.clear(sf::Color::Transparent);
+
+  for (size_t i = 0; i < bc_line_points.size() - 1; ++i) {
+    Vec2f p1 = bc_line_points[i]->get_position();
+    Vec2f p2 = bc_line_points[i + 1]->get_position();
+
+    float t = 0.0f;
+    while (t <= 1.0f) {
+      Vec2f point = (1 - t) * p1 + t * p2;
+      sf::CircleShape circle(thickness / 2.0f);
+      circle.setFillColor(color);
+      circle.setPosition(point - Vec2f(thickness / 2.0f, thickness / 2.0f));
+      render_texture.draw(circle, sf::BlendAlpha);
+      t += 0.1f;  // Adjust step size for smoother curves
+    }
+  }
+  render_texture.display();
+
+  sf::Sprite sprite(render_texture.getTexture());
+  sf::Color sprite_col = sprite.getColor();
+  sprite_col.a = opacity;
+  sprite.setColor(sprite_col);
+
+  window.draw(sprite);
 }
 
 void Drawer::draw_convex_hull(const std::vector<std::shared_ptr<Point>>& ch_points) {

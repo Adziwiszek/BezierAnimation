@@ -177,9 +177,11 @@ void InputHandler::handle_mouse_movement(const InputState& input) {
 void InputHandler::add_frame(bool copy_frame) {
   animation_state.add_frame(copy_frame);
 }
+
 void InputHandler::next_frame() {
   animation_state.next_frame();
 }
+
 void InputHandler::prev_frame() {
   animation_state.prev_frame();
 }
@@ -210,22 +212,22 @@ void InputHandler::handle_key_pressed(sf::Keyboard::Key key, const InputState& i
       //save_to_file("test.txt");
       break;
     case sf::Keyboard::Key::Up:
-      //fps += 1;
+      animation_state.change_fps(+1);
       break;
     case sf::Keyboard::Key::Down:
-      //fps -= 1;
+      animation_state.change_fps(-1);
       break;
     case sf::Keyboard::Key::F:
       add_frame(true);
       next_frame();
-      actions.push_back("added frame");
+      //actions.push_back("added frame");
       break;
     case sf::Keyboard::Key::E:
-      actions.push_back("next frame");
+      ///actions.push_back("next frame");
       next_frame();
       break;
     case sf::Keyboard::Key::Q:
-      actions.push_back("previous frame");
+      //actions.push_back("previous frame");
       prev_frame();
       break;
     case sf::Keyboard::Key::D:

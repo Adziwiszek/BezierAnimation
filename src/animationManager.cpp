@@ -29,3 +29,7 @@ unsigned AnimationManager::get_fsp() const {
   return fps;
 }
 
+void AnimationManager::set_fps(int new_fps) {
+  if(new_fps <= 0) fps = 1;
+  else fps = new_fps; 
+}
