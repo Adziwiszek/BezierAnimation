@@ -8,7 +8,7 @@ AnimationState::AnimationState(AnimationManager& am):
 
 void AnimationState::next_frame() {
   if(frame_index < frames->size() - 1) { 
-    active_frame = (*frames)[++frame_index];
+    frame_index++;
   } else {
     frame_index = 0;
     //active_frame = (*frames)[0];
@@ -19,7 +19,7 @@ void AnimationState::next_frame() {
 
 void AnimationState::prev_frame() {
   if(frame_index > 0) { 
-    active_frame = (*frames)[--frame_index];
+    frame_index--;
   }
   if(frame_index == 0) {
     frame_index = frames->size() - 1;
@@ -147,13 +147,10 @@ void AnimationState::load_from_file(std::string path) {
   for(auto& frame: *frames) {
     frame->active_curve = nullptr;
     frame->active_point = nullptr;
+    for(auto& curve: frame->curves) {
+      curve->update();
+    }
   }
-  /*for(int i = 0; i < frames->size(); i++) {
-    next_frame();  
-  }
-  for(int i = 0; i < frames->size(); i++) {
-    prev_frame();  
-  }*/
   std::cout << "success!" << std::endl;
   input.close();
 }

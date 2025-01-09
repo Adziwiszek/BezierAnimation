@@ -132,7 +132,7 @@ void InputHandler::switch_to_state(State new_state, const std::string& state_nam
   std::cout << "Switched to " << state_name << "!\n";
   current_state = new_state;
   if(current_state == PlayAnimation) {
-    active_frame = animation_state.get_active_frame();
+    //active_frame = animation_state.get_active_frame();
   } else {
     //animation_frame_index = 0;
   }

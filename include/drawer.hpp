@@ -18,7 +18,9 @@ public:
       bool active=false);
   void draw_bc_lines(const std::vector<std::shared_ptr<Point>>& bc_line_points,
       sf::Color color=sf::Color::Green, float thickness=1.0, sf::Uint8 opacity=255);
-  void draw_bc_lines_for_background(const std::vector<std::shared_ptr<Point>>& bc_line_points,
+  void draw_bc_lines_for_background(
+      const std::vector<std::shared_ptr<Point>>& bc_line_points,
+      sf::RenderTexture& render_texture,
       sf::Color color=sf::Color::Green, float thickness=1.0, sf::Uint8 opacity=255);
   void draw_convex_hull(const std::vector<std::shared_ptr<Point>>& ch_points);
 };

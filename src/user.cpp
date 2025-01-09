@@ -80,9 +80,6 @@ void User::update(InputState& input) {
     //active_frame->active_curve = nullptr;
   }
   
-  std::cout << "af id = " << active_frame->get_id() << std::endl;
-  std::cout << "fs size = " << frames->size() << std::endl;
-
   if(current_state == State::PlayAnimation) {
     animation_manager.play_animation(input.dt);
   } else {
@@ -131,14 +128,30 @@ void User::draw_bclines_from_frame(const std::shared_ptr<Frame>& frame,
 void draw_background_curves_from_frame(
     const std::shared_ptr<Frame>& frame, sf::RenderWindow* window,
     sf::Uint8 opacity, const State& current_state, Drawer& drawer) {
+
+  sf::RenderTexture render_texture;
+  render_texture.create(window->getSize().x, window->getSize().y);
+  render_texture.clear(sf::Color::Transparent);
+
   for(auto curve: frame->curves) {
-    drawer.draw_bc_lines_for_background(curve->get_bc_line_points(), 
+    drawer.draw_bc_lines_for_background(curve->get_bc_line_points(), render_texture,
         curve->get_color(), curve->get_thickness(), opacity);
+    std::cout << "drawing background, id = " << frame->get_id() << std::endl;
   }
+
+  render_texture.display();
+
+  sf::Sprite sprite(render_texture.getTexture());
+  sf::Color sprite_col = sprite.getColor();
+  sprite_col.a = opacity;
+  sprite.setColor(sprite_col);
+
+  window->draw(sprite);
 }
-  
 
 void User::draw(sf::RenderWindow *window) {
+  draw_background_curves_from_frame(frames->at(9), window, 100,
+      current_state, drawer);
   for(int i = 0; i < frames->size(); i++) {
     auto frame = frames->at(i);
     if(frame->get_id() == active_frame->get_id()) {
@@ -146,14 +159,14 @@ void User::draw(sf::RenderWindow *window) {
     } 
     if(current_state == State::PlayAnimation)
       continue;
-    if(frames->at((i + 1) % frames->size())->get_id() == active_frame->get_id()) {
+    /*if(frames->at((i + 1) % frames->size())->get_id() == active_frame->get_id()) {
       draw_background_curves_from_frame(frame, window, 100,
           current_state, drawer);
     }
     if(frames->at((i + 2) % frames->size())->get_id() == active_frame->get_id()) {
       draw_background_curves_from_frame(frame, window, 50,
           current_state, drawer);
-    }
+    }*/
   }
 
   ui_manager.drawUI();

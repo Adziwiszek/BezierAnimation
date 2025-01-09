@@ -136,13 +136,11 @@ void Drawer::draw_bc_lines(const std::vector<std::shared_ptr<Point>>& bc_line_po
 
 void Drawer::draw_bc_lines_for_background(
     const std::vector<std::shared_ptr<Point>>& bc_line_points,
-      sf::Color color, float thickness, sf::Uint8 opacity) {
+    sf::RenderTexture& render_texture,
+    sf::Color color, float thickness, sf::Uint8 opacity
+      ) {
   if(bc_line_points.size() < 2)
     return;
-
-  sf::RenderTexture render_texture;
-  render_texture.create(window.getSize().x, window.getSize().y);
-  render_texture.clear(sf::Color::Transparent);
 
   for (size_t i = 0; i < bc_line_points.size() - 1; ++i) {
     Vec2f p1 = bc_line_points[i]->get_position();
@@ -158,14 +156,6 @@ void Drawer::draw_bc_lines_for_background(
       t += 0.1f;  // Adjust step size for smoother curves
     }
   }
-  render_texture.display();
-
-  sf::Sprite sprite(render_texture.getTexture());
-  sf::Color sprite_col = sprite.getColor();
-  sprite_col.a = opacity;
-  sprite.setColor(sprite_col);
-
-  window.draw(sprite);
 }
 
 void Drawer::draw_convex_hull(const std::vector<std::shared_ptr<Point>>& ch_points) {
