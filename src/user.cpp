@@ -17,17 +17,6 @@ User::User(sf::RenderWindow& _window) :
   active_frame = frames->at(0);
 }
 
-/*User::User(Frames _frames, unsigned fc, sf::RenderWindow& _window)
-  : frames {std::make_shared<Frames>(std::move(_frames))}, 
-    drawer(_window),
-    animation_manager(frames),
-    animation_state(frames),
-    ui_manager(_window, input_handler, drawing_settings, current_state, animation_state),
-    input_handler(active_frame, current_state, 
-      actions, animation_state, ui_manager, drawing_settings)
-     {
-  active_frame = frames->at(0);
-}*/
 
 void User::init_empty() {
   frames->push_back(std::make_shared<Frame>(0)); 
@@ -90,6 +79,7 @@ void User::update(InputState& input) {
   for(auto& curve: active_frame->curves) {
     curve->update();
   }
+  ui_manager.update(input);
 }
 
 void User::save_to_file(std::string path) {

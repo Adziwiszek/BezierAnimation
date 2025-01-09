@@ -104,7 +104,8 @@ void ImageElement::set_on_click(std::function<void()> handler) {
   on_click_lam = std::move(handler);
 }
 
-void ImageElement::on_click(const sf::Vector2f& mpos) {
+void ImageElement::on_click(const InputState& input) {
+  auto mpos = input.mouse_position;
   if (mpos.x >= position.x && mpos.x <= position.x + size.x &&
       mpos.y >= position.y && mpos.y <= position.y + size.y) {
     if(on_click_lam) {
@@ -113,9 +114,9 @@ void ImageElement::on_click(const sf::Vector2f& mpos) {
   }  
 }
 
-void Container::on_click(const sf::Vector2f& mpos) {
+void Container::on_click(const InputState& input) {
   for(const auto& child: children) {
-    child->on_click(mpos);
+    child->on_click(input);
   }
 }
 
@@ -159,6 +160,12 @@ Vec2f Container::calculate_size() {
   if(min_height > 0)
     my_size.y = std::max(my_size.y, min_height);
   return my_size;
+}
+
+void Container::update(const InputState& input) {
+  for(auto& child: children) {
+    child->update(input);
+  }
 }
 
 void Container::draw(sf::RenderWindow& _window, 
@@ -295,6 +302,7 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
       animation_state);
   elements.push_back(std::move(text_inp));
   elements.push_back(std::move(final_container));
+  elements.push_back(std::make_unique<UI::ColorPicker>());
 
   for(const auto& elem: elements) {
     max_size.x = std::max(max_size.x, elem->calculate_size().x);
@@ -309,12 +317,8 @@ void Manager::drawUI() {
   selected.push_back(std::to_string(drawing_settings.thickness));
 
   for(auto& elem: elements) {
-    if (dynamic_cast<UI::TextInput*>(elem.get())) {
-      if(current_state == State::Saving)
-        elem->draw(window, selected);
-    } else {   
+    if(check_if_elem_can_act(elem, current_state))
       elem->draw(window, selected);
-    }
   }
 }
 
@@ -341,15 +345,31 @@ const sf::Texture* Manager::get_texture(const std::string& path) const {
   return nullptr;
 }
 
-void Manager::handle_click(const sf::Vector2f& mpos) {
+void Manager::handle_click(const InputState& input) {
   for(const auto& elem: elements) {
-    elem->on_click(mpos); 
+    if(check_if_elem_can_act(elem, current_state)) 
+      elem->on_click(input); 
   }
 }
 
 void Manager::handle_input(sf::Event event) {
   for(const auto& elem: elements) {
-    elem->handle_input(event); 
+    if(check_if_elem_can_act(elem, current_state)) 
+      elem->handle_input(event); 
   }
 }
 
+void Manager::update(const InputState& input) {
+  for(const auto& elem: elements) {
+    if(check_if_elem_can_act(elem, current_state)) 
+      elem->update(input);
+  }
+}
+      
+bool Manager::check_if_elem_can_act(const std::unique_ptr<Element>& elem,
+    const State& curr_state) {
+  if(elem->required_state.has_value()) {
+    return elem->required_state.value() == curr_state;
+  }
+  return true;
+}

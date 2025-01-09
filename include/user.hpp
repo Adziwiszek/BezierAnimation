@@ -29,8 +29,6 @@ private:
 public:
   std::vector<std::string> actions;
   User(sf::RenderWindow& _window); 
-  User(Frames, unsigned, sf::RenderWindow&);
-
   // quickfixes
   void set_active_frame(unsigned id);
 

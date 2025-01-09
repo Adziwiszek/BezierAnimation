@@ -17,7 +17,8 @@ enum State {
   AddPoint, 
   PlayAnimation,
   Delete,
-  Saving
+  Saving,
+  PickColor
 };
 
 struct DrawingSettings {

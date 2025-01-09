@@ -48,7 +48,7 @@ void InputHandler::handle_mouse_pressed(InputState& input) {
   if(!input.left_mouse_down)
     return;
 
-  ui_manager.handle_click(input.mouse_position);
+  ui_manager.handle_click(input);
   if(input.mouse_position.x < ui_manager.max_size.x) 
     return;
 
@@ -196,6 +196,9 @@ void InputHandler::handle_key_pressed(sf::Keyboard::Key key, const InputState& i
       break;
     case sf::Keyboard::Key::N:
       switch_to_state(State::Normal, "Normal");
+      break;
+    case sf::Keyboard::Key::P:
+      switch_to_state(State::PickColor, "Pickcolor");
       break;
     case sf::Keyboard::Key::M:
       switch_to_state(State::Move, "Move");
