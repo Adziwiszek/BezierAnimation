@@ -38,6 +38,7 @@ void Drawer::draw_line_segment(sf::RenderTarget& target, Vec2f start, Vec2f end,
   //drawing line
   target.draw(va);
 
+  if(col.a != 255) return;
   //drawing first endpoint
   endpoint_circle.setPosition(start);
   target.draw(endpoint_circle);
@@ -70,14 +71,16 @@ void Drawer::draw_frame(sf::RenderTarget& target, const std::shared_ptr<Frame>& 
     if(curr_state != State::PlayAnimation && frame->active_curve &&
         frame->active_curve->get_id() == curve->get_id() &&
         !(curve->started_moving || curve->point_moving)) {
-      draw_control_points(target, curve->get_control_points(), true);
+      draw_control_points(target, curve->get_control_points(), true, opacity);
     }
   }
 }
 
-void Drawer::draw_point(sf::RenderTarget& target, const Point &p, bool active) {
+void Drawer::draw_point(sf::RenderTarget& target, const Point &p, bool active, sf::Uint8 opacity) {
   sf::CircleShape cp;
-  cp.setFillColor(sf::Color::White);
+  auto col = sf::Color::White;
+  col.a = opacity;
+  cp.setFillColor(col);
   cp.setOutlineThickness(2.0f);
   cp.setOutlineColor(sf::Color::Red);
   //float rad = p.get_radius();
@@ -92,89 +95,13 @@ void Drawer::draw_point(sf::RenderTarget& target, const Point &p, bool active) {
 
 void Drawer::draw_control_points(sf::RenderTarget& target,
   const std::vector<std::shared_ptr<Point>>& control_points, 
-      bool active) {
+      bool active, sf::Uint8 opacity) {
   for(const auto& p: control_points) {
-    draw_point(target, *p, active);
+    draw_point(target, *p, active, opacity);
   }
 }
 
-
-void draw_using_lines(const std::vector<std::shared_ptr<Point>>& bc_line_points,
-      sf::Color color, float thickness, sf::RenderWindow& window) {
-  for (size_t i = 0; i < bc_line_points.size() - 1; ++i) {
-    Point p1(*bc_line_points[i]);
-    Point p2(*bc_line_points[i+1]);
-    Vec2f direction(p2.get_position() - p1.get_position());
-    float length = std::sqrt(direction.x*direction.x + direction.y*direction.y);
-
-    sf::RectangleShape line(Vec2f(length, thickness));
-    line.setFillColor(color);
-    line.setPosition(p1.get_position());
-    line.setRotation(std::atan2(direction.y, direction.x) * 180.f / M_PI);
-    window.draw(line);
-  }
-}
-
-void draw_using_circles(const std::vector<std::shared_ptr<Point>>& bc_line_points,
-      sf::Color color, float thickness, sf::RenderWindow& window) {
-
-  sf::RenderTexture render_texture;
-  render_texture.create(window.getSize().x, window.getSize().y);
-  render_texture.clear(sf::Color::Transparent);
-
-  for (size_t i = 0; i < bc_line_points.size() - 1; ++i) {
-    Vec2f p1 = bc_line_points[i]->get_position();
-    Vec2f p2 = bc_line_points[i + 1]->get_position();
-
-    float t = 0.0f;
-    while (t <= 1.0f) {
-      Vec2f point = (1 - t) * p1 + t * p2;
-      sf::CircleShape circle(thickness / 2.0f);
-      circle.setFillColor(color);
-      circle.setPosition(point - Vec2f(thickness / 2.0f, thickness / 2.0f));
-      render_texture.draw(circle, sf::BlendAlpha);
-      t += 0.1f;  // Adjust step size for smoother curves
-    }
-  }
-  render_texture.display();
-
-  sf::Sprite sprite(render_texture.getTexture());
-  window.draw(sprite, sf::BlendAlpha);
-}
-
-void Drawer::draw_bc_lines(const std::vector<std::shared_ptr<Point>>& bc_line_points,
-      sf::Color color, float thickness, sf::Uint8 opacity) {
-  if(bc_line_points.size() < 2)
-    return;
-  color.a = opacity;
-  draw_using_line_segments(bc_line_points, window, color, thickness*2);
-}
-
-void Drawer::draw_bc_lines_for_background(
-    const std::vector<std::shared_ptr<Point>>& bc_line_points,
-    sf::RenderTexture& render_texture,
-    sf::Color color, float thickness, sf::Uint8 opacity
-      ) {
-  if(bc_line_points.size() < 2)
-    return;
-
-  for (size_t i = 0; i < bc_line_points.size() - 1; ++i) {
-    Vec2f p1 = bc_line_points[i]->get_position();
-    Vec2f p2 = bc_line_points[i + 1]->get_position();
-
-    float t = 0.0f;
-    while (t <= 1.0f) {
-      Vec2f point = (1 - t) * p1 + t * p2;
-      sf::CircleShape circle(thickness / 2.0f);
-      circle.setFillColor(color);
-      circle.setPosition(point - Vec2f(thickness / 2.0f, thickness / 2.0f));
-      render_texture.draw(circle, sf::BlendAlpha);
-      t += 0.1f;  // Adjust step size for smoother curves
-    }
-  }
-}
-
-void Drawer::draw_convex_hull(const std::vector<std::shared_ptr<Point>>& ch_points) {
+/*void Drawer::draw_convex_hull(const std::vector<std::shared_ptr<Point>>& ch_points) {
   if(ch_points.empty())
     return;
 
@@ -187,4 +114,4 @@ void Drawer::draw_convex_hull(const std::vector<std::shared_ptr<Point>>& ch_poin
     };
     window.draw(line, 2, sf::Lines);
   }
-}
+}*/

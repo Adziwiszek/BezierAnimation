@@ -339,15 +339,20 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
   elements.push_back(std::move(color_picker));
 }
 
-void Manager::drawUI() {
+void Manager::drawUI(const InputState& input) {
   Vec2f window_size{window.getSize()};
   std::vector<std::string> selected;
   selected.push_back(color_to_string(drawing_settings.color));
   selected.push_back(std::to_string(drawing_settings.thickness));
 
   for(auto& elem: elements) {
-    if(check_if_elem_can_act(elem, current_state))
+    if(check_if_elem_can_act(elem, current_state)) {
       elem->draw(window, selected);
+      // drawing tooltip
+      if(elem->tooltip.has_value()) {
+        elem->tooltip.value().draw(window, input);
+      }
+    }
   }
 }
 

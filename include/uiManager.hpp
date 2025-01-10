@@ -36,10 +36,42 @@ namespace UI {
   
   std::string color_to_string(const sf::Color& color);
 
+  struct Tooltip {
+    std::string str;
+    sf::RectangleShape background;
+    sf::Text text;
+    Vec2f position{0.0, 0.0};
+
+    Tooltip() {
+      background.setFillColor(sf::Color{66, 66, 66});
+      background.setOutlineColor(sf::Color::Black);
+      background.setOutlineThickness(unselected_thick);
+      background.setPosition(position);
+      text.setFillColor(sf::Color::White);
+      text.setCharacterSize(18);
+    }
+
+    void update_text(std::string _str) {
+      str = _str;
+      text.setString(str);
+
+      sf::FloatRect text_bounds = text.getLocalBounds();
+      background.setSize({text_bounds.width + 20.0f, text_bounds.height + 20.0f});
+    }
+
+    void draw(sf::RenderTarget& target, const InputState& input) {
+      background.setPosition(input.mouse_position);
+      text.setPosition({input.mouse_position.x + 20.0f, input.mouse_position.y + 20.0f});
+      target.draw(background);
+      target.draw(text);
+    }
+  };
+
   class Element {
   protected:
   public: 
     optional<State> required_state{std::nullopt}; 
+    optional<Tooltip> tooltip{std::nullopt};
     sf::RectangleShape background; 
     Vec2f position;
     Vec2f size;
@@ -120,7 +152,7 @@ namespace UI {
     Vec2f max_size{0.0, 0.0};
     Manager(sf::RenderWindow& _window, InputHandler& input_handler,
         DrawingSettings& ds, State& st, AnimationState& animation_state);
-    void drawUI();
+    void drawUI(const InputState& input);
     void update(const InputState& input);
     void handle_input(sf::Event event);
     bool load_texture(const std::string& path);
@@ -131,9 +163,6 @@ namespace UI {
   };
 
 
-  class Tooltip : public Element {
-
-  };
 
   class TextInput : public Element {
     Vec2f center_pos;

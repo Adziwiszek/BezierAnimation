@@ -44,7 +44,7 @@ public:
   void save_to_file(std::string);
   void load_from_file(std::string);
   // drawing program
-  void draw(sf::RenderWindow& window);
+  void draw(sf::RenderWindow& window, const InputState& input);
   void draw_bclines_from_frame(const std::shared_ptr<Frame>& frame,
     sf::RenderWindow *window, sf::Uint8 opacity=255);
 };

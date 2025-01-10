@@ -90,30 +90,7 @@ void User::load_from_file(std::string path) {
   active_frame->active_point = nullptr;
 }
 
-void draw_background_curves_from_frame(
-    const std::shared_ptr<Frame>& frame, sf::RenderWindow* window,
-    sf::Uint8 opacity, const State& current_state, Drawer& drawer) {
-
-  sf::RenderTexture render_texture;
-  render_texture.create(window->getSize().x, window->getSize().y);
-  render_texture.clear(sf::Color::Transparent);
-
-  for(auto curve: frame->curves) {
-    drawer.draw_bc_lines_for_background(curve->get_bc_line_points(), render_texture,
-        curve->get_color(), curve->get_thickness(), opacity);
-  }
-
-  render_texture.display();
-
-  sf::Sprite sprite(render_texture.getTexture());
-  sf::Color sprite_col = sprite.getColor();
-  sprite_col.a = opacity;
-  sprite.setColor(sprite_col);
-
-  window->draw(sprite);
-}
-
-void User::draw(sf::RenderWindow& window) {
+void User::draw(sf::RenderWindow& window, const InputState& input) {
   sf::RenderTexture render_texture;
   if (!render_texture.create(window.getSize().x, window.getSize().y)) {
     std::cerr << "Failed to create render texture" << std::endl;
@@ -128,7 +105,7 @@ void User::draw(sf::RenderWindow& window) {
   }
   background.clear(sf::Color::Transparent);
 
-  int nframes = 2;
+  int nframes = 3;
 
   for(int i = 0; i < frames->size(); i++) {
     auto frame = frames->at(i);
@@ -137,15 +114,15 @@ void User::draw(sf::RenderWindow& window) {
       // drawing active frame
       drawer.draw_frame(render_texture, frame, current_state, 255);
       // drawing background curves
-      /*for(int j = -nframes; j <= nframes; j++) {
+      if(current_state == State::PlayAnimation) continue;
+      for(int j = -nframes; j <= nframes; j++) {
         if(j == 0) continue;
         auto background_frame =
           frames->at((i + j + frames->size()) % frames->size()); 
-        float opacity = (float)(- std::abs(j) + (nframes+1))/nframes; 
+        float opacity = 0.9*(float)(- std::abs(j) + nframes)/(nframes); 
         drawer.draw_frame(render_texture, background_frame, 
             current_state, opacity*255);
-      }*/
-      
+      }
     } 
   }
   render_texture.display();
@@ -156,6 +133,6 @@ void User::draw(sf::RenderWindow& window) {
 
   window.draw(sprite);
 
-  ui_manager.drawUI();
+  ui_manager.drawUI(input);
 }
 
