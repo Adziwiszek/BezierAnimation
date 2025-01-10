@@ -221,6 +221,8 @@ namespace UI {
       on_value_change{onvalchange}
     {
       slider_indicator.setFillColor(sf::Color::Black);
+      background.setOutlineColor(sf::Color::Black);
+      background.setOutlineThickness(2.0);
       update_slider_position();
     }
     void draw(sf::RenderWindow& _window,
@@ -288,6 +290,7 @@ namespace UI {
     void draw(sf::RenderWindow& _window,
         std::vector<std::string> selected) override {
       update_slider_position();
+      _window.draw(background);
       _window.draw(gradient);
       _window.draw(slider_indicator);
     }
