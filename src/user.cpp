@@ -114,6 +114,13 @@ void draw_background_curves_from_frame(
 }
 
 void User::draw(sf::RenderWindow& window) {
+  sf::RenderTexture render_texture;
+  if (!render_texture.create(window.getSize().x, window.getSize().y)) {
+    std::cerr << "Failed to create render texture" << std::endl;
+    return;
+  }
+  render_texture.clear(sf::Color::Transparent);
+
   for(int i = 0; i < frames->size(); i++) {
     auto frame = frames->at(i);
 
@@ -137,9 +144,16 @@ void User::draw(sf::RenderWindow& window) {
     }*/
     if(frame->get_id() == active_frame->get_id()) {
       //draw_bclines_from_frame(frame, window, 255);
-      drawer.draw_frame(window, frame, current_state, 255);
+      drawer.draw_frame(render_texture, frame, current_state, 255);
     } 
   }
+  render_texture.display();
+
+  sf::Sprite sprite(render_texture.getTexture());
+  sf::Color sprite_col = sprite.getColor();
+  sprite.setColor(sprite_col);
+
+  window.draw(sprite);
 
   ui_manager.drawUI();
 }

@@ -66,7 +66,8 @@ void Drawer::draw_frame(sf::RenderTarget& target, const std::shared_ptr<Frame>& 
         curve->get_thickness());
     // drawing curve control points
     if(curr_state != State::PlayAnimation && frame->active_curve &&
-        frame->active_curve->get_id() == curve->get_id()) {
+        frame->active_curve->get_id() == curve->get_id() &&
+        !(curve->started_moving || curve->point_moving)) {
       draw_control_points(target, curve->get_control_points(), true);
     }
   }
@@ -143,11 +144,7 @@ void Drawer::draw_bc_lines(const std::vector<std::shared_ptr<Point>>& bc_line_po
       sf::Color color, float thickness, sf::Uint8 opacity) {
   if(bc_line_points.size() < 2)
     return;
-  //color.a = 255*static_cast<sf::Uint8>(std::clamp(opacity, 0.0f, 1.0f));
   color.a = opacity;
-  //draw_using_circles(bc_line_points, color, thickness, window);
-  //draw_using_circles(bc_line_points, color, thickness, window);
-  //draw_using_lines(bc_line_points, color, thickness, window);
   draw_using_line_segments(bc_line_points, window, color, thickness*2);
 }
 

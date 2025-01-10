@@ -27,6 +27,7 @@ private:
     graham_scan(std::vector<std::shared_ptr<Point>> points);
 public:
   bool started_moving {false};
+  bool point_moving {false};
 
   BCurve(unsigned id, float thick, sf::Color col);            // basic constructor
   BCurve(Vec2f pos, unsigned id, float thick, sf::Color col); // immediately spawns point
