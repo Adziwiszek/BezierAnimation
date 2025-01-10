@@ -18,7 +18,6 @@ void AnimationState::next_frame() {
 }
 
 void AnimationState::prev_frame() {
-  std::cout << frame_index << endl;
   if(frame_index == 1) {
     frame_index = 0;
   } else if(frame_index > 0) { 
@@ -78,9 +77,7 @@ void AnimationState::save_to_file(std::string path) {
   }
   output << std::to_string(frames->size()) << std::endl;
   for(const auto& frame: *frames) {
-    cout << "f_id saving = " << frame->get_id() << endl;
     for(auto [curve_id, curve] : frame->curves | std::views::enumerate) {
-      cout << "adding curve\n";
       bool started {false};
       for(const auto& point: curve->get_control_points()) {
         if(!started) {

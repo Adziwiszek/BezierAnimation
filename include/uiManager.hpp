@@ -208,7 +208,8 @@ namespace UI {
         }
         // enter
         if (event.text.unicode == 13) {
-          std::cout << "saving to file = " << input_text << std::endl;
+          // Remove any trailing '\r' characters
+          input_text.erase(std::remove(input_text.begin(), input_text.end(), '\r'), input_text.end());
           animation_state.save_to_file(input_text);
           current_state = State::Normal;
           started_typing = false;

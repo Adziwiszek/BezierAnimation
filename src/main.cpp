@@ -10,20 +10,20 @@ std::string state_to_str(State st);
 
 int main(int argc, char **argv)
 {
+  if(argc > 1) {
+    if("-h" == std::string(argv[1])) {
+      std::cout<<"usage: " << argv[0] << " path/to/file" <<std::endl;
+      return 0;
+    }
+  }   
   sf::RenderWindow window(sf::VideoMode(1920, 1080), "Bezier Animations", sf::Style::Fullscreen);
   //sf::RenderWindow window(sf::VideoMode(800, 600), "Bezier Animations");
   User user(window);
   InputState input_state;
-
   if(argc > 1) {
-    if("-h" == std::string(argv[1])) {
-      std::cout<<"usage: dupa"<<std::endl;
-      return 0;
-    } else {
-      std::cout<<"loading from file..."<< std::endl;
-      user.load_from_file(std::string(argv[1]));
-    }
-  }   
+    std::cout<<"loading from file..."<< std::endl;
+    user.load_from_file(std::string(argv[1]));
+  }
 
   sf::Font font;
   if(!font.loadFromFile("assets/Roboto-Black.ttf")) {
@@ -90,10 +90,6 @@ int main(int argc, char **argv)
     window.display();
   }
   
-  for(const auto& a: user.actions) {
-    std::cout << a << std::endl;
-  }
-
   return 0;
 }
 
