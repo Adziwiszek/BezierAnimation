@@ -84,7 +84,7 @@ int main(int argc, char **argv)
     frame_info.setString(state_text);
 
     window.clear(sf::Color{66, 66, 66});
-    user.draw(&window);
+    user.draw(window);
     window.draw(frame_info);
     window.draw(fpsText);
     window.display();

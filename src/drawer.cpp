@@ -1,4 +1,5 @@
 #include "../include/drawer.hpp"
+#include <iostream>
 
 #define RADIUS 10.0f
 
@@ -6,7 +7,72 @@ Drawer::Drawer(sf::RenderWindow& _window):
   window {_window} 
 {}
 
-void Drawer::draw_point(const Point &p, bool active) {
+float vec_len(Vec2f vec) {
+  return std::sqrt(vec.x*vec.x + vec.y*vec.y);
+}
+
+Vec2f normalize(Vec2f vec) {
+  float len = vec_len(vec);
+  return {vec.x/len, vec.y/len};
+}
+
+void Drawer::draw_line_segment(sf::RenderTarget& target, Vec2f start, Vec2f end,
+      sf::Color col, float thick) {
+  sf::VertexArray va{sf::TriangleStrip, 4};
+  sf::CircleShape endpoint_circle;
+  float radius = thick/2;
+  endpoint_circle.setOrigin(radius, radius);
+  endpoint_circle.setRadius(radius);
+  endpoint_circle.setFillColor(col);
+  //normalizing vector from start to end
+  Vec2f se_vec = normalize(end - start);
+  Vec2f perp_se_vec = {-se_vec.y, se_vec.x};
+
+  va[0].position = start + perp_se_vec*radius;
+  va[1].position = start - perp_se_vec*radius;
+  va[3].position = end - perp_se_vec*radius;
+  va[2].position = end + perp_se_vec*radius;
+  for(int i = 0; i < 4; i++) 
+    va[i].color = col;
+
+  //drawing line
+  target.draw(va);
+
+  //drawing first endpoint
+  endpoint_circle.setPosition(start);
+  target.draw(endpoint_circle);
+  //drawing second endpoint
+  endpoint_circle.setPosition(end);
+  target.draw(endpoint_circle);
+}
+
+void Drawer::draw_using_line_segments(
+    const std::vector<std::shared_ptr<Point>>& bc_line_points,
+    sf::RenderTarget& target, sf::Color col, float thick) {
+  for(size_t i = 0; i < bc_line_points.size() - 1; i++) {
+    Vec2f start = bc_line_points[i]->get_position();
+    Vec2f end = bc_line_points[i + 1]->get_position();
+    draw_line_segment(target, start, end, col, thick);    
+  }
+}
+
+void Drawer::draw_frame(sf::RenderTarget& target, const std::shared_ptr<Frame>& frame,
+    const State& curr_state, sf::Uint8 opacity) {
+  for(const auto& curve: frame->curves) {
+    sf::Color curve_col = curve->get_color(); 
+    curve_col.a = opacity;
+    // drawing curve lines
+    draw_using_line_segments(curve->get_bc_line_points(), target, curve_col, 
+        curve->get_thickness());
+    // drawing curve control points
+    if(curr_state != State::PlayAnimation && frame->active_curve &&
+        frame->active_curve->get_id() == curve->get_id()) {
+      draw_control_points(target, curve->get_control_points(), true);
+    }
+  }
+}
+
+void Drawer::draw_point(sf::RenderTarget& target, const Point &p, bool active) {
   sf::CircleShape cp;
   cp.setFillColor(sf::Color::White);
   cp.setOutlineThickness(2.0f);
@@ -18,39 +84,15 @@ void Drawer::draw_point(const Point &p, bool active) {
   cp.setRadius(rad);
   if(active) 
     cp.setFillColor(sf::Color::Yellow);
-  window.draw(cp);
+  target.draw(cp);
 }
 
-void Drawer::draw_control_points(const std::vector<std::shared_ptr<Point>>& control_points, 
+void Drawer::draw_control_points(sf::RenderTarget& target,
+  const std::vector<std::shared_ptr<Point>>& control_points, 
       bool active) {
   for(const auto& p: control_points) {
-    draw_point(*p, active);
+    draw_point(target, *p, active);
   }
-}
-
-void draw_using_quads(const std::vector<std::shared_ptr<Point>>& bc_line_points,
-      sf::Color color, float thickness, sf::RenderWindow& window) {
-  sf::VertexArray quad(sf::Quads);
-
-  for (size_t i = 0; i < bc_line_points.size() - 1; ++i) {
-    Vec2f p1 = bc_line_points[i]->get_position();
-    Vec2f p2 = bc_line_points[i + 1]->get_position();
-
-    Vec2f direction = p2 - p1;
-    float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-    Vec2f unitDir = direction / length;
-
-    // Perpendicular vector for thickness
-    Vec2f perp(-unitDir.y, unitDir.x);
-    Vec2f offset = perp * (thickness / 2.0f);
-
-    // Define the four corners of the thick line segment
-    quad.append(sf::Vertex(p1 - offset, color));
-    quad.append(sf::Vertex(p2 - offset, color));
-    quad.append(sf::Vertex(p2 + offset, color));
-    quad.append(sf::Vertex(p1 + offset, color));
-  }
-  window.draw(quad);
 }
 
 
@@ -97,33 +139,6 @@ void draw_using_circles(const std::vector<std::shared_ptr<Point>>& bc_line_point
   window.draw(sprite, sf::BlendAlpha);
 }
 
-void draw_using_va(const std::vector<std::shared_ptr<Point>>& bc_line_points,
-      sf::Color color, float thickness, sf::RenderWindow& window) {
-
-    sf::VertexArray quads(sf::Quads);
-
-  for (size_t i = 0; i < bc_line_points.size() - 1; ++i) {
-    Vec2f p1 = bc_line_points[i]->get_position();
-    Vec2f p2 = bc_line_points[i + 1]->get_position();
-
-    // Calculate direction vector and perpendicular offset
-    Vec2f direction = p2 - p1;
-    float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-    Vec2f unit_direction = direction / length;
-    Vec2f perpendicular(-unit_direction.y, unit_direction.x);
-
-    Vec2f offset = perpendicular * (thickness / 2.0f);
-
-    // Create the quad for this segment
-    quads.append(sf::Vertex(p1 - offset, color));
-    quads.append(sf::Vertex(p1 + offset, color));
-    quads.append(sf::Vertex(p2 + offset, color));
-    quads.append(sf::Vertex(p2 - offset, color));
-  }
-
-  window.draw(quads);
-}
-
 void Drawer::draw_bc_lines(const std::vector<std::shared_ptr<Point>>& bc_line_points,
       sf::Color color, float thickness, sf::Uint8 opacity) {
   if(bc_line_points.size() < 2)
@@ -131,7 +146,9 @@ void Drawer::draw_bc_lines(const std::vector<std::shared_ptr<Point>>& bc_line_po
   //color.a = 255*static_cast<sf::Uint8>(std::clamp(opacity, 0.0f, 1.0f));
   color.a = opacity;
   //draw_using_circles(bc_line_points, color, thickness, window);
-  draw_using_circles(bc_line_points, color, thickness, window);
+  //draw_using_circles(bc_line_points, color, thickness, window);
+  //draw_using_lines(bc_line_points, color, thickness, window);
+  draw_using_line_segments(bc_line_points, window, color, thickness*2);
 }
 
 void Drawer::draw_bc_lines_for_background(

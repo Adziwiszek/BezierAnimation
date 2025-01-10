@@ -1,14 +1,10 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <vector>
 #include <array>
 
 #include "point.hpp"
 #include "bcurve.hpp"
-#include "frame.hpp"
-#include "drawer.hpp"
-//#include "userUtils.hpp"
 
 enum State {
   Normal, 

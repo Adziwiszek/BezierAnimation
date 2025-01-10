@@ -1,6 +1,4 @@
 #include "../include/user.hpp"
-#include <fstream>
-#include <ranges>
 
 User::User(sf::RenderWindow& _window) : 
     animation_state(animation_manager),
@@ -49,12 +47,12 @@ void User::update(InputState& input) {
   // we dropped of a point
   if(!input.left_mouse_down && active_frame->active_point && 
       active_frame->active_point->started_moving) {
-    actions.push_back("moved point");
-    std::cout << "-------------\nmoved point\nparent curve id = " 
+    //actions.push_back("moved point");
+    /*std::cout << "-------------\nmoved point\nparent curve id = " 
       << active_frame->active_point->get_parent_id() 
       << "\npoint id = " << active_frame->active_point->get_id()
       << "\npoint pos = " << active_frame->active_point->x << ", " 
-      << active_frame->active_point->y << std::endl;
+      << active_frame->active_point->y << std::endl;*/
     active_frame->active_point->started_moving = false;
     active_frame->active_point = nullptr;
   }
@@ -62,9 +60,9 @@ void User::update(InputState& input) {
   // we dropped of a curve
   if(!input.left_mouse_down && active_frame->active_curve && 
       active_frame->active_curve->started_moving) {
-    actions.push_back("moved curve");
-    std::cout << "-------------\nmoved curve\n" 
-      << "id = "<< active_frame->active_curve->get_id() <<std::endl;
+    //actions.push_back("moved curve");
+    /*std::cout << "-------------\nmoved curve\n" 
+      << "id = "<< active_frame->active_curve->get_id() <<std::endl;*/
     active_frame->active_curve->started_moving = false;
     //active_frame->active_curve = nullptr;
   }
@@ -92,29 +90,6 @@ void User::load_from_file(std::string path) {
   active_frame->active_point = nullptr;
 }
 
-// TODO add faded drawing
-//
-
-void User::draw_bclines_from_frame(const std::shared_ptr<Frame>& frame,
-    sf::RenderWindow *window, sf::Uint8 opacity) {
-  for(auto curve: frame->curves) {
-    // drawing control points
-    if(current_state != State::PlayAnimation && frame->active_curve &&
-        frame->active_curve->get_id() == curve->get_id()) {
-      bool active = false;
-      if(frame->active_curve && 
-          curve->get_id() == frame->active_curve->get_id())
-        active = true;
-      drawer.draw_control_points(curve->get_control_points(), active);
-    }
-    // drawing bezier curve
-    drawer.draw_bc_lines(curve->get_bc_line_points(), 
-        curve->get_color(), curve->get_thickness(), opacity);
-    // drawing convex hull
-    // drawer.draw_convex_hull(curve->get_convex_hull_points());
-  }
-}
-
 void draw_background_curves_from_frame(
     const std::shared_ptr<Frame>& frame, sf::RenderWindow* window,
     sf::Uint8 opacity, const State& current_state, Drawer& drawer) {
@@ -138,11 +113,11 @@ void draw_background_curves_from_frame(
   window->draw(sprite);
 }
 
-void User::draw(sf::RenderWindow *window) {
+void User::draw(sf::RenderWindow& window) {
   for(int i = 0; i < frames->size(); i++) {
     auto frame = frames->at(i);
 
-    if(current_state != State::PlayAnimation) {
+    /*if(current_state != State::PlayAnimation) {
       if(frames->at((i + 1) % frames->size())->get_id() == active_frame->get_id()) {
         draw_background_curves_from_frame(frame, window, 100,
             current_state, drawer);
@@ -159,9 +134,10 @@ void User::draw(sf::RenderWindow *window) {
         draw_background_curves_from_frame(frame, window, 50,
             current_state, drawer);
       }
-    }
+    }*/
     if(frame->get_id() == active_frame->get_id()) {
-      draw_bclines_from_frame(frame, window, 255);
+      //draw_bclines_from_frame(frame, window, 255);
+      drawer.draw_frame(window, frame, current_state, 255);
     } 
   }
 

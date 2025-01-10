@@ -34,6 +34,9 @@ float distance(const std::shared_ptr<Point>& p1, const std::shared_ptr<Point>& p
 
 void BCurve::spawn_point(Vec2f pos) {
   points.push_back(std::make_shared<Point>(pos, id, point_counter++));
+  started_moving=true;
+  update();
+  started_moving=false;
 }
 
 void BCurve::delete_point_by_id(unsigned id) {
@@ -225,8 +228,16 @@ std::vector<std::shared_ptr<Point>> BCurve::graham_scan(std::vector<std::shared_
 }
 
 void BCurve::update() {
-  convex_hull = graham_scan(points);
+  //convex_hull = graham_scan(points);
   int curve_points = 20 + (int)(points.size() / 2)*7*thickness;
-  bc_points = generate_curve_points(curve_points);
+  //check if any control point was moved
+  bool point_moved = false;
+  for(const auto& p: points) {
+    point_moved = p->started_moving;
+    if(point_moved) break;
+  }
+  if(started_moving || point_moved) {
+    bc_points = generate_curve_points(curve_points);
+  }
 }
 

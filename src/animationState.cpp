@@ -148,7 +148,9 @@ void AnimationState::load_from_file(std::string path) {
     frame->active_curve = nullptr;
     frame->active_point = nullptr;
     for(auto& curve: frame->curves) {
+      curve->started_moving=true;
       curve->update();
+      curve->started_moving=false;
     }
   }
   std::cout << "success!" << std::endl;
