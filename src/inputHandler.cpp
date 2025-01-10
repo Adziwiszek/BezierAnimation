@@ -57,6 +57,7 @@ void InputHandler::delete_current_frame() {
         }),
       frames->end()
       ); 
+    prev_frame();
   } catch(const std::exception& e) {
     std::cout << "Error when trying to delete frame: " << e.what() << std::endl;
   }
