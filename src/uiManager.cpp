@@ -193,6 +193,21 @@ void Container::draw(sf::RenderWindow& _window,
     }
   }
 }
+
+void Container::update_children_position() {
+  Vec2f pos = position + Vec2f{padding.west, padding.north};
+  for(auto& elem: children) {
+    elem->set_position(pos);
+    switch(orientation) {
+      case UI::Orientation::Horizontal:
+        pos.x += spacing.x + elem->size.x;
+        break;
+      case UI::Orientation::Vertical:
+        pos.y += spacing.y + elem->size.y;
+        break;
+    }
+  }
+}
 Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
     DrawingSettings& ds, State& st, AnimationState& animation_state): window{_window}, drawing_settings{ds},
     current_state{st}{
@@ -296,13 +311,15 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
   final_container->set_padding(Padding{0.0, 0.0, 0.0, 0.0});
   final_container->add_elem(std::move(col1));
   final_container->add_elem(std::move(col2));
+  final_container->background.setOutlineThickness(2.0);
+  final_container->background.setOutlineColor(sf::Color::Black);
 
   auto text_inp = std::make_unique<TextInput>(current_state, 
       Vec2f{(float)window.getSize().x/2, (float)window.getSize().y/2},
       animation_state);
   elements.push_back(std::move(text_inp));
   elements.push_back(std::move(final_container));
-  elements.push_back(std::make_unique<UI::ColorPicker>());
+  elements.push_back(std::make_unique<UI::ColorPicker>(_window.getSize()));
 
   for(const auto& elem: elements) {
     max_size.x = std::max(max_size.x, elem->calculate_size().x);
@@ -361,8 +378,9 @@ void Manager::handle_input(sf::Event event) {
 
 void Manager::update(const InputState& input) {
   for(const auto& elem: elements) {
-    if(check_if_elem_can_act(elem, current_state)) 
+    if(check_if_elem_can_act(elem, current_state)) {
       elem->update(input);
+    }
   }
 }
       

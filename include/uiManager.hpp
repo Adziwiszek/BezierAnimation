@@ -18,8 +18,8 @@ using std::optional;
 class InputHandler;
 
 namespace UI {
-  constexpr static float selected_thick{6.0};
-  constexpr static float unselected_thick{3.0};
+  constexpr static float selected_thick{4.0};
+  constexpr static float unselected_thick{2.0};
   enum Orientation {
     Vertical,
     Horizontal
@@ -61,7 +61,7 @@ namespace UI {
     sf::Sprite sprite;
     std::function<void()> on_click_lam;
   public:
-    float outline_thickness{3.0};
+    float outline_thickness{2.0};
 
     ImageElement(std::string name);
     ImageElement(sf::Color color, std::string name);
@@ -90,6 +90,8 @@ namespace UI {
     bool auto_size_x{true};
     bool auto_size_y{true};
     Vec2f max_children_size{0.0, 0.0};
+
+    void update_children_position();
   public:
     void update(const InputState& input) override;
     void on_click(const InputState& input) override;
@@ -212,6 +214,9 @@ namespace UI {
     void update_slider_position() {
       float percentage = (current_value - min_value) / (max_value - min_value);
       float indicator_y = position.y + size.y * percentage;
+      // making sure the indicator stays inside the slider
+      indicator_y = std::min(indicator_y, 
+          position.y + size.y - slider_indicator.getSize().y);
 
       slider_indicator.setPosition({position.x, indicator_y});
     }
@@ -266,6 +271,7 @@ namespace UI {
       on_value_change(current_value);
     }
     void handle_input(sf::Event event)  override {}
+
   };
 
   class ColorSlider : public Slider {
@@ -318,13 +324,13 @@ namespace UI {
     sf::Color old_color{selected_color};
     float r,g,b;
   public:
-    ColorPicker() {
+    ColorPicker(sf::Vector2<unsigned int> window_size) {
       r = g = b = 0.0;
       spacing={10.0,0};
+      background.setOutlineThickness(2.0);
+      background.setOutlineColor(sf::Color::Black);
       required_state = State::PickColor;
       background.setFillColor(sf::Color::Cyan);
-      background.setPosition(400, 400);
-      set_size({200,200});
       set_padding({10.0, 10.0, 10.0, 10.0});
       set_orientation(Orientation::Horizontal);
       auto slider_R = std::make_unique<ColorSlider>(0, 255, 
@@ -346,6 +352,13 @@ namespace UI {
       add_elem(std::move(slider_G));
       add_elem(std::move(slider_B));
       add_elem(std::move(color_preview));
+
+      set_size(calculate_size());
+      set_position({
+          (window_size.x - size.x)/2,
+          (window_size.x - size.x)/2
+          });
+      update_children_position();
     }
 
     void draw(sf::RenderWindow& _window,
