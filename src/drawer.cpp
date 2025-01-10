@@ -49,6 +49,8 @@ void Drawer::draw_line_segment(sf::RenderTarget& target, Vec2f start, Vec2f end,
 void Drawer::draw_using_line_segments(
     const std::vector<std::shared_ptr<Point>>& bc_line_points,
     sf::RenderTarget& target, sf::Color col, float thick) {
+  if(bc_line_points.size() < 2) return;
+
   for(size_t i = 0; i < bc_line_points.size() - 1; i++) {
     Vec2f start = bc_line_points[i]->get_position();
     Vec2f end = bc_line_points[i + 1]->get_position();

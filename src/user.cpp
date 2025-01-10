@@ -120,31 +120,32 @@ void User::draw(sf::RenderWindow& window) {
     return;
   }
   render_texture.clear(sf::Color::Transparent);
+  
+  sf::RenderTexture background;
+  if (!background.create(window.getSize().x, window.getSize().y)) {
+    std::cerr << "Failed to create render texture" << std::endl;
+    return;
+  }
+  background.clear(sf::Color::Transparent);
+
+  int nframes = 2;
 
   for(int i = 0; i < frames->size(); i++) {
     auto frame = frames->at(i);
 
-    /*if(current_state != State::PlayAnimation) {
-      if(frames->at((i + 1) % frames->size())->get_id() == active_frame->get_id()) {
-        draw_background_curves_from_frame(frame, window, 100,
-            current_state, drawer);
-      }
-      if(frames->at((i + 2) % frames->size())->get_id() == active_frame->get_id()) {
-        draw_background_curves_from_frame(frame, window, 50,
-            current_state, drawer);
-      }
-      if(frames->at((i - 1 + frames->size()) % frames->size())->get_id() == active_frame->get_id()) {
-        draw_background_curves_from_frame(frame, window, 100,
-            current_state, drawer);
-      }
-      if(frames->at((i - 2 + frames->size()) % frames->size())->get_id() == active_frame->get_id()) {
-        draw_background_curves_from_frame(frame, window, 50,
-            current_state, drawer);
-      }
-    }*/
     if(frame->get_id() == active_frame->get_id()) {
-      //draw_bclines_from_frame(frame, window, 255);
+      // drawing active frame
       drawer.draw_frame(render_texture, frame, current_state, 255);
+      // drawing background curves
+      /*for(int j = -nframes; j <= nframes; j++) {
+        if(j == 0) continue;
+        auto background_frame =
+          frames->at((i + j + frames->size()) % frames->size()); 
+        float opacity = (float)(- std::abs(j) + (nframes+1))/nframes; 
+        drawer.draw_frame(render_texture, background_frame, 
+            current_state, opacity*255);
+      }*/
+      
     } 
   }
   render_texture.display();

@@ -229,7 +229,7 @@ std::vector<std::shared_ptr<Point>> BCurve::graham_scan(std::vector<std::shared_
 
 void BCurve::update() {
   //convex_hull = graham_scan(points);
-  int curve_points = 20 + (int)(points.size() / 2)*thickness;
+  int curve_points = 20 + (int)(points.size() / 2)*5;
   //check if any control point was moved
   for(const auto& p: points) {
     point_moving = p->started_moving;
