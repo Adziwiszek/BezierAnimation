@@ -42,13 +42,15 @@ namespace UI {
     sf::Text text;
     Vec2f position{0.0, 0.0};
 
-    Tooltip() {
-      background.setFillColor(sf::Color{66, 66, 66});
-      background.setOutlineColor(sf::Color::Black);
-      background.setOutlineThickness(unselected_thick);
-      background.setPosition(position);
-      text.setFillColor(sf::Color::White);
-      text.setCharacterSize(18);
+    Tooltip(sf::Font& font) {
+       text.setFont(font);
+       background.setFillColor(sf::Color{66, 66, 66});
+       background.setSize({40.0, 40.0});
+       background.setOutlineColor(sf::Color::Black);
+       background.setOutlineThickness(unselected_thick);
+       background.setPosition(position);
+       text.setFillColor(sf::Color::White);
+       text.setCharacterSize(18);
     }
 
     void update_text(std::string _str) {
@@ -60,8 +62,13 @@ namespace UI {
     }
 
     void draw(sf::RenderTarget& target, const InputState& input) {
-      background.setPosition(input.mouse_position);
-      text.setPosition({input.mouse_position.x + 20.0f, input.mouse_position.y + 20.0f});
+      
+      Vec2f offset{20.0, 20.0};
+      background.setPosition(input.mouse_position + offset);
+      text.setPosition({
+          input.mouse_position.x + 20.0f + offset.x,
+          input.mouse_position.y + 20.0f + offset.y
+          });
       target.draw(background);
       target.draw(text);
     }
@@ -72,6 +79,7 @@ namespace UI {
   public: 
     optional<State> required_state{std::nullopt}; 
     optional<Tooltip> tooltip{std::nullopt};
+    bool show_tooltip{false};
     sf::RectangleShape background; 
     Vec2f position;
     Vec2f size;
@@ -82,7 +90,8 @@ namespace UI {
     bool stretch_width{false};
 
     virtual void draw(sf::RenderWindow& _window,
-        std::vector<std::string> selected) = 0;
+        std::vector<std::string> selected,
+        const InputState& input) = 0;
     virtual Vec2f calculate_size() = 0;
     virtual void on_click(const InputState& input) = 0;
     virtual void update(const InputState& input) = 0;
@@ -107,9 +116,10 @@ namespace UI {
     ImageElement(const sf::Texture* texture, 
         std::function<void()> handler, std::string name);
     void draw(sf::RenderWindow& _window,
-        std::vector<std::string> selected) override;
+        std::vector<std::string> selected,
+        const InputState& input) override;
     Vec2f calculate_size() override;
-    void update(const InputState& input) override {};
+    void update(const InputState& input) override;
     void handle_input(sf::Event event) override {};
     void on_click(const InputState& input) override;
     void set_texture(const sf::Texture* texture);
@@ -134,7 +144,8 @@ namespace UI {
     void on_click(const InputState& input) override;
     void handle_input(sf::Event event) override {};
     void draw(sf::RenderWindow& _window,
-        std::vector<std::string> selected) override;
+        std::vector<std::string> selected,
+        const InputState& input) override;
     void set_padding(Padding _pad);
     void add_elem(std::unique_ptr<Element> elem);
     void set_orientation(Orientation _or);
@@ -147,6 +158,7 @@ namespace UI {
     sf::RenderWindow& window;
     DrawingSettings& drawing_settings;
     State& current_state;
+    sf::Font font;
 
   public:
     Vec2f max_size{0.0, 0.0};
@@ -212,7 +224,7 @@ namespace UI {
       //text.setString("Enter file path: " + input_text);
     }
     void draw(sf::RenderWindow& window, 
-        std::vector<std::string> selected) override {
+        std::vector<std::string> selected,const InputState& input) override {
       text.setString("Enter file path: " + input_text);
 
       sf::FloatRect text_bounds = text.getLocalBounds();
@@ -266,7 +278,7 @@ namespace UI {
       update_slider_position();
     }
     void draw(sf::RenderWindow& _window,
-        std::vector<std::string> selected) override {
+        std::vector<std::string> selected,const InputState& input ) override {
       update_slider_position();
       _window.draw(background);
       _window.draw(slider_indicator);
@@ -329,7 +341,7 @@ namespace UI {
       Slider::update(input);
     }
     void draw(sf::RenderWindow& _window,
-        std::vector<std::string> selected) override {
+        std::vector<std::string> selected, const InputState& input) override {
       update_slider_position();
       _window.draw(background);
       _window.draw(gradient);
@@ -408,13 +420,13 @@ namespace UI {
       update_children_position();
     }
     void draw(sf::RenderWindow& _window,
-        std::vector<std::string> selected) override {
+        std::vector<std::string> selected, const InputState& input) override {
       auto window_size = _window.getSize();
       set_position({
           (window_size.x - size.x)/2,
           (window_size.y - size.y)/2
           });
-      Container::draw(_window, selected);
+      Container::draw(_window, selected, input);
     }
     void on_click(const InputState& input) override {
       Container::on_click(input);

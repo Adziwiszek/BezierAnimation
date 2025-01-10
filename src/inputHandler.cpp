@@ -125,17 +125,14 @@ void InputHandler::handle_curve_deletion() {
     std::cerr << "Error when deleting curve in InputHandler: " << e.what() << std::endl;
   }
 }
-void InputHandler::switch_to_state(State new_state, const std::string& state_name) {
-  if (current_state == new_state)
-    return;
 
-  std::cout << "Switched to " << state_name << "!\n";
-  current_state = new_state;
-  if(current_state == PlayAnimation) {
-    //active_frame = animation_state.get_active_frame();
-  } else {
-    //animation_frame_index = 0;
+void InputHandler::switch_to_state(State new_state, const std::string& state_name) {
+  if (current_state == new_state) {
+    current_state = State::Move;
+    return;
   }
+
+  current_state = new_state;
 }
 
 void InputHandler::move_active_point(Vec2f pos) {
@@ -240,10 +237,12 @@ void InputHandler::handle_key_pressed(sf::Keyboard::Key key, const InputState& i
     case sf::Keyboard::Key::D:
       switch_to_state(State::Delete, "Delete point");
       break;
-    case sf::Keyboard::Key::Z:
-      /*if(active_curve && input.ctrl_pressed) {
-        active_curve->undo_last_point();
-      }*/
+    case sf::Keyboard::Key::F1:
+      if(current_state == State::Help) {
+        switch_to_state(State::Move, "Normal");
+      } else {
+        switch_to_state(State::Help, "Pickcolor");
+      }
       break;
     default:
       break;

@@ -14,9 +14,44 @@ enum State {
   PlayAnimation,
   Delete,
   Saving,
-  PickColor
+  PickColor,
+  Help
 };
 
+#define STR_VALUE(arg)      #arg
+/*
+std::string state_to_str(State st) {
+  switch(st) {
+    case Normal:
+      return "Normal";
+      break;
+    case Move:
+      return "Move";
+      break;
+    case AddCurve:
+      return  "AddCurve";
+      break;
+    case AddPoint:
+      return  "AddPoint";
+      break;
+    case PlayAnimation:
+      return  "PlayAnimation";
+      break;
+    case Delete:
+      return  "Delete";
+      break;
+    case Saving:
+      return  "Saving";
+      break;
+    case PickColor:
+      return  "PickColor";
+      break;
+    case Help:
+      return  "Help";
+      break;
+  }
+}
+*/
 struct DrawingSettings {
   float old_thick{3.0f};
   sf::Color old_col{sf::Color::Green};

@@ -115,7 +115,8 @@ void User::draw(sf::RenderWindow& window, const InputState& input) {
       drawer.draw_frame(render_texture, frame, current_state, 255);
       // drawing background curves
       if(current_state == State::PlayAnimation) continue;
-      for(int j = -nframes; j <= nframes; j++) {
+      int end_frame = i == frames->size() - 1 ? 0 : 1;
+      for(int j = -nframes; j <= end_frame; j++) {
         if(j == 0) continue;
         auto background_frame =
           frames->at((i + j + frames->size()) % frames->size()); 

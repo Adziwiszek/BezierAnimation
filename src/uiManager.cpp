@@ -4,6 +4,39 @@
 #define STR_VALUE(arg)      #arg
 using UI::Element, UI::ImageElement, UI::Container, UI::Manager;
 
+std::string state_to_str(State st) {
+  switch(st) {
+    case Normal:
+      return "Normal";
+      break;
+    case Move:
+      return "Move";
+      break;
+    case AddCurve:
+      return  "AddCurve";
+      break;
+    case AddPoint:
+      return  "AddPoint";
+      break;
+    case PlayAnimation:
+      return  "PlayAnimation";
+      break;
+    case Delete:
+      return  "Delete";
+      break;
+    case Saving:
+      return  "Saving";
+      break;
+    case PickColor:
+      return  "PickColor";
+      break;
+    case Help:
+      return  "Help";
+      break;
+  }
+  return "undef";
+}
+
 std::string UI::color_to_string(const sf::Color& color) {
   if (color == sf::Color::Green) return "Green";
   if (color == sf::Color::Red) return "Red";
@@ -55,7 +88,7 @@ ImageElement::ImageElement(const sf::Texture* texture, std::function<void()> han
 }
 
 void ImageElement::draw(sf::RenderWindow& _window,
-        std::vector<std::string> selected) {
+        std::vector<std::string> selected, const InputState& input) {
   if (std::find(selected.begin(), selected.end(), name) != selected.end()) {
     outline_thickness = selected_thick;
   } else {
@@ -67,6 +100,10 @@ void ImageElement::draw(sf::RenderWindow& _window,
   if(sprite.getTexture()) {
     sprite.setPosition(position);
     _window.draw(sprite);
+  }
+
+  if(show_tooltip && tooltip.has_value()) {
+    tooltip.value().draw(_window, input);
   }
 }
 
@@ -88,7 +125,18 @@ void ImageElement::set_size(Vec2f _size) {
   Element::set_size(_size);
   update_sprite_size();
 }
-
+void ImageElement::update(const InputState& input) {
+  auto mpos = input.mouse_position;
+  if(tooltip.has_value()) {
+    sf::RectangleShape* tb = &background;
+    if(mpos.x > tb->getPosition().x && mpos.x < tb->getPosition().x + tb->getSize().x && 
+        mpos.y > tb->getPosition().y && mpos.y < tb->getPosition().y + tb->getSize().y) {
+      show_tooltip = true;
+    } else {
+      show_tooltip = false;
+    }
+  } else show_tooltip = false;
+}
 void ImageElement::update_sprite_size() {
   if (sprite.getTexture()) {
     const sf::Vector2u textureSize = sprite.getTexture()->getSize();
@@ -171,7 +219,8 @@ void Container::update(const InputState& input) {
 }
 
 void Container::draw(sf::RenderWindow& _window, 
-    std::vector<std::string> selected) {
+    std::vector<std::string> selected,
+    const InputState& input) {
   Vec2f final_size {calculate_size()};
 
   if(stretch_height) {
@@ -184,7 +233,7 @@ void Container::draw(sf::RenderWindow& _window,
   Vec2f pos = position + Vec2f{padding.west, padding.north};
   for(auto& elem: children) {
     elem->set_position(pos);
-    elem->draw(_window, selected);
+    elem->draw(_window, selected, input);
     switch(orientation) {
       case UI::Orientation::Horizontal:
         pos.x += spacing.x + elem->size.x;
@@ -227,14 +276,20 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
   ) {
     std::cout << "failed to load some .png" << std::endl;
   }
+  if(!font.loadFromFile("assets/Roboto-Black.ttf")) {
+    std::cerr << "failed to load font\n";
+  }
   auto add_change_state_button = 
     [&input_handler, this] (std::unique_ptr<Container>& cont, State state,
         std::string filename) {
-      cont->add_elem(std::make_unique<ImageElement>(
+      auto elem = std::make_unique<ImageElement>(
             get_texture("assets/"+filename),
             [&input_handler, state]() { 
               input_handler.switch_to_state(state,"..."); 
-            }, "state" )); 
+            }, "state" );
+      elem->tooltip = Tooltip(font);
+      elem->tooltip->update_text("switching state");
+      cont->add_elem(std::move(elem)); 
     };
 
   auto action_cont1 = std::make_unique<Container>();
@@ -345,13 +400,11 @@ void Manager::drawUI(const InputState& input) {
   selected.push_back(color_to_string(drawing_settings.color));
   selected.push_back(std::to_string(drawing_settings.thickness));
 
+  optional<Tooltip> tooltip_to_draw;
+
   for(auto& elem: elements) {
     if(check_if_elem_can_act(elem, current_state)) {
-      elem->draw(window, selected);
-      // drawing tooltip
-      if(elem->tooltip.has_value()) {
-        elem->tooltip.value().draw(window, input);
-      }
+      elem->draw(window, selected, input);
     }
   }
 }
