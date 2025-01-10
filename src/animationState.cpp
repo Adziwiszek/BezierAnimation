@@ -18,10 +18,12 @@ void AnimationState::next_frame() {
 }
 
 void AnimationState::prev_frame() {
-  if(frame_index > 0) { 
+  std::cout << frame_index << endl;
+  if(frame_index == 1) {
+    frame_index = 0;
+  } else if(frame_index > 0) { 
     frame_index--;
-  }
-  if(frame_index == 0) {
+  } else if(frame_index == 0) {
     frame_index = frames->size() - 1;
   }
   active_frame->active_curve = nullptr;
