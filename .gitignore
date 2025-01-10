@@ -33,3 +33,7 @@
 
 # Cmake Build
 /build/*
+
+/CMakeFiles/*
+/_deps/*
+
