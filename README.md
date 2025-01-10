@@ -3,7 +3,7 @@
 Project for Analiza Numeryczna at UWr. Simple program for animating with Bezier curves.
 
 To build the project you need cmake and the g++ new enough to compile c++ 23.
-(Also linux is recomended, didn't test yet on windows:P)
+(Also linux is recomended, didn't test it yet on windows:P)
 
 ---
 
@@ -37,3 +37,9 @@ To compile:
 
 To run: (This way, from terminal, is recomended. Another way may not work:P)
 ```> ./build/bin/BezierAnimation [optional: path to file you want to open]```
+
+Running example animation:
+```> ./build/bin/BezierAnimation pokaz.anim```
+and press start playing button
+
+sd
