@@ -41,5 +41,3 @@ To run: (This way, from terminal, is recomended. Another way may not work:P)
 Running example animation:
 ```> ./build/bin/BezierAnimation pokaz.anim```
 and press start playing button
-
-sd
