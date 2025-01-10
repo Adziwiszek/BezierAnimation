@@ -65,8 +65,8 @@ namespace UI {
       Vec2f offset{20.0, 20.0};
       background.setPosition(input.mouse_position + offset);
       text.setPosition({
-          input.mouse_position.x + 20.0f + offset.x,
-          input.mouse_position.y + 20.0f + offset.y
+          input.mouse_position.x + 20.0f + offset.x/2,
+          input.mouse_position.y + 20.0f + offset.y/4
           });
       target.draw(background);
       target.draw(text);
@@ -83,6 +83,8 @@ namespace UI {
     Vec2f position;
     Vec2f size;
     Padding padding; 
+    float sec_hovering{0.0};
+    float hover_time_to_show_tooltip{0.5};
     float min_width{-1};
     float min_height{-1};
     bool stretch_height{false};

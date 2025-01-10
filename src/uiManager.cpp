@@ -131,8 +131,12 @@ void ImageElement::update(const InputState& input) {
     sf::RectangleShape* tb = &background;
     if(mpos.x > tb->getPosition().x && mpos.x < tb->getPosition().x + tb->getSize().x && 
         mpos.y > tb->getPosition().y && mpos.y < tb->getPosition().y + tb->getSize().y) {
-      show_tooltip = true;
+      sec_hovering += input.dt;
+      if(sec_hovering > hover_time_to_show_tooltip) {
+        show_tooltip = true;
+      }
     } else {
+      sec_hovering = 0.0;
       show_tooltip = false;
     }
   } else show_tooltip = false;
@@ -272,7 +276,10 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
      !load_texture("assets/size1.png") ||
      !load_texture("assets/size2.png") ||
      !load_texture("assets/size3.png") ||
-     !load_texture("assets/size4.png") 
+     !load_texture("assets/size4.png") ||
+     !load_texture("assets/newframe.png") ||
+     !load_texture("assets/deleteframe.png") ||
+     !load_texture("assets/paint.png")
   ) {
     std::cout << "failed to load some .png" << std::endl;
   }
@@ -281,14 +288,14 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
   }
   auto add_change_state_button = 
     [&input_handler, this] (std::unique_ptr<Container>& cont, State state,
-        std::string filename) {
+        std::string filename, std::string tooltip) {
       auto elem = std::make_unique<ImageElement>(
             get_texture("assets/"+filename),
             [&input_handler, state]() { 
               input_handler.switch_to_state(state,"..."); 
             }, "state" );
       elem->tooltip = Tooltip(font);
-      elem->tooltip->update_text("switching state");
+      elem->tooltip->update_text(tooltip);
       cont->add_elem(std::move(elem)); 
     };
 
@@ -296,19 +303,29 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
   action_cont1->set_color(sf::Color::Cyan);
   action_cont1->set_padding(Padding{10.0, 10.0, 10.0, 10.0});
   action_cont1->set_orientation(Orientation::Vertical);
-  add_change_state_button(action_cont1, State::Move, "cursor.png");
-  add_change_state_button(action_cont1, State::AddCurve, "addcurve.png");
-  add_change_state_button(action_cont1, State::AddPoint, "addpoint.png");
-  add_change_state_button(action_cont1, State::Delete, "trashcan.png");
+  add_change_state_button(action_cont1, State::Move, "cursor.png",
+      "Press this and click on a curve to select it,\nmove points and curves\nShortcut -> m");
+  add_change_state_button(action_cont1, State::AddCurve, "addcurve.png", 
+      "Press this and click on a canvas to add a new curve\nShortcut -> g");
+  add_change_state_button(action_cont1, State::AddPoint, "addpoint.png",
+      "Press this and click on a canvas to add a point to selected curve\n(select curve by pressing 'm'\
+      and clicking on a curve)\nShortcut -> h");
+  add_change_state_button(action_cont1, State::Delete, "trashcan.png",
+      "Press this and click on a curve or a point to delete it\nShortcut -> d");
 
   auto action_cont2 = std::make_unique<Container>();
   action_cont2->set_color(sf::Color::Cyan);
   action_cont2->set_padding(Padding{10.0, 10.0, 10.0, 10.0});
   action_cont2->set_orientation(Orientation::Vertical);
-  add_change_state_button(action_cont2, State::Saving, "save.png");
-  add_change_state_button(action_cont2, State::PlayAnimation, "start.png");
-  add_change_state_button(action_cont2, State::Move, "pause.png");
-  action_cont2->add_elem(std::make_unique<ImageElement>("dupa"));
+  add_change_state_button(action_cont2, State::Saving, "save.png",
+      "Enter file path and press Enter to save a file or Esc to cancel\n\
+      Shortcut -> s");
+  add_change_state_button(action_cont2, State::PlayAnimation, "start.png",
+      "Toggle playing the animation\nShortcut -> a");
+  add_change_state_button(action_cont2, State::Move, "deleteframe.png",
+      "Press to delete current frame");
+  add_change_state_button(action_cont2, State::PickColor, "paint.png",
+      "Press to toggle color picker");
 
   auto color_picker = std::make_unique<UI::ColorPicker>(_window.getSize());
 
