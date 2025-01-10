@@ -129,6 +129,9 @@ void InputHandler::handle_point_deletion() {
   try {
     unsigned p_id = active_frame->active_point->get_id();
     active_frame->active_curve->delete_point_by_id(p_id);
+    active_frame->active_curve->started_moving=true;
+    active_frame->active_curve->update();
+    active_frame->active_curve->started_moving=false;
   } catch(const std::exception& e) {
     std::cerr << "Error when deleting point in InputHandler: " << e.what() << std::endl;
   }

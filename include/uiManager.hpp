@@ -388,18 +388,19 @@ namespace UI {
       set_orientation(Orientation::Horizontal);
       auto slider_R = std::make_unique<ColorSlider>(0, 255, 
           [this](float new_r) {r = new_r;}, sf::Color::Red);
-      slider_R->set_size({50.0, 100.0});
+      slider_R->set_size({70.0, 200.0});
       slider_R->set_color(sf::Color::White);
       auto slider_G = std::make_unique<ColorSlider>(0, 255, 
           [this](float new_g) {g = new_g;}, sf::Color::Green);
-      slider_G->set_size({50.0, 100.0});
+      slider_G->set_size({70.0, 200.0});
       slider_G->set_color(sf::Color::White);
       auto slider_B = std::make_unique<ColorSlider>(0, 255, 
           [this](float new_b) {b = new_b;}, sf::Color::Blue);
-      slider_B->set_size({50.0, 100.0});
+      slider_B->set_size({70.0, 200.0});
       slider_B->set_color(sf::Color::White);
 
       auto color_preview = std::make_unique<ColorPreview>(r,g,b);
+      color_preview->set_size({80.0, 80.0});
       r = slider_R->current_value;
       g = slider_G->current_value;
       b = slider_B->current_value;
