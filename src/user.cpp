@@ -5,7 +5,7 @@ User::User(sf::RenderWindow& _window) :
     drawer(_window), 
     animation_manager(animation_state.frames, animation_state.active_frame),
     ui_manager(_window, input_handler, drawing_settings, current_state, animation_state),
-    input_handler(animation_state.active_frame, current_state, 
+    input_handler(animation_state.active_frame, animation_state.frames, current_state, 
       actions, animation_state, ui_manager, drawing_settings),
     frames{animation_state.frames},
     active_frame{animation_state.active_frame}
@@ -79,6 +79,8 @@ void User::update(InputState& input) {
   }
   ui_manager.update(input);
 }
+
+State User::get_current_state() { return current_state; }
 
 void User::save_to_file(std::string path) {
   animation_state.save_to_file(path);

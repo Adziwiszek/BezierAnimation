@@ -1,18 +1,17 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
-#include <fstream>
-#include <sstream>
 #include <string>
 
 #include "../include/user.hpp"
 #include "../include/frame.hpp"
 
 using Vec2f = sf::Vector2f;
+std::string state_to_str(State st);
 
 int main(int argc, char **argv)
 {
-  //sf::RenderWindow window(sf::VideoMode(1920, 1080), "Bezier Animations", sf::Style::Fullscreen);
-  sf::RenderWindow window(sf::VideoMode(800, 600), "Bezier Animations");
+  sf::RenderWindow window(sf::VideoMode(1920, 1080), "Bezier Animations", sf::Style::Fullscreen);
+  //sf::RenderWindow window(sf::VideoMode(800, 600), "Bezier Animations");
   User user(window);
   InputState input_state;
 
@@ -34,7 +33,7 @@ int main(int argc, char **argv)
   frame_info.setFont(font);
   frame_info.setCharacterSize(24);
   frame_info.setFillColor(sf::Color::White);
-  frame_info.setPosition(150.f, 0.f);
+  frame_info.setPosition(200.f, 0.f);
 
   sf::Clock clock;
 
@@ -62,7 +61,7 @@ int main(int argc, char **argv)
     fpsText.setFont(font);
     fpsText.setCharacterSize(24);
     fpsText.setFillColor(sf::Color::White);
-    fpsText.setPosition(600.f, 10.f);
+    fpsText.setPosition(1750.f, 10.f);
     float fps = 1.f / dt.asSeconds();
     fpsText.setString("FPS: " + std::to_string(static_cast<int>(fps)));
 
@@ -80,13 +79,14 @@ int main(int argc, char **argv)
     std::string state_text = 
       "frame = "+ std::to_string(user.get_frame_index()) + "/" 
       + std::to_string(user.get_frame_count()) +
-      "\nfps = " + std::to_string(user.get_fps());
+      "\nfps = " + std::to_string(user.get_fps()) + 
+      "\ncurrent state = " + state_to_str(user.get_current_state());
     frame_info.setString(state_text);
 
     window.clear(sf::Color{66, 66, 66});
-    user.draw(window, input_state);
     window.draw(frame_info);
     window.draw(fpsText);
+    user.draw(window, input_state);
     window.display();
   }
   
@@ -98,3 +98,35 @@ int main(int argc, char **argv)
 }
 
 
+std::string state_to_str(State st) {
+  switch(st) {
+    case Normal:
+      return "Normal";
+      break;
+    case Move:
+      return "Move";
+      break;
+    case AddCurve:
+      return  "AddCurve";
+      break;
+    case AddPoint:
+      return  "AddPoint";
+      break;
+    case PlayAnimation:
+      return  "PlayAnimation";
+      break;
+    case Delete:
+      return  "Delete";
+      break;
+    case Saving:
+      return  "Saving";
+      break;
+    case PickColor:
+      return  "PickColor";
+      break;
+    case Help:
+      return  "Help";
+      break;
+  }
+  return "undef";
+}

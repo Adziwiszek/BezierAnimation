@@ -3,12 +3,14 @@
 using std::cout;
 
 InputHandler::InputHandler(std::shared_ptr<Frame>& active_frame,
+                         std::shared_ptr<Frames>& frames,
                          State& current_state,
                          std::vector<std::string>& actions,
                          AnimationState& _anim_state,
                          UI::Manager& _uiman,
                          DrawingSettings& ds)
   : active_frame(active_frame), 
+    frames{frames},
     current_state(current_state),
     actions(actions),
     animation_state{_anim_state},
@@ -42,6 +44,23 @@ void InputHandler::handle_event(sf::Event event, InputState& input) {
       input.update_key(event.key.code, false);
     }
   }
+}
+
+void InputHandler::delete_current_frame() {
+  if(frames->size() < 2) return;
+  auto id = active_frame->get_id();
+  try {
+    frames->erase(
+      std::remove_if(frames->begin(), frames->end(),
+        [id](const std::shared_ptr<Frame>&f) {
+          return f->get_id() == id;
+        }),
+      frames->end()
+      ); 
+  } catch(const std::exception& e) {
+    std::cout << "Error when trying to delete frame: " << e.what() << std::endl;
+  }
+  //prev_frame();
 }
 
 void InputHandler::handle_mouse_pressed(InputState& input) {
@@ -131,8 +150,14 @@ void InputHandler::switch_to_state(State new_state, const std::string& state_nam
     current_state = State::Move;
     return;
   }
-
-  current_state = new_state;
+  if(new_state == State::DeleteFrame) {
+    delete_current_frame();
+  } else if(new_state == State::AddFrame){
+    add_frame(true);
+    next_frame();
+  } else {
+    current_state = new_state;
+  }
 }
 
 void InputHandler::move_active_point(Vec2f pos) {
@@ -185,8 +210,12 @@ void InputHandler::prev_frame() {
 
 void InputHandler::handle_key_pressed(sf::Keyboard::Key key, const InputState& input) {
   // we want to type when saving
-  if(current_state == Saving) 
-    return;
+  if(current_state == Saving) {
+    if(key == sf::Keyboard::Key::Escape) { 
+      switch_to_state(State::Move, "");
+    }
+    else return;
+  }
   switch (key) {
     case sf::Keyboard::Key::G:
       switch_to_state(State::AddCurve, "AddCurve");

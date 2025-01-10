@@ -4,39 +4,6 @@
 #define STR_VALUE(arg)      #arg
 using UI::Element, UI::ImageElement, UI::Container, UI::Manager;
 
-std::string state_to_str(State st) {
-  switch(st) {
-    case Normal:
-      return "Normal";
-      break;
-    case Move:
-      return "Move";
-      break;
-    case AddCurve:
-      return  "AddCurve";
-      break;
-    case AddPoint:
-      return  "AddPoint";
-      break;
-    case PlayAnimation:
-      return  "PlayAnimation";
-      break;
-    case Delete:
-      return  "Delete";
-      break;
-    case Saving:
-      return  "Saving";
-      break;
-    case PickColor:
-      return  "PickColor";
-      break;
-    case Help:
-      return  "Help";
-      break;
-  }
-  return "undef";
-}
-
 std::string UI::color_to_string(const sf::Color& color) {
   if (color == sf::Color::Green) return "Green";
   if (color == sf::Color::Red) return "Red";
@@ -64,7 +31,7 @@ void Element::set_color(sf::Color color) {
 ImageElement::ImageElement(std::string name) {
   this->name = name;
   background.setOutlineColor(sf::Color::Black);
-  set_size({40.0, 40.0});
+  set_size({70.0, 70.0});
 } 
 
 ImageElement::ImageElement(sf::Color color, std::string name): ImageElement(name) {
@@ -227,6 +194,8 @@ void Container::draw(sf::RenderWindow& _window,sf::RenderTarget& tooltip_targ,
     const InputState& input) {
   Vec2f final_size {calculate_size()};
 
+  final_size.x = std::max(final_size.x, min_width);
+  final_size.y = std::max(final_size.y, min_height);
   if(stretch_height) {
     final_size.y = _window.getSize().y;
   }
@@ -312,20 +281,23 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
       and clicking on a curve)\nShortcut -> h");
   add_change_state_button(action_cont1, State::Delete, "trashcan.png",
       "Press this and click on a curve or a point to delete it\nShortcut -> d");
+  add_change_state_button(action_cont1, State::PickColor, "paint.png",
+      "Press to toggle color picker");
 
   auto action_cont2 = std::make_unique<Container>();
   action_cont2->set_color(sf::Color::Cyan);
   action_cont2->set_padding(Padding{10.0, 10.0, 10.0, 10.0});
   action_cont2->set_orientation(Orientation::Vertical);
+  action_cont2->min_height = 5*80 + 5*10;
   add_change_state_button(action_cont2, State::Saving, "save.png",
       "Enter file path and press Enter to save a file or Esc to cancel\n\
       Shortcut -> s");
   add_change_state_button(action_cont2, State::PlayAnimation, "start.png",
       "Toggle playing the animation\nShortcut -> a");
-  add_change_state_button(action_cont2, State::Move, "deleteframe.png",
+  add_change_state_button(action_cont2, State::DeleteFrame, "deleteframe.png",
       "Press to delete current frame");
-  add_change_state_button(action_cont2, State::PickColor, "paint.png",
-      "Press to toggle color picker");
+  add_change_state_button(action_cont2, State::AddFrame, "newframe.png",
+      "Press to add a frame\nShortcut -> f");
 
   auto color_picker = std::make_unique<UI::ColorPicker>(_window.getSize());
 

@@ -36,6 +36,7 @@ public:
   void handle_input(sf::Event event, InputState& input); 
   // update state
   void update(InputState& input); 
+  State get_current_state();
   // manage frames of animation
   unsigned get_frame_index();
   unsigned get_frame_count();

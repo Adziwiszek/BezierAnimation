@@ -15,7 +15,9 @@ enum State {
   Delete,
   Saving,
   PickColor,
-  Help
+  Help,
+  DeleteFrame,
+  AddFrame
 };
 
 #define STR_VALUE(arg)      #arg

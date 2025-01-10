@@ -21,6 +21,7 @@ protected:
 class InputHandler {
 public:
   InputHandler(std::shared_ptr<Frame>& active_frame,
+              std::shared_ptr<Frames>& frames,
               State& current_state,
               std::vector<std::string>& actions,
               AnimationState& _anim_state,
@@ -46,11 +47,13 @@ private:
 
   void next_frame();
   void prev_frame();
+  void delete_current_frame();
 
   DrawingSettings& drawing_settings;
   AnimationState& animation_state;
   UI::Manager& ui_manager;
   std::shared_ptr<Frame>& active_frame;
+  std::shared_ptr<Frames>& frames;
   State& current_state;
   std::vector<std::string>& actions;
 };

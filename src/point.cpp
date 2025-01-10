@@ -1,6 +1,6 @@
 #include "../include/point.hpp"
 
-constexpr float RADIUS = 10.0f;
+constexpr float RADIUS = 20.0f;
 
 Point::Point(Vec2f _position, unsigned _p_id, unsigned _id)
   : position { _position }, parent_id { _p_id }, id { _id }
