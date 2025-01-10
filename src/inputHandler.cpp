@@ -198,7 +198,11 @@ void InputHandler::handle_key_pressed(sf::Keyboard::Key key, const InputState& i
       switch_to_state(State::Normal, "Normal");
       break;
     case sf::Keyboard::Key::P:
-      switch_to_state(State::PickColor, "Pickcolor");
+      if(current_state == State::PickColor) {
+        switch_to_state(State::Normal, "Normal");
+      } else {
+        switch_to_state(State::PickColor, "Pickcolor");
+      }
       break;
     case sf::Keyboard::Key::M:
       switch_to_state(State::Move, "Move");

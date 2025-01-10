@@ -201,28 +201,38 @@ namespace UI {
   };
 
   class Slider : public Element {
+  protected:
     float max_value{0};
     float min_value{0};
     float current_value{0};
     std::function<void(float)> on_value_change;
     bool started_sliding{false};
     sf::RectangleShape slider_indicator;
+
+    void update_slider_position() {
+      float percentage = (current_value - min_value) / (max_value - min_value);
+      float indicator_y = position.y + size.y * percentage;
+
+      slider_indicator.setPosition({position.x, indicator_y});
+    }
   public:
     Slider(float minv, float maxv, std::function<void(float)> onvalchange):
       max_value{maxv}, min_value{minv}, current_value{(max_value-min_value)/2},
       on_value_change{onvalchange}
     {
       slider_indicator.setFillColor(sf::Color::Black);
-      slider_indicator.setPosition(background.getPosition());
+      update_slider_position();
     }
     void draw(sf::RenderWindow& _window,
         std::vector<std::string> selected) override {
+      update_slider_position();
       _window.draw(background);
       _window.draw(slider_indicator);
     }
     void set_size(Vec2f _size) {
-      slider_indicator.setSize({_size.x, _size.x/15});
+      slider_indicator.setSize({_size.x, _size.x/10});
       Element::set_size(_size);
+      update_slider_position();
     }
     void set_position(Vec2f _pos) {
       slider_indicator.setPosition({
@@ -230,6 +240,7 @@ namespace UI {
           slider_indicator.getPosition().y
           }); 
       Element::set_position(_pos);
+      update_slider_position();
     }
     Vec2f calculate_size() override {return size;}
     void on_click(const InputState& input) override {
@@ -247,15 +258,56 @@ namespace UI {
           std::clamp(input.mouse_position.y, position.y, position.y+size.y) - position.y; 
         float percentage = (val_on_slider / size.y);
         current_value = max_value * percentage;
-        slider_indicator.setPosition({
-            position.x,
-            position.y + val_on_slider
-            });
+        update_slider_position();
       }
-      
-      std::cout << "current val = " << current_value << std::endl;
+
+      on_value_change(current_value);
     }
     void handle_input(sf::Event event)  override {}
+  };
+
+  class ColorSlider : public Slider {
+    sf::VertexArray gradient{sf::Quads, 4};
+    sf::Color grad_col;
+  public:
+    ColorSlider(float minv, float maxv, std::function<void(float)> onvalchange,
+        sf::Color gcol): grad_col{gcol}, Slider(minv, maxv, onvalchange) {
+      gradient[0].color = sf::Color::White;     
+      gradient[1].color = sf::Color::White;     
+      gradient[2].color = grad_col;       
+      gradient[3].color = grad_col;
+    }
+    void update(const InputState& input)  override {
+      gradient[0].position = sf::Vector2f(position.x, position.y); // Top-left
+      gradient[1].position = sf::Vector2f(position.x+size.x, position.y); // Top-right
+      gradient[2].position = sf::Vector2f(position.x+size.x, position.y+size.y); // Bottom-right
+      gradient[3].position = sf::Vector2f(position.x, position.y+size.y); // Bottom-left
+
+      Slider::update(input);
+    }
+    void draw(sf::RenderWindow& _window,
+        std::vector<std::string> selected) override {
+      update_slider_position();
+      _window.draw(gradient);
+      _window.draw(slider_indicator);
+    }
+    
+  };
+
+  class ColorPreview : public ImageElement {
+    float& r;
+    float& g; 
+    float& b;
+  public:
+    ColorPreview(float& _r, float& _g, float &_b):
+      r{_r}, g{_g}, b{_b}, ImageElement("color_preview")
+    {
+
+    }
+    void update(const InputState& input)  override {
+      set_color(sf::Color(r, g, b));
+      ImageElement::update(input);
+    }
   };
 
   class ColorPicker : public Container {
@@ -264,19 +316,33 @@ namespace UI {
     float r,g,b;
   public:
     ColorPicker() {
-      spacing={0,0};
+      r = g = b = 0.0;
+      spacing={10.0,0};
       required_state = State::PickColor;
       background.setFillColor(sf::Color::Cyan);
       background.setPosition(400, 400);
       set_size({200,200});
       set_padding({10.0, 10.0, 10.0, 10.0});
-      set_orientation(Orientation::Vertical);
-      auto slider_R = std::make_unique<Slider>(0, 255, 
-          [this](float new_r) {r = new_r;});
+      set_orientation(Orientation::Horizontal);
+      auto slider_R = std::make_unique<ColorSlider>(0, 255, 
+          [this](float new_r) {r = new_r;}, sf::Color::Red);
       slider_R->set_size({50.0, 100.0});
       slider_R->set_color(sf::Color::White);
+      auto slider_G = std::make_unique<ColorSlider>(0, 255, 
+          [this](float new_g) {g = new_g;}, sf::Color::Green);
+      slider_G->set_size({50.0, 100.0});
+      slider_G->set_color(sf::Color::White);
+      auto slider_B = std::make_unique<ColorSlider>(0, 255, 
+          [this](float new_b) {b = new_b;}, sf::Color::Blue);
+      slider_B->set_size({50.0, 100.0});
+      slider_B->set_color(sf::Color::White);
+
+      auto color_preview = std::make_unique<ColorPreview>(r,g,b);
 
       add_elem(std::move(slider_R));
+      add_elem(std::move(slider_G));
+      add_elem(std::move(slider_B));
+      add_elem(std::move(color_preview));
     }
 
     void draw(sf::RenderWindow& _window,
