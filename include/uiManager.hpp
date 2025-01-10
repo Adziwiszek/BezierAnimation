@@ -62,7 +62,6 @@ namespace UI {
     }
 
     void draw(sf::RenderTarget& target, const InputState& input) {
-      
       Vec2f offset{20.0, 20.0};
       background.setPosition(input.mouse_position + offset);
       text.setPosition({
@@ -89,7 +88,7 @@ namespace UI {
     bool stretch_height{false};
     bool stretch_width{false};
 
-    virtual void draw(sf::RenderWindow& _window,
+    virtual void draw(sf::RenderWindow& _window, sf::RenderTarget& tooltip_targ,
         std::vector<std::string> selected,
         const InputState& input) = 0;
     virtual Vec2f calculate_size() = 0;
@@ -115,7 +114,7 @@ namespace UI {
     ImageElement(const sf::Texture* texture, std::string name);
     ImageElement(const sf::Texture* texture, 
         std::function<void()> handler, std::string name);
-    void draw(sf::RenderWindow& _window,
+    void draw(sf::RenderWindow& _window, sf::RenderTarget& tooltip_targ,
         std::vector<std::string> selected,
         const InputState& input) override;
     Vec2f calculate_size() override;
@@ -143,7 +142,7 @@ namespace UI {
     void update(const InputState& input) override;
     void on_click(const InputState& input) override;
     void handle_input(sf::Event event) override {};
-    void draw(sf::RenderWindow& _window,
+    void draw(sf::RenderWindow& _window, sf::RenderTarget& tooltip_targ,
         std::vector<std::string> selected,
         const InputState& input) override;
     void set_padding(Padding _pad);
@@ -223,7 +222,7 @@ namespace UI {
     void update(const InputState& input) override {
       //text.setString("Enter file path: " + input_text);
     }
-    void draw(sf::RenderWindow& window, 
+    void draw(sf::RenderWindow& window, sf::RenderTarget& tooltip_targ, 
         std::vector<std::string> selected,const InputState& input) override {
       text.setString("Enter file path: " + input_text);
 
@@ -277,7 +276,7 @@ namespace UI {
       background.setOutlineThickness(2.0);
       update_slider_position();
     }
-    void draw(sf::RenderWindow& _window,
+    void draw(sf::RenderWindow& _window, sf::RenderTarget& tooltip_targ,
         std::vector<std::string> selected,const InputState& input ) override {
       update_slider_position();
       _window.draw(background);
@@ -340,7 +339,7 @@ namespace UI {
 
       Slider::update(input);
     }
-    void draw(sf::RenderWindow& _window,
+    void draw(sf::RenderWindow& _window, sf::RenderTarget& tooltip_targ,
         std::vector<std::string> selected, const InputState& input) override {
       update_slider_position();
       _window.draw(background);
@@ -419,14 +418,14 @@ namespace UI {
           });
       update_children_position();
     }
-    void draw(sf::RenderWindow& _window,
+    void draw(sf::RenderWindow& _window, sf::RenderTarget& tooltip_targ,
         std::vector<std::string> selected, const InputState& input) override {
       auto window_size = _window.getSize();
       set_position({
           (window_size.x - size.x)/2,
           (window_size.y - size.y)/2
           });
-      Container::draw(_window, selected, input);
+      Container::draw(_window, tooltip_targ, selected, input);
     }
     void on_click(const InputState& input) override {
       Container::on_click(input);

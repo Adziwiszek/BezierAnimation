@@ -87,7 +87,7 @@ ImageElement::ImageElement(const sf::Texture* texture, std::function<void()> han
     set_on_click(handler);
 }
 
-void ImageElement::draw(sf::RenderWindow& _window,
+void ImageElement::draw(sf::RenderWindow& _window, sf::RenderTarget& tooltip_targ,
         std::vector<std::string> selected, const InputState& input) {
   if (std::find(selected.begin(), selected.end(), name) != selected.end()) {
     outline_thickness = selected_thick;
@@ -103,7 +103,7 @@ void ImageElement::draw(sf::RenderWindow& _window,
   }
 
   if(show_tooltip && tooltip.has_value()) {
-    tooltip.value().draw(_window, input);
+    tooltip.value().draw(tooltip_targ, input);
   }
 }
 
@@ -218,7 +218,7 @@ void Container::update(const InputState& input) {
   }
 }
 
-void Container::draw(sf::RenderWindow& _window, 
+void Container::draw(sf::RenderWindow& _window,sf::RenderTarget& tooltip_targ, 
     std::vector<std::string> selected,
     const InputState& input) {
   Vec2f final_size {calculate_size()};
@@ -233,7 +233,7 @@ void Container::draw(sf::RenderWindow& _window,
   Vec2f pos = position + Vec2f{padding.west, padding.north};
   for(auto& elem: children) {
     elem->set_position(pos);
-    elem->draw(_window, selected, input);
+    elem->draw(_window, tooltip_targ, selected, input);
     switch(orientation) {
       case UI::Orientation::Horizontal:
         pos.x += spacing.x + elem->size.x;
@@ -400,13 +400,24 @@ void Manager::drawUI(const InputState& input) {
   selected.push_back(color_to_string(drawing_settings.color));
   selected.push_back(std::to_string(drawing_settings.thickness));
 
-  optional<Tooltip> tooltip_to_draw;
+  sf::RenderTexture tooltip_targ;
+  if (!tooltip_targ.create(window.getSize().x, window.getSize().y)) {
+    std::cerr << "Failed to create render texture" << std::endl;
+    return;
+  }
+  tooltip_targ.clear(sf::Color::Transparent);
 
   for(auto& elem: elements) {
     if(check_if_elem_can_act(elem, current_state)) {
-      elem->draw(window, selected, input);
+      elem->draw(window, tooltip_targ, selected, input);
     }
   }
+
+  tooltip_targ.display();
+  sf::Sprite sprite(tooltip_targ.getTexture());
+  sprite.setColor(sprite.getColor());
+
+  window.draw(sprite);
 }
 
 bool Manager::load_texture(const std::string& path) {
