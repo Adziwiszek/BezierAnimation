@@ -141,27 +141,28 @@ void draw_background_curves_from_frame(
 void User::draw(sf::RenderWindow *window) {
   for(int i = 0; i < frames->size(); i++) {
     auto frame = frames->at(i);
+
+    if(current_state != State::PlayAnimation) {
+      if(frames->at((i + 1) % frames->size())->get_id() == active_frame->get_id()) {
+        draw_background_curves_from_frame(frame, window, 100,
+            current_state, drawer);
+      }
+      if(frames->at((i + 2) % frames->size())->get_id() == active_frame->get_id()) {
+        draw_background_curves_from_frame(frame, window, 50,
+            current_state, drawer);
+      }
+      if(frames->at((i - 1 + frames->size()) % frames->size())->get_id() == active_frame->get_id()) {
+        draw_background_curves_from_frame(frame, window, 100,
+            current_state, drawer);
+      }
+      if(frames->at((i - 2 + frames->size()) % frames->size())->get_id() == active_frame->get_id()) {
+        draw_background_curves_from_frame(frame, window, 50,
+            current_state, drawer);
+      }
+    }
     if(frame->get_id() == active_frame->get_id()) {
       draw_bclines_from_frame(frame, window, 255);
     } 
-    if(current_state == State::PlayAnimation)
-      continue;
-    if(frames->at((i + 1) % frames->size())->get_id() == active_frame->get_id()) {
-      draw_background_curves_from_frame(frame, window, 100,
-          current_state, drawer);
-    }
-    if(frames->at((i + 2) % frames->size())->get_id() == active_frame->get_id()) {
-      draw_background_curves_from_frame(frame, window, 50,
-          current_state, drawer);
-    }
-    if(frames->at((i - 1 + frames->size()) % frames->size())->get_id() == active_frame->get_id()) {
-      draw_background_curves_from_frame(frame, window, 100,
-          current_state, drawer);
-    }
-    if(frames->at((i - 2 + frames->size()) % frames->size())->get_id() == active_frame->get_id()) {
-      draw_background_curves_from_frame(frame, window, 50,
-          current_state, drawer);
-    }
   }
 
   ui_manager.drawUI();

@@ -14,8 +14,11 @@
 #include "frame.hpp"
 #include "userUtils.hpp"
 
+#define STR_VALUE(arg)      #arg
+
 using std::optional;
 class InputHandler;
+
 
 namespace UI {
   constexpr static float selected_thick{4.0};
@@ -31,6 +34,7 @@ namespace UI {
     float south;
   };
   
+  std::string color_to_string(const sf::Color& color);
 
   class Element {
   protected:
@@ -57,6 +61,7 @@ namespace UI {
   };
 
   class ImageElement : public Element {
+  protected:
     std::string name;
     sf::Sprite sprite;
     std::function<void()> on_click_lam;
@@ -206,7 +211,6 @@ namespace UI {
   protected:
     float max_value{0};
     float min_value{0};
-    float current_value{0};
     std::function<void(float)> on_value_change;
     bool started_sliding{false};
     sf::RectangleShape slider_indicator;
@@ -221,6 +225,8 @@ namespace UI {
       slider_indicator.setPosition({position.x, indicator_y});
     }
   public:
+    float current_value{0};
+
     Slider(float minv, float maxv, std::function<void(float)> onvalchange):
       max_value{maxv}, min_value{minv}, current_value{(max_value-min_value)/2},
       on_value_change{onvalchange}
@@ -310,22 +316,27 @@ namespace UI {
   public:
     ColorPreview(float& _r, float& _g, float &_b):
       r{_r}, g{_g}, b{_b}, ImageElement("color_preview")
+    {set_color(sf::Color(r, g, b));}
+    ColorPreview(float& _r, float& _g, float &_b, std::function<void()> handler):
+      r{_r}, g{_g}, b{_b}, ImageElement(sf::Color::White, handler, "color_picker")
     {
-
+      set_color(sf::Color(r, g, b));
+      std::cout << color_to_string(background.getFillColor()) << std::endl;
     }
     void update(const InputState& input)  override {
       set_color(sf::Color(r, g, b));
+      name = color_to_string(sf::Color(r, g, b));
       ImageElement::update(input);
     }
   };
 
   class ColorPicker : public Container {
+  public:
+    float r,g,b;
     sf::Color selected_color{sf::Color::Red};
     sf::Color old_color{selected_color};
-    float r,g,b;
-  public:
+
     ColorPicker(sf::Vector2<unsigned int> window_size) {
-      r = g = b = 0.0;
       spacing={10.0,0};
       background.setOutlineThickness(2.0);
       background.setOutlineColor(sf::Color::Black);
@@ -347,6 +358,13 @@ namespace UI {
       slider_B->set_color(sf::Color::White);
 
       auto color_preview = std::make_unique<ColorPreview>(r,g,b);
+      r = slider_R->current_value;
+      g = slider_G->current_value;
+      b = slider_B->current_value;
+      std::cout << "r = " << r <<
+        "g = " << g << "b = " << b << std::endl;
+
+      selected_color = sf::Color(r,g,b);
 
       add_elem(std::move(slider_R));
       add_elem(std::move(slider_G));
@@ -360,7 +378,6 @@ namespace UI {
           });
       update_children_position();
     }
-
     void draw(sf::RenderWindow& _window,
         std::vector<std::string> selected) override {
       auto window_size = _window.getSize();
@@ -370,12 +387,15 @@ namespace UI {
           });
       Container::draw(_window, selected);
     }
-
-    //Vec2f calculate_size() override {return size;};
     void on_click(const InputState& input) override {
       Container::on_click(input);
     }
     void update(const InputState& input)  override {
+      selected_color = sf::Color(
+        static_cast<sf::Uint8>(r),
+        static_cast<sf::Uint8>(g),
+        static_cast<sf::Uint8>(b)
+      );
       Container::update(input);
     }
     void handle_input(sf::Event event) override{}

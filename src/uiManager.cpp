@@ -4,12 +4,14 @@
 #define STR_VALUE(arg)      #arg
 using UI::Element, UI::ImageElement, UI::Container, UI::Manager;
 
-std::string color_to_string(const sf::Color& color) {
+std::string UI::color_to_string(const sf::Color& color) {
   if (color == sf::Color::Green) return "Green";
   if (color == sf::Color::Red) return "Red";
   if (color == sf::Color::Blue) return "Blue";
   if (color == sf::Color::White) return "White";
-  return "Unknown";
+  return std::to_string(color.r) + " " + 
+    std::to_string(color.g) + " " +
+    std::to_string(color.b) + " ";
 }
 
 void Element::set_position(Vec2f _pos) {
@@ -253,6 +255,8 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
   add_change_state_button(action_cont2, State::Move, "pause.png");
   action_cont2->add_elem(std::make_unique<ImageElement>("dupa"));
 
+  auto color_picker = std::make_unique<UI::ColorPicker>(_window.getSize());
+
   auto color_container = std::make_unique<Container>();
   color_container->set_color(sf::Color::Cyan);
   color_container->set_padding(Padding{10.0, 10.0, 10.0, 10.0});
@@ -268,6 +272,12 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
   add_color_button(sf::Color::Red);
   add_color_button(sf::Color::Blue);
   add_color_button(sf::Color::White);
+  auto color_picker_preview = std::make_unique<UI::ColorPreview>(
+        color_picker->r, color_picker->g, color_picker->b,
+        [this, color_picker = color_picker.get()]() {
+          drawing_settings.selected_col = color_picker->selected_color;
+          });
+  color_container->add_elem(std::move(color_picker_preview));
 
   auto size_container = std::make_unique<Container>();
   size_container->set_color(sf::Color::Cyan);
@@ -294,6 +304,7 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
   col1->add_elem(std::move(action_cont1));
   col1->add_elem(std::move(size_container));
 
+
   auto col2 = std::make_unique<Container>(); 
   col2->set_position({0.0, 0.0});
   col2->set_orientation(Orientation::Vertical);
@@ -319,12 +330,13 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
       animation_state);
   elements.push_back(std::move(text_inp));
   elements.push_back(std::move(final_container));
-  elements.push_back(std::make_unique<UI::ColorPicker>(_window.getSize()));
 
   for(const auto& elem: elements) {
     max_size.x = std::max(max_size.x, elem->calculate_size().x);
     max_size.y = std::max(max_size.y, elem->calculate_size().y);
   }
+
+  elements.push_back(std::move(color_picker));
 }
 
 void Manager::drawUI() {

@@ -57,6 +57,15 @@ int main(int argc, char **argv)
     input_state.update_mouse(window);
     input_state.update_dt(dt.asSeconds()); 
 
+    // Create an FPS text element
+    sf::Text fpsText;
+    fpsText.setFont(font);
+    fpsText.setCharacterSize(24);
+    fpsText.setFillColor(sf::Color::White);
+    fpsText.setPosition(600.f, 10.f);
+    float fps = 1.f / dt.asSeconds();
+    fpsText.setString("FPS: " + std::to_string(static_cast<int>(fps)));
+
     sf::Event event;
     while (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed)
@@ -75,9 +84,9 @@ int main(int argc, char **argv)
     frame_info.setString(state_text);
 
     window.clear(sf::Color{66, 66, 66});
-    //window.clear(sf::Color::Black);
     user.draw(&window);
     window.draw(frame_info);
+    window.draw(fpsText);
     window.display();
   }
   
