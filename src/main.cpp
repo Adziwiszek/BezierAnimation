@@ -123,6 +123,9 @@ std::string state_to_str(State st) {
     case Help:
       return  "Help";
       break;
+    case SavingGif:
+      return  "SavingGif";
+      break;
   }
   return "undef";
 }

@@ -76,7 +76,7 @@ namespace UI {
   class Element {
   protected:
   public: 
-    optional<State> required_state{std::nullopt}; 
+    optional<std::vector<State>> required_state{std::nullopt}; 
     optional<Tooltip> tooltip{std::nullopt};
     bool show_tooltip{false};
     sf::RectangleShape background; 
@@ -190,7 +190,10 @@ namespace UI {
   public:
     TextInput(State& cs, Vec2f pos, AnimationState& as): 
       current_state{cs}, center_pos{pos}, animation_state{as} { 
-      required_state = State::Saving;
+      required_state = std::vector<State>{State::Saving, State::SavingGif};
+      /*required_state->push_back(State::Saving);
+      required_state->push_back(State::SavingGif);*/
+
       if (!font.loadFromFile("assets/Roboto-Black.ttf")) {
           throw std::runtime_error("Failed to load font");
       }
@@ -208,6 +211,7 @@ namespace UI {
           started_typing = true;
           return;
         }
+        
         // enter
         if (event.text.unicode == 13) {
           // Remove any trailing '\r' characters
@@ -221,7 +225,7 @@ namespace UI {
           started_typing = false;
         }
         if (event.text.unicode == 8 && !input_text.empty()) {
-          input_text.pop_back();  // Remove last character
+          input_text.pop_back(); 
         }
         else if (event.text.unicode < 128 && event.text.unicode != 8) {
           input_text += static_cast<char>(event.text.unicode);
@@ -229,6 +233,8 @@ namespace UI {
       }
     }
     void update(const InputState& input) override {
+      if(current_state != State::SavingGif && current_state != State::Saving)
+        started_typing = false;
       //text.setString("Enter file path: " + input_text);
     }
     void draw(sf::RenderWindow& window, sf::RenderTarget& tooltip_targ, 
@@ -386,13 +392,17 @@ namespace UI {
     sf::Color old_color{selected_color};
 
     ColorPicker(sf::Vector2<unsigned int> window_size) {
-      spacing={10.0,0};
+      required_state = std::vector<State>();
+      required_state->push_back(State::PickColor);
+
       background.setOutlineThickness(2.0);
       background.setOutlineColor(sf::Color::Black);
-      required_state = State::PickColor;
       background.setFillColor(sf::Color::Cyan);
+
+      spacing={10.0,0};
       set_padding({10.0, 10.0, 10.0, 10.0});
       set_orientation(Orientation::Horizontal);
+
       auto slider_R = std::make_unique<ColorSlider>(0, 255, 
           [this](float new_r) {r = new_r;}, sf::Color::Red);
       slider_R->set_size({70.0, 200.0});

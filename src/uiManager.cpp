@@ -442,8 +442,9 @@ void Manager::handle_click(const InputState& input) {
 
 void Manager::handle_input(sf::Event event) {
   for(const auto& elem: elements) {
-    if(check_if_elem_can_act(elem, current_state)) 
+    if(check_if_elem_can_act(elem, current_state)) {
       elem->handle_input(event); 
+    }
   }
 }
 
@@ -458,7 +459,10 @@ void Manager::update(const InputState& input) {
 bool Manager::check_if_elem_can_act(const std::unique_ptr<Element>& elem,
     const State& curr_state) {
   if(elem->required_state.has_value()) {
-    return elem->required_state.value() == curr_state;
+    for(const auto& st: elem->required_state.value()) {
+      if(st == curr_state) return true;
+    }
+    return false;
   }
   return true;
 }

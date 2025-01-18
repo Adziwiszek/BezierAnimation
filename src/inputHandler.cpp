@@ -18,7 +18,7 @@ InputHandler::InputHandler(std::shared_ptr<Frame>& active_frame,
     drawing_settings{ds} {}
 
 void InputHandler::handle_event(sf::Event event, InputState& input) {
-  if(current_state == State::Saving) {
+  if(current_state == State::Saving || current_state == State::SavingGif) {
     ui_manager.handle_input(event);
   }
   if (event.type == sf::Event::MouseButtonPressed) {
@@ -214,12 +214,13 @@ void InputHandler::prev_frame() {
 
 void InputHandler::handle_key_pressed(sf::Keyboard::Key key, const InputState& input) {
   // we want to type when saving
-  if(current_state == Saving) {
+  if(current_state == Saving || current_state == SavingGif) {
     if(key == sf::Keyboard::Key::Escape) { 
       switch_to_state(State::Move, "");
     }
-    else return;
+    return;
   }
+
   switch (key) {
     case sf::Keyboard::Key::G:
       switch_to_state(State::AddCurve, "AddCurve");
