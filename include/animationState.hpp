@@ -21,6 +21,8 @@ public:
 
   void save_to_file(std::string filename);
   void load_from_file(std::string filename);
+  void save_to_gif(std::string filename, int delay,
+      const std::shared_ptr<Frames> frames_to_draw, const Vec2f window_size);
 
   std::shared_ptr<Frames> frames; 
   std::shared_ptr<Frame> active_frame;

@@ -1,5 +1,9 @@
 #include "../include/animationState.hpp"
+#include "../include/gif.h"
+#include "../include/drawer.hpp"
+#include "../include/userUtils.hpp"
 #include <iostream>
+
 using std::cout, std::endl;
 
 AnimationState::AnimationState(AnimationManager& am):
@@ -27,6 +31,40 @@ void AnimationState::prev_frame() {
   }
   active_frame->active_curve = nullptr;
   active_frame->active_point = nullptr;
+}
+
+
+void AnimationState::save_to_gif(std::string filename, int delay,
+    const std::shared_ptr<Frames> frames_to_draw, const Vec2f window_size) {
+  GifWriter gifWriter;
+  GifBegin(&gifWriter, filename.c_str(), window_size.x, window_size.y, delay);
+
+  sf::RenderTexture rtex;
+  if(!rtex.create(window_size.x, window_size.y)) {
+      std::cerr << "failed to init render texture in save_to_gif" << std::endl;
+  }
+
+  for(const auto& frame: *frames_to_draw) {
+    // drawing frames onto sf::Image
+    rtex.clear();
+    Drawer::draw_frame(rtex, frame, State::PlayAnimation);
+    rtex.display();
+    sf::Image frame_img = rtex.getTexture().copyToImage();
+
+    const sf::Uint8* pixels = frame_img.getPixelsPtr();
+    std::vector<uint8_t> gifPixels;
+    // drawing frame_img onto the gif
+    for (size_t i = 0; i < frame_img.getSize().x * frame_img.getSize().y; ++i) {
+      gifPixels.push_back(pixels[i * 4]);       // R
+      gifPixels.push_back(pixels[i * 4 + 1]);   // G
+      gifPixels.push_back(pixels[i * 4 + 2]);   // B
+    }
+
+    GifWriteFrame(&gifWriter, gifPixels.data(), frame_img.getSize().x, 
+        frame_img.getSize().y, delay);  
+  }
+
+  GifEnd(&gifWriter);
 }
 
 void AnimationState::add_frame(bool copy_frame) {
