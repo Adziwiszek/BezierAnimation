@@ -380,6 +380,7 @@ Manager::Manager(sf::RenderWindow& _window, InputHandler& input_handler,
     max_size.y = std::max(max_size.y, elem->calculate_size().y);
   }
 
+  max_ui_x = max_size.x;
   elements.push_back(std::move(color_picker));
 }
 

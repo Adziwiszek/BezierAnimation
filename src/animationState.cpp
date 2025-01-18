@@ -35,8 +35,11 @@ void AnimationState::prev_frame() {
 
 
 void AnimationState::save_to_gif(std::string filename, int delay,
-    const std::shared_ptr<Frames> frames_to_draw, const Vec2f window_size) {
-  GifWriter gifWriter;
+    const std::shared_ptr<Frames> frames_to_draw, const sf::Vector2u window_size,
+    sf::Color background) {
+  unsigned width = window_size.x;
+  unsigned height = window_size.y;
+  GifWriter gifWriter = {};
   GifBegin(&gifWriter, filename.c_str(), window_size.x, window_size.y, delay);
 
   sf::RenderTexture rtex;
@@ -46,25 +49,26 @@ void AnimationState::save_to_gif(std::string filename, int delay,
 
   for(const auto& frame: *frames_to_draw) {
     // drawing frames onto sf::Image
-    rtex.clear();
+    rtex.clear(background);
     Drawer::draw_frame(rtex, frame, State::PlayAnimation);
     rtex.display();
     sf::Image frame_img = rtex.getTexture().copyToImage();
 
     const sf::Uint8* pixels = frame_img.getPixelsPtr();
-    std::vector<uint8_t> gifPixels;
-    // drawing frame_img onto the gif
-    for (size_t i = 0; i < frame_img.getSize().x * frame_img.getSize().y; ++i) {
-      gifPixels.push_back(pixels[i * 4]);       // R
-      gifPixels.push_back(pixels[i * 4 + 1]);   // G
-      gifPixels.push_back(pixels[i * 4 + 2]);   // B
+    uint8_t gif_pixels[width * height * 4];
+    for(size_t i = 0; i < width * height; i++) {
+      gif_pixels[i * 4] = pixels[i * 4];
+      gif_pixels[i * 4 + 1] = pixels[i * 4 + 1];
+      gif_pixels[i * 4 + 2] = pixels[i * 4 + 2];
+      gif_pixels[i * 4 + 3] = 255;
     }
 
-    GifWriteFrame(&gifWriter, gifPixels.data(), frame_img.getSize().x, 
+    GifWriteFrame(&gifWriter, gif_pixels, frame_img.getSize().x, 
         frame_img.getSize().y, delay);  
   }
 
   GifEnd(&gifWriter);
+  std::cout << "Succesfully saved gif to " << filename << std::endl;
 }
 
 void AnimationState::add_frame(bool copy_frame) {

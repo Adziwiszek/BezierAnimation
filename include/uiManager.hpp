@@ -156,12 +156,14 @@ namespace UI {
   class Manager {
     std::vector<std::unique_ptr<Element>> elements;
     std::unordered_map<std::string, sf::Texture> textures;
-    sf::RenderWindow& window;
     DrawingSettings& drawing_settings;
     State& current_state;
     sf::Font font;
 
   public:
+    unsigned max_ui_x{0};
+    sf::RenderWindow& window;
+
     Vec2f max_size{0.0, 0.0};
     Manager(sf::RenderWindow& _window, InputHandler& input_handler,
         DrawingSettings& ds, State& st, AnimationState& animation_state);
