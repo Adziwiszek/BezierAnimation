@@ -278,10 +278,11 @@ void InputHandler::handle_key_pressed(sf::Keyboard::Key key, const InputState& i
       }
       break;
     case sf::Keyboard::Key::F2: 
-      animation_state.save_to_gif("test.gif", 10, frames, {
+      switch_to_state(State::SavingGif, "");
+      /*animation_state.save_to_gif("test.gif", 10, frames, {
           ui_manager.window.getSize().x - ui_manager.max_ui_x, 
           ui_manager.window.getSize().y
-          }, sf::Color::Blue);
+          }, sf::Color::Blue);*/
       break;
     default:
       break;

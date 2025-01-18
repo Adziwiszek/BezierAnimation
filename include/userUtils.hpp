@@ -14,6 +14,7 @@ enum State {
   PlayAnimation,
   Delete,
   Saving,
+  SavingGif,
   PickColor,
   Help,
   DeleteFrame,

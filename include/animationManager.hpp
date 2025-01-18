@@ -13,7 +13,7 @@ public:
   void play_animation(float dt);
   
   void set_fps(int);
-  unsigned get_fsp() const;
+  unsigned get_fps() const;
 private:
   std::shared_ptr<Frame>& active_frame;
   std::shared_ptr<Frames>& frames;  

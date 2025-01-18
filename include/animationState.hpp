@@ -8,7 +8,7 @@
 
 class AnimationState {
 public:
-  AnimationState(AnimationManager& am);
+  AnimationState(AnimationManager& am, sf::Vector2u ws);
   void next_frame(); 
   void prev_frame();
   void add_frame(bool copy_frame);
@@ -21,13 +21,13 @@ public:
 
   void save_to_file(std::string filename);
   void load_from_file(std::string filename);
-  void save_to_gif(std::string filename, int delay,
-      const std::shared_ptr<Frames> frames_to_draw, const sf::Vector2u window_size,
-      sf::Color background);
+  void save_to_gif(std::string filename);
 
+  sf::Color background_color{66,66,66};
   std::shared_ptr<Frames> frames; 
   std::shared_ptr<Frame> active_frame;
 private:
+  sf::Vector2u window_size;
   AnimationManager& animation_manager;
   unsigned frame_counter {0};
   unsigned frame_index {0};

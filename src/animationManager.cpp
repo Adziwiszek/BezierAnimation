@@ -25,7 +25,7 @@ void AnimationManager::play_animation(float dt) {
   active_frame = (*frames)[anim_id];
 }
 
-unsigned AnimationManager::get_fsp() const {
+unsigned AnimationManager::get_fps() const {
   return fps;
 }
 

@@ -212,7 +212,11 @@ namespace UI {
         if (event.text.unicode == 13) {
           // Remove any trailing '\r' characters
           input_text.erase(std::remove(input_text.begin(), input_text.end(), '\r'), input_text.end());
-          animation_state.save_to_file(input_text);
+          if(current_state == State::Saving) {
+            animation_state.save_to_file(input_text);
+          } else if(current_state == State::SavingGif) {
+            animation_state.save_to_gif(input_text);
+          }
           current_state = State::Normal;
           started_typing = false;
         }

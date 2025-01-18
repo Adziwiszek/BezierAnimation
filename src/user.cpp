@@ -1,7 +1,7 @@
 #include "../include/user.hpp"
 
 User::User(sf::RenderWindow& _window) : 
-    animation_state(animation_manager),
+    animation_state(animation_manager, _window.getSize()),
     drawer(_window), 
     animation_manager(animation_state.frames, animation_state.active_frame),
     ui_manager(_window, input_handler, drawing_settings, current_state, animation_state),
@@ -25,7 +25,7 @@ void User::handle_input(sf::Event event, InputState& input) {
 }
 
 unsigned User::get_fps() {
-  return animation_manager.get_fsp();
+  return animation_manager.get_fps();
 }
 
 unsigned update_index(Frames &frames, Frames::iterator it) {

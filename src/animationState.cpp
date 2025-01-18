@@ -6,9 +6,10 @@
 
 using std::cout, std::endl;
 
-AnimationState::AnimationState(AnimationManager& am):
+AnimationState::AnimationState(AnimationManager& am, sf::Vector2u ws):
   animation_manager{am}, active_frame{nullptr},
-  frames{std::make_shared<Frames>()} {}
+  frames{std::make_shared<Frames>()},
+  window_size{ws} {}
 
 void AnimationState::next_frame() {
   if(frame_index < frames->size() - 1) { 
@@ -34,22 +35,22 @@ void AnimationState::prev_frame() {
 }
 
 
-void AnimationState::save_to_gif(std::string filename, int delay,
-    const std::shared_ptr<Frames> frames_to_draw, const sf::Vector2u window_size,
-    sf::Color background) {
+void AnimationState::save_to_gif(std::string filename) {
   unsigned width = window_size.x;
   unsigned height = window_size.y;
+  unsigned fps = animation_manager.get_fps();
   GifWriter gifWriter = {};
-  GifBegin(&gifWriter, filename.c_str(), window_size.x, window_size.y, delay);
+  GifBegin(&gifWriter, filename.c_str(), window_size.x, window_size.y,
+      fps);
 
   sf::RenderTexture rtex;
   if(!rtex.create(window_size.x, window_size.y)) {
       std::cerr << "failed to init render texture in save_to_gif" << std::endl;
   }
 
-  for(const auto& frame: *frames_to_draw) {
+  for(const auto& frame: *frames) {
     // drawing frames onto sf::Image
-    rtex.clear(background);
+    rtex.clear(background_color);
     Drawer::draw_frame(rtex, frame, State::PlayAnimation);
     rtex.display();
     sf::Image frame_img = rtex.getTexture().copyToImage();
@@ -64,7 +65,7 @@ void AnimationState::save_to_gif(std::string filename, int delay,
     }
 
     GifWriteFrame(&gifWriter, gif_pixels, frame_img.getSize().x, 
-        frame_img.getSize().y, delay);  
+        frame_img.getSize().y, fps);  
   }
 
   GifEnd(&gifWriter);
@@ -87,7 +88,7 @@ void AnimationState::add_frame(bool copy_frame) {
 }
 
 void AnimationState::change_fps(int c) {
-  animation_manager.set_fps((int)animation_manager.get_fsp() + c);
+  animation_manager.set_fps((int)animation_manager.get_fps() + c);
 }
 
 unsigned AnimationState::get_frame_index() {
