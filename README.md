@@ -29,11 +29,14 @@ f - new frame
 To compile:
 
 ```> mkdir build```
+
 ```> cd build```
+
 ```> cmake ..```
+
 ```> make ```
  
---
+---
 
 To run: (This way, from terminal, is recomended. Another way may not work:P)
 ```> ./build/bin/BezierAnimation [optional: path to file you want to open]```
